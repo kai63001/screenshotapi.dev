@@ -4,19 +4,31 @@
 
 	import Button from '$lib/components/Button.svelte';
 	import Icon from '@iconify/svelte';
+	import Navbar from '$lib/components/index/Navbar.svelte';
 </script>
 
-<header class=" py-8">
-	<div class="max-w-xl md:max-w-7xl m-auto flex space-x-3 justify-between">
+<svelte:head>
+	<title>SnapCapture: Easy Webpage Screenshot API for Developers & Businesses</title>
+	<meta
+		name="description"
+		content="Discover SnapCapture, the user-friendly screenshot API designed for seamless integration. Capture high-quality webpage screenshots with our fast, customizable tool. Ideal for developers and businesses, SnapCapture enhances your project with efficient web capture technology. Start simplifying your content management and web archiving today."
+	/>
+</svelte:head>
+<header>
+	<Navbar />
+	<div class="max-w-xl md:max-w-7xl px-2 m-auto flex space-x-3 justify-between pt-28">
 		<div class="w-6/12">
 			<h1 class="text-5xl font-bold heading leading-tight text-gray-900">
-				Revolutionize Your Web Captures with Our Cutting-Edge Screenshot API
+				Capture Webpages Easily with Our Simple <span
+					class="bg-gradient-to-r from-rose-400 to-red-500 bg-clip-text text-transparent"
+					>Screenshot API</span
+				>.
 			</h1>
 			<p class="text-lg text-gray-500 mt-5">
 				Effortless, High-Quality Webpage Screenshots in Seconds {'–'}
 				<strong>Fully Customizable to Fit Your Unique Needs.</strong>
 				Tailored for Developers and Businesses.
-				<a class="text-blue-600 hover:underline" href="/"> Learn More. </a>
+				<a class="text-secondary hover:underline" href="/"> Learn More. </a>
 			</p>
 			<Button class="mt-5 flex items-center space-x-2 shadow-md"
 				>Get started for free <Icon
@@ -29,21 +41,21 @@
 		</div>
 		<div class="w-6/12">
 			<div class="shadow-xl">
-				<div class="bg-gray-800 py-2 px-3 flex justify-end">
+				<div class="bg-gray-800 py-2 px-3 flex justify-end flex-row-reverse rounded-t">
 					<div class="mac-menu-bar-dot h-5 w-5 flex items-center">
-						<div class='bg-yellow-400 w-1 h-1'></div>
+						<div class="bg-yellow-400 w-1 h-1" />
 					</div>
 					<div class="mac-menu-bar-dot h-5 w-5 grid grid-cols-2 p-1 gap-0.5 mr-2">
-						<div class='bg-green-400 w-1 h-1'></div>
-						<div class='bg-green-400 w-1 h-1'></div>
-						<div class='w-1 h-1'></div>
-						<div class='bg-green-400 w-1 h-1'></div>
+						<div class="bg-green-400 w-1 h-1" />
+						<div class="bg-green-400 w-1 h-1" />
+						<div class="w-1 h-1" />
+						<div class="bg-green-400 w-1 h-1" />
 					</div>
 					<div class="mac-menu-bar-dot h-5 w-5 grid grid-cols-2 p-1 gap-0.5">
-						<div class='bg-red-400 w-1 h-1'></div>
-						<div class='bg-red-400 w-1 h-1'></div>
-						<div class='bg-red-400 w-1 h-1'></div>
-						<div class='bg-red-400 w-1 h-1'></div>
+						<div class="bg-red-400 w-1 h-1" />
+						<div class="bg-red-400 w-1 h-1" />
+						<div class="bg-red-400 w-1 h-1" />
+						<div class="bg-red-400 w-1 h-1" />
 					</div>
 				</div>
 				<img loading="eager" src={bg} width={'100%'} alt="google" />
