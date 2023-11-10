@@ -59,7 +59,7 @@
 			<li><a href="/login">Login</a></li>
 			<li>
 				<a href="/signup">
-					<Button class="py-1.5 my-3 px-4">Get stated for free</Button>
+					<Button class="py-1.5 my-3 px-3 rounded">Get stated for Free</Button>
 				</a>
 			</li>
 		</ul>
@@ -84,7 +84,7 @@
 				{/each}
 				<div class="border-b" />
 				<li class="py-2 w-full"><a href="/login">Login</a></li>
-				<li class="py-2 w-full"><a href="/signup"> Get started for free </a></li>
+				<li class="py-2 w-full"><a href="/signup"> Get started for Free </a></li>
 			</div>
 		</ul>
 	</div>

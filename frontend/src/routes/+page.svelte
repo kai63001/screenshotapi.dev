@@ -31,7 +31,7 @@
 				<a class="text-secondary hover:underline" href="/"> Learn More. </a>
 			</p>
 			<Button class="mt-5 flex items-center space-x-2 shadow-md"
-				>Get started for free <Icon
+				>Get started for Free <Icon
 					class="ml-2"
 					icon="material-symbols:arrow-right-alt-rounded"
 					width="25"
