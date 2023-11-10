@@ -29,6 +29,7 @@
 	"type": "module",
 	"dependencies": {
 		"pocketbase": "^0.19.0",
+		"svelte-french-toast": "^1.2.0",
 		"vite-imagetools": "^6.2.3"
 	}
 }
