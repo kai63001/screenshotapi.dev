@@ -1,0 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Rubik:wght@500&family=Source+Code+Pro:wght@300;400;500;600&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+html,
+body {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    font-display: swap;
+}
+
+.heading {
+    font-family: 'Rubik', sans-serif;
+    font-weight: bold;
+    font-display: swap;
+}
+
+.coding-font {
+    font-family: 'Source Code Pro', monospace;
+    font-display: swap;
+}
