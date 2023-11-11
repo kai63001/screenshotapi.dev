@@ -45,9 +45,11 @@ func TakeScreenshot(c echo.Context) error {
 	defer cancel()
 
 	var buf []byte
-
 	if err := chromedp.Run(ctx, screenshot(url, width, height, fullScreen, noAds, delay, &buf)); err != nil {
-		log.Fatal(err)
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"status":  "error",
+			"message": err.Error(),
+		})
 	}
 
 	return c.Blob(http.StatusOK, "image/png", buf)

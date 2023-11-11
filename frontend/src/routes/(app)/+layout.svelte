@@ -5,10 +5,11 @@
 	import avatar from '$lib/assets/avatar/man.png?w=50&h=50&format=webp&quality=100';
     import { page } from '$app/stores';
 
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount } from 'svelte';
 	import { currentUser, pb } from '$lib/pocketbase';
 	import { goto } from '$app/navigation';
 	import Icon from '@iconify/svelte';
+
 	let navbarList = [
 		{
 			name: 'Dashboard',
@@ -66,13 +67,12 @@
 <div class="flex">
 	<nav class="w-1/5 flex flex-col justify-between">
 		<div>
-			<div class="p-5 flex items-center space-x-2">
+			<a href='/' class="p-5 flex items-center space-x-2">
 				<img src={logo} alt="logo" width="30px" height="30px" loading="eager" />
 				<p class="ml-2 heading text-xl">SanpCapture</p>
-			</div>
+			</a>
 			<div class="p-5">
 				<div class="px-5 py-3 bg-[#faf9fb] rounded">
-					<!-- profile -->
 					<div class="flex items-center space-x-2">
 						<div class="w-10 h-10 rounded-full bg-[#e5e7eb]">
 							<img src={avatar} alt="avatar" width="100%" loading="eager" />

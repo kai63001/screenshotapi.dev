@@ -2,7 +2,7 @@
 	// @ts-nocheck
 	import bg from '$lib/assets/image/index/bg.png?&format=webp&quality=100';
 
-	import Button from '$lib/components/Button.svelte';
+	import Button from '$lib/components/ButtonCustom.svelte';
 	import Icon from '@iconify/svelte';
 	import Navbar from '$lib/components/index/Navbar.svelte';
 </script>
