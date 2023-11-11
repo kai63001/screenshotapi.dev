@@ -5,7 +5,7 @@
 	import avatar from '$lib/assets/avatar/man.png?w=50&h=50&format=webp&quality=100';
 
 	import { onMount } from 'svelte';
-	import { currentUser,pb } from '$lib/pocketbase';
+	import { currentUser, pb } from '$lib/pocketbase';
 	import { goto } from '$app/navigation';
 	import Icon from '@iconify/svelte';
 	let navbarList = [
@@ -95,29 +95,34 @@
 			</div>
 			<ul class="pr-5 flex flex-col space-y-1">
 				{#each navbarList as nav}
-					<li
-						class:bg-block={nav.active}
-						class="flex items-center space-x-2 cursor-pointer py-4 rounded-r-md hover:bg-red-100"
-					>
-						{#if nav.active}
-							<div class="w-1 h-7 bg-primary rounded-r-2xl" />
-						{/if}
-						<div class="pl-5 flex items-center">
-							<Icon
-								class={`${nav.active ? 'text-red-600' : 'text-gray-600'}`}
-								icon={nav.icon}
-								width="20px"
-								height="20px"
-							/>
-							<p class="ml-2 text-sm font-semibold">{nav.name}</p>
-						</div>
+					<li class:bg-block={nav.active}>
+						<a
+							href={nav.path}
+							class="flex items-center space-x-2 cursor-pointer py-4 rounded-r-md hover:bg-red-100"
+						>
+							{#if nav.active}
+								<div class="w-1 h-7 bg-primary rounded-r-2xl" />
+							{/if}
+							<div class="pl-5 flex items-center">
+								<Icon
+									class={`${nav.active ? 'text-red-600' : 'text-gray-600'}`}
+									icon={nav.icon}
+									width="20px"
+									height="20px"
+								/>
+								<p class="ml-2 text-sm font-semibold">{nav.name}</p>
+							</div>
+						</a>
 					</li>
 				{/each}
 			</ul>
 		</div>
 		<div>
 			<ul class="pr-5 pb-5">
-				<button on:click={logout} class="flex w-full items-center space-x-2 cursor-pointer py-4 rounded-r-md hover:bg-red-100">
+				<button
+					on:click={logout}
+					class="flex w-full items-center space-x-2 cursor-pointer py-4 rounded-r-md hover:bg-red-100"
+				>
 					<div class="pl-5 flex items-center">
 						<Icon icon={'basil:logout-outline'} width="20px" height="20px" />
 						<p class="ml-2 text-sm font-semibold">{'Logout'}</p>
