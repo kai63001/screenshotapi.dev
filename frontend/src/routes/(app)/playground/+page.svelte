@@ -1,12 +1,31 @@
-<script>
-	import Button from '$lib/components/ButtonCustom.svelte';
+<script lang="ts">
 	import InputField from '$lib/components/InputField.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import { Switch } from '$lib/components/ui/switch';
 	import Icon from '@iconify/svelte';
 
-    let isFullScreen = false;
+    $: url = 'https://www.shadcn-svelte.com/docs/components/label';
 
+	let isFullScreen = false;
+	let screenshot =
+		'https://cdn.dribbble.com/users/584114/screenshots/16713619/media/1dd6e9f24135ee727d378a8cfd4f54e5.png';
+
+	const takeScreenshot = async () => {
+		const apiUrl = new URL(`${import.meta.env.VITE_API_KEY}/screenshot`);
+		apiUrl.searchParams.append('url', 'https://www.shadcn-svelte.com/docs/components/label');
+		apiUrl.searchParams.append('fullScreen', 'true');
+		const response = await fetch(apiUrl.toString());
+		const blob = await response.blob();
+		const blobUrl = URL.createObjectURL(blob);
+		screenshot = blobUrl;
+	};
+
+	$: APITextConverter = () => {
+		const apiUrl = new URL(`${import.meta.env.VITE_API_KEY}/screenshot`);
+		apiUrl.searchParams.append('url', url);
+		apiUrl.searchParams.append('fullScreen', 'true');
+		return apiUrl.toString();
+	};
 </script>
 
 <div class="gap-4 grid">
@@ -20,49 +39,70 @@
 	<div class="grid gap-4 grid-cols-1 lg:grid-cols-2">
 		<div class="flex flex-col space-y-4">
 			<div class="bg-white p-5 rounded-md">
-				<InputField icon="mdi:web" label="URL" required={true} placeholder="https://example.com" />
+				<InputField bind:value={url} icon="mdi:web" label="URL" required={true} placeholder="https://example.com" />
 				<p class="text-xs text-gray-500 py-1">Enter a webpage URL here</p>
-				<div class="flex justify-end">
-					<Button class="flex items-center">
+				<div class="flex justify-end -mt-3">
+					<button
+						on:click|preventDefault={takeScreenshot}
+						class="flex items-center bg-primary hover:bg-red-600 duration-200 text-white px-6 py-3 rounded-md"
+					>
 						<Icon class="text-white mr-1" icon="tabler:capture-filled" width="20px" height="20px" />
-						Capture</Button
+						Capture</button
 					>
 				</div>
 			</div>
 			<div class="bg-white p-5 rounded-md">
 				<div class="grid grid-cols-2 gap-4">
 					<InputField
-						icon="mdi:web"
+						icon="material-symbols:width"
 						label="Width"
 						help="The browser window width."
 						type="number"
-						required={true}
 						placeholder="1280"
 					/>
 					<InputField
-						icon="mdi:web"
+						icon="material-symbols:height"
 						label="Height"
 						disabled={isFullScreen}
 						help="The browser window height."
 						type="number"
-						required={true}
 						placeholder="1024"
 					/>
 				</div>
 				<div class="flex space-x-2 items-center mt-1">
-					<Switch
-                        bind:checked={isFullScreen}
-                    />
-					<Label class="text-gray-500">Full Screen</Label>
+					<Switch bind:checked={isFullScreen} id="full-screen" />
+					<Label for="full-screen" class="text-gray-500">Full Screen</Label>
+				</div>
+			</div>
+			<div class="bg-white p-5 rounded-md">
+				<div class="grid grid-cols-2 gap-4">
+					<InputField
+						icon="mingcute:time-fill"
+						label="Delay"
+						help="Specify the delay in seconds before capturing the screenshot."
+						type="number"
+						placeholder="2"
+					/>
+					<InputField
+						icon="material-symbols:avg-time"
+						label="Timeout"
+						disabled={isFullScreen}
+						help="Should the site fail to respond within the set timeframe, the API request will be unsuccessful."
+						type="number"
+						placeholder="30"
+					/>
 				</div>
 			</div>
 		</div>
 		<div class="bg-white p-5 rounded-md">
-			<h1 class="font-bold text-2xl">API Playground</h1>
-			<p class="text-mute mt-2">
-				Experiment with our API and see how easily you can capture high-quality screenshots of web
-				pages.
-			</p>
+			<textarea
+				rows="5"
+				disabled
+				class="text-mute mt-2 w-full overflow-auto bg-[#E4E9EC] p-2 text-sm cursor-text rounded"
+				>{APITextConverter()}</textarea
+			>
+			<h2 class="text-xl font-semibold">Screenshot</h2>
+			<img src={screenshot} alt="screenshot" class="w-full mt-2 rounded-md" />
 		</div>
 	</div>
 </div>

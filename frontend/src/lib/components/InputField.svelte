@@ -3,6 +3,8 @@
 
 	let isFocused = false;
 	let inputRef: any;
+	export let value:any = undefined;
+	export let type: string = 'text';
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -27,10 +29,10 @@
 		<input
 			on:focus={() => (isFocused = true)}
 			on:blur={() => (isFocused = false)}
-			type={$$props.type || 'text'}
 			id={$$props.id}
 			name={$$props.name}
 			bind:this={inputRef}
+			bind:value
 			{...$$props}
 			class="w-full bg-transparent outline-none px-4 py-1 text-sm"
 		/>
