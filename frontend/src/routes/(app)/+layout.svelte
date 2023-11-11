@@ -1,9 +1,61 @@
 <script>
+	//@ts-ignore
+	import logo from '$lib/assets/image/snapcaptureLogo.png?w=30&h=30&format=webp&quality=100';
+	//@ts-ignore
+	import avatar from '$lib/assets/avatar/man.png?w=50&h=50&format=webp&quality=100';
+
 	import { onMount } from 'svelte';
 	import { currentUser } from '$lib/pocketbase';
 	import { goto } from '$app/navigation';
+	import Icon from '@iconify/svelte';
+	let navbarList = [
+		{
+			name: 'Dashboard',
+			icon: 'carbon:dashboard',
+			path: '/dashboard',
+			active: false
+		},
+		//access,playground,history,subscription,payments
+		{
+			name: 'Access',
+			icon: 'ph:key-bold',
+			path: '/access',
+			active: false
+		},
+		{
+			name: 'Playground',
+			icon: 'material-symbols:joystick-outline',
+			path: '/playground',
+			active: false
+		},
+		{
+			name: 'History',
+			icon: 'majesticons:image-multiple-line',
+			path: '/history',
+			active: false
+		},
+		{
+			name: 'Subscription',
+			icon: 'ion:card-outline',
+			path: '/subscription',
+			active: false
+		},
+		{
+			name: 'Payments',
+			icon: 'gg:list',
+			path: '/payments',
+			active: false
+		}
+	];
 
 	onMount(async () => {
+		const currentPath = location.pathname;
+		navbarList = navbarList.map((item) => {
+			return {
+				...item,
+				active: item.path == currentPath
+			};
+		});
 		const isAuth = $currentUser;
 		if (!isAuth) {
 			goto('/login');
@@ -11,5 +63,71 @@
 	});
 </script>
 
+<div class="flex">
+	<nav class="w-1/5 flex flex-col justify-between">
+		<div>
+			<div class="p-5 flex items-center space-x-2">
+				<img src={logo} alt="logo" width="30px" height="30px" loading="eager" />
+				<p class="ml-2 heading text-xl">SanpCapture</p>
+			</div>
+			<div class="p-5">
+				<div class="px-5 py-3 bg-[#faf9fb] rounded">
+					<!-- profile -->
+					<div class="flex items-center space-x-2">
+						<div class="w-10 h-10 rounded-full bg-[#e5e7eb]">
+							<img src={avatar} alt="avatar" width="100%" loading="eager" />
+						</div>
+						<div class="flex flex-col">
+							<p class="text-sm font-semibold capitalize">
+								{($currentUser && $currentUser.username) || ''}
+							</p>
+							<p class="text-xs text-gray-500">
+								{($currentUser && $currentUser.email) || ''}
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<ul class="pr-5 flex flex-col space-y-1">
+				{#each navbarList as nav}
+					<li
+						class:bg-block={nav.active}
+						class="flex items-center space-x-2 cursor-pointer py-4 rounded-r-md hover:bg-red-100"
+					>
+						{#if nav.active}
+							<div class="w-1 h-7 bg-primary rounded-r-2xl" />
+						{/if}
+						<div class="pl-5 flex items-center">
+							<Icon
+								class={`${nav.active ? 'text-red-600' : 'text-gray-600'}`}
+								icon={nav.icon}
+								width="20px"
+								height="20px"
+							/>
+							<p class="ml-2 text-sm font-semibold">{nav.name}</p>
+						</div>
+					</li>
+				{/each}
+			</ul>
+		</div>
+		<div>
+			<ul class="pr-5 pb-5">
+				<li class="flex items-center space-x-2 cursor-pointer py-4 rounded-r-md hover:bg-red-100">
+					<div class="pl-5 flex items-center">
+						<Icon icon={'basil:logout-outline'} width="20px" height="20px" />
+						<p class="ml-2 text-sm font-semibold">{'Logout'}</p>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</nav>
+	<div class="w-4/5 bg-[#F5F4F6] min-h-screen h-full p-5">
+		<slot />
+	</div>
+</div>
 
-<slot />
+<style scoped>
+	.bg-block {
+		background-color: #faf9fb;
+	}
+</style>
