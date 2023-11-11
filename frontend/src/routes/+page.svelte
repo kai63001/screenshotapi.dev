@@ -16,8 +16,8 @@
 </svelte:head>
 <header>
 	<Navbar />
-	<div class="max-w-xl md:max-w-7xl px-2 m-auto flex space-x-3 justify-between pt-28">
-		<div class="w-6/12">
+	<div class="max-w-xl md:max-w-7xl px-2 m-auto flex flex-col lg:flex-row space-y-3 lg:space-y-0 lg:space-x-3 justify-between pt-28">
+		<div class="w-full lg:w-6/12">
 			<h1 class="text-5xl font-bold heading leading-tight text-gray-900">
 				Capture Webpages Easily with Our Simple <span
 					class="bg-gradient-to-r from-rose-400 to-red-500 bg-clip-text text-transparent"
@@ -39,7 +39,7 @@
 			>
 			<p class="text-xs mt-1 text-gray-500">No credit card required</p>
 		</div>
-		<div class="w-6/12">
+		<div class="w-full lg:w-6/12">
 			<div class="shadow-xl">
 				<div class="bg-gray-800 py-2 px-3 flex justify-end flex-row-reverse rounded-t">
 					<div class="mac-menu-bar-dot h-5 w-5 flex items-center">

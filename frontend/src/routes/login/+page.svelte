@@ -5,6 +5,17 @@
 	import InputField from '$lib/components/InputField.svelte';
 	import Icon from '@iconify/svelte';
 	import toast, { Toaster } from 'svelte-french-toast';
+	import { goto } from '$app/navigation';
+    import {onMount} from 'svelte';
+
+    onMount(async () => {
+        const isAuth = $currentUser;
+        if(isAuth){
+            goto('/dashboard');
+        }
+    })
+
+
 
 	let loading = false;
 
