@@ -6,16 +6,14 @@
 	import Icon from '@iconify/svelte';
 	import toast, { Toaster } from 'svelte-french-toast';
 	import { goto } from '$app/navigation';
-    import {onMount} from 'svelte';
+	import { onMount } from 'svelte';
 
-    onMount(async () => {
-        const isAuth = $currentUser;
-        if(isAuth){
-            goto('/dashboard');
-        }
-    })
-
-
+	onMount(async () => {
+		const isAuth = $currentUser;
+		if (isAuth) {
+			goto('/dashboard');
+		}
+	});
 
 	let loading = false;
 
@@ -30,9 +28,9 @@
 				password
 			}),
 			{
-				loading: 'Registering...',
-				success: 'Registered successfully!',
-				error: 'Registration failed!'
+				loading: 'Logging in...',
+				success: 'Login successfully!',
+				error: 'Login failed!'
 			},
 			{
 				duration: 3000,
@@ -46,6 +44,9 @@
 			.authWithPassword(user.email, user.password)
 			.then(() => {
 				loading = false;
+				setTimeout(() => {
+					goto('/dashboard');
+				}, 1500);
 			})
 			.catch((e) => {
 				loading = false;

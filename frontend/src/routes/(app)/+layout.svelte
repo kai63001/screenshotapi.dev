@@ -5,7 +5,7 @@
 	import avatar from '$lib/assets/avatar/man.png?w=50&h=50&format=webp&quality=100';
 
 	import { onMount } from 'svelte';
-	import { currentUser } from '$lib/pocketbase';
+	import { currentUser,pb } from '$lib/pocketbase';
 	import { goto } from '$app/navigation';
 	import Icon from '@iconify/svelte';
 	let navbarList = [
@@ -61,6 +61,11 @@
 			goto('/login');
 		}
 	});
+
+	const logout = async () => {
+		await pb.authStore.clear();
+		goto('/login');
+	};
 </script>
 
 <div class="flex">
@@ -112,12 +117,12 @@
 		</div>
 		<div>
 			<ul class="pr-5 pb-5">
-				<li class="flex items-center space-x-2 cursor-pointer py-4 rounded-r-md hover:bg-red-100">
+				<button on:click={logout} class="flex w-full items-center space-x-2 cursor-pointer py-4 rounded-r-md hover:bg-red-100">
 					<div class="pl-5 flex items-center">
 						<Icon icon={'basil:logout-outline'} width="20px" height="20px" />
 						<p class="ml-2 text-sm font-semibold">{'Logout'}</p>
 					</div>
-				</li>
+				</button>
 			</ul>
 		</div>
 	</nav>
