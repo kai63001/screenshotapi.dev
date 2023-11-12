@@ -28,6 +28,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"axios": "^1.6.1",
 		"bits-ui": "^0.9.4",
 		"clsx": "^2.0.0",
 		"lucide-svelte": "^0.292.0",

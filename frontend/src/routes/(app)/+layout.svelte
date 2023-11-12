@@ -58,6 +58,7 @@
 	});
 
 	const logout = async () => {
+		await localStorage.removeItem('access_key');
 		await pb.authStore.clear();
 		goto('/login');
 	};
@@ -73,8 +74,8 @@
 			<div class="p-5">
 				<div class="px-5 py-3 bg-[#faf9fb] rounded">
 					<div class="flex items-center space-x-2">
-						<div class="w-10 h-10 rounded-full bg-[#e5e7eb]">
-							<img src={avatar} alt="avatar" width="100%" loading="eager" />
+						<div class="hidden xl:block w-10 h-10 rounded-full bg-[#e5e7eb]">
+							<img src={avatar} alt="avatar" width="40px" height="40px" loading="eager" />
 						</div>
 						<div class="flex flex-col">
 							<p class="text-sm font-semibold capitalize">

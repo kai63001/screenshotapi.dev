@@ -8,11 +8,27 @@ import (
 
 	"github.com/chromedp/chromedp"
 	"github.com/labstack/echo/v5"
+	"github.com/pocketbase/dbx"
+
+	module "backend/module"
 )
 
-func TakeScreenshot(c echo.Context) error {
+func TakeScreenshot(c echo.Context, db dbx.Builder) error {
 	//get query url
 	url := c.QueryParam("url")
+	if url == "" {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status":  "error",
+			"message": "url is required",
+		})
+	}
+	access_key := c.QueryParam("access_key")
+	if access_key == "" {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status":  "error",
+			"message": "access_key is required",
+		})
+	}
 	widthStr := c.QueryParam("width")
 	width, err := strconv.ParseInt(widthStr, 10, 64)
 	if err != nil {
@@ -23,12 +39,12 @@ func TakeScreenshot(c echo.Context) error {
 	if err != nil {
 		height = 1024
 	}
-	fullScreenStr := c.QueryParam("fullScreen")
+	fullScreenStr := c.QueryParam("full_screen")
 	fullScreen, err := strconv.ParseBool(fullScreenStr)
 	if err != nil {
 		fullScreen = false
 	}
-	noAdsStr := c.QueryParam("noAds")
+	noAdsStr := c.QueryParam("no_ads")
 	noAds, err := strconv.ParseBool(noAdsStr)
 	if err != nil {
 		noAds = false
@@ -40,6 +56,37 @@ func TakeScreenshot(c echo.Context) error {
 		delay = 2
 	}
 
+	//get user_id from access_key
+	userData := module.UserForKey{}
+	errAccessKey := db.Select("user_id").From("access_keys").Where(dbx.NewExp("access_key = {:access_key}", dbx.Params{"access_key": access_key})).One(&userData)
+	if errAccessKey != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status":  "error",
+			"message": "access_key is invalid",
+		})
+	}
+	//check quota
+	quotaData := module.GetQuotaScreenshot{}
+	errCheckQuota := db.
+		Select("screenshot_usage.screenshots_taken", "subscription_plans.name", "subscription_plans.included_screenshots").
+		From("screenshot_usage").
+		InnerJoin("subscription_plans", dbx.NewExp("subscription_plans.id = screenshot_usage.subscription_plan")).
+		Where(dbx.NewExp("screenshot_usage.user_id = {:user_id}", dbx.Params{"user_id": userData.UserId})).
+		One(&quotaData)
+	if errCheckQuota != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status":  "error",
+			"message": "access_key is invalid",
+		})
+	}
+
+	if quotaData.ScreenshotUsage.ScreenshotTaken >= quotaData.SubscriptionPlans.IncludedScreenshots && quotaData.SubscriptionPlans.Name == "FREE" {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status":  "error",
+			"message": "You have reached your quota",
+		})
+	}
+
 	ctx, cancel := chromedp.NewContext(context.Background())
 	defer cancel()
 
@@ -48,6 +95,21 @@ func TakeScreenshot(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"status":  "error",
 			"message": err.Error(),
+		})
+	}
+
+	//update screenshot_usage
+	_, errUpdateScreenshotUsage := db.NewQuery(`
+		UPDATE screenshot_usage
+		SET screenshots_taken = screenshots_taken + 1
+		WHERE user_id = {:user_id}
+	`).Bind(dbx.Params{
+		"user_id": userData.UserId,
+	}).Execute()
+	if errUpdateScreenshotUsage != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"status":  "error",
+			"message": errUpdateScreenshotUsage.Error(),
 		})
 	}
 

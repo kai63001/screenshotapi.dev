@@ -3,43 +3,61 @@
 	import Label from '$lib/components/ui/label/label.svelte';
 	import { Switch } from '$lib/components/ui/switch';
 	import Icon from '@iconify/svelte';
+	import { onMount } from 'svelte';
+	import { Toaster, toast } from 'svelte-french-toast';
 
-
+	$: access_key = '';
 
 	$: url = 'https://unclelife.co';
 	$: isFullScreen = false;
-    $: innerWidth = 1280;
-    $: innerHeight = 1024;
-    $: delay = 2;
-    let isCapturing = false;
+	$: innerWidth = 1280;
+	$: innerHeight = 1024;
+	$: delay = 2;
+	let isCapturing = false;
 
-	let screenshot =
-		'https://underconstructionpage.com/wp-content/uploads/screenshots-article/screenshotapi.png';
+	let screenshot = '';
 
 	const takeScreenshot = async () => {
-        isCapturing = true;
+		isCapturing = true;
 		const apiUrl = new URL(`${import.meta.env.VITE_API_KEY}/screenshot`);
 		apiUrl.searchParams.append('url', url);
+		apiUrl.searchParams.append('access_key', access_key);
 		if (isFullScreen) apiUrl.searchParams.append('fullScreen', 'true');
-        if (innerWidth != 0) apiUrl.searchParams.append('innerWidth', innerWidth.toString())
-        if (innerHeight != 0 && !isFullScreen) apiUrl.searchParams.append('innerHeight', innerHeight.toString())
-        if (delay != 2) apiUrl.searchParams.append('delay', delay.toString())
+		if (innerWidth != 0) apiUrl.searchParams.append('innerWidth', innerWidth.toString());
+		if (innerHeight != 0 && !isFullScreen)
+			apiUrl.searchParams.append('innerHeight', innerHeight.toString());
+		if (delay != 2) apiUrl.searchParams.append('delay', delay.toString());
 		const response = await fetch(apiUrl.toString());
 		const blob = await response.blob();
-		const blobUrl = URL.createObjectURL(blob);
-		screenshot = blobUrl;
-        isCapturing = false;
+		if (blob.type === 'application/json') {
+			const json = await blob.text();
+			const data = JSON.parse(json);
+            toast.error(data.message, {
+                duration: 3000,
+                position: 'top-right'
+            });
+		} else {
+			const blobUrl = URL.createObjectURL(blob);
+			screenshot = blobUrl;
+		}
+		isCapturing = false;
 	};
 
 	$: APITextConverter = () => {
 		const apiUrl = new URL(`${import.meta.env.VITE_API_KEY}/screenshot`);
 		apiUrl.searchParams.append('url', url);
+		apiUrl.searchParams.append('access_key', access_key);
 		if (isFullScreen) apiUrl.searchParams.append('fullScreen', 'true');
-        if (innerWidth != 0) apiUrl.searchParams.append('innerWidth', innerWidth.toString())
-        if (innerHeight != 0 && !isFullScreen) apiUrl.searchParams.append('innerHeight', innerHeight.toString())
-        if (delay != 2 && delay) apiUrl.searchParams.append('delay', delay.toString())
+		if (innerWidth != 0) apiUrl.searchParams.append('innerWidth', innerWidth.toString());
+		if (innerHeight != 0 && !isFullScreen)
+			apiUrl.searchParams.append('innerHeight', innerHeight.toString());
+		if (delay != 2 && delay) apiUrl.searchParams.append('delay', delay.toString());
 		return apiUrl.toString();
 	};
+
+	onMount(async () => {
+		access_key = localStorage.getItem('access_key') || '';
+	});
 </script>
 
 <div class="gap-4 grid">
@@ -64,8 +82,8 @@
 				<div class="flex justify-end -mt-3">
 					<button
 						on:click|preventDefault={takeScreenshot}
-                        disabled={isCapturing}
-                        class:opacity-50={isCapturing}
+						disabled={isCapturing}
+						class:opacity-50={isCapturing}
 						class="flex items-center bg-primary hover:bg-red-600 duration-200 text-white px-6 py-3 rounded-md"
 					>
 						<Icon class="text-white mr-1" icon="tabler:capture-filled" width="20px" height="20px" />
@@ -81,7 +99,7 @@
 						help="The browser window width."
 						type="number"
 						placeholder="1280"
-                        bind:value={innerWidth}
+						bind:value={innerWidth}
 					/>
 					<InputField
 						icon="material-symbols:height"
@@ -89,7 +107,7 @@
 						disabled={isFullScreen}
 						help="The browser window height."
 						type="number"
-                        bind:value={innerHeight}
+						bind:value={innerHeight}
 						placeholder="1024"
 					/>
 				</div>
@@ -105,7 +123,7 @@
 						label="Delay"
 						help="Specify the delay in seconds before capturing the screenshot."
 						type="number"
-                        bind:value={delay}
+						bind:value={delay}
 						placeholder="2"
 					/>
 					<InputField
@@ -126,9 +144,12 @@
 				>{APITextConverter()}</textarea
 			>
 			<h2 class="text-xl font-semibold">Screenshot</h2>
-            <div class="p-5 rounded-md bg-[#E4E9EC] mt-2">
-                <img src={screenshot} alt="screenshot" class="w-full rounded-md" />
-            </div>
+			{#if screenshot}
+				<div class="p-5 rounded-md bg-[#E4E9EC] mt-2">
+					<img src={screenshot} alt="screenshot" class="w-full rounded-md" />
+				</div>
+			{/if}
 		</div>
 	</div>
 </div>
+<Toaster />
