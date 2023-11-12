@@ -4,6 +4,7 @@
 	import Button from '../ButtonCustom.svelte';
 	import Icon from '@iconify/svelte';
 	import { onMount } from 'svelte';
+	import { currentUser } from '$lib/pocketbase';
 
 	const menuList = [
 		{
@@ -47,7 +48,7 @@
 <nav id="navbar" class="shadow-md m-auto fixed bg-white w-full">
 	<div class="flex items-center justify-between max-w-7xl px-2 m-auto">
 		<a href="/" class="flex space-x-2 items-center">
-			<img src={logo} alt="logo" loading="eager" />
+			<img src={logo} alt="logo" width="25px" height="25px" loading="eager" />
 			<p class="heading">SnapCapture</p>
 		</a>
 		<ul class="hidden md:flex space-x-4">
@@ -56,12 +57,20 @@
 			{/each}
 		</ul>
 		<ul class="hidden md:flex space-x-4 items-center">
-			<li><a href="/login">Login</a></li>
-			<li>
-				<a href="/signup">
-					<Button class="py-1.5 my-3 px-3 rounded">Get stated for Free</Button>
-				</a>
-			</li>
+			{#if $currentUser}
+				<li>
+					<a href="/dashboard">
+						<Button class="py-1.5 my-3 px-3 rounded">Dashboard</Button></a
+					>
+				</li>
+			{:else}
+				<li><a href="/login">Login</a></li>
+				<li>
+					<a href="/signup">
+						<Button class="py-1.5 my-3 px-3 rounded">Get stated for Free</Button>
+					</a>
+				</li>
+			{/if}
 		</ul>
 		<ul class="md:hidden">
 			<div class="my-2">
@@ -82,9 +91,12 @@
 				{#each menuList as menu}
 					<li class="py-2 w-full"><a href={menu.url}>{menu.name}</a></li>
 				{/each}
-				<div class="border-b" />
-				<li class="py-2 w-full"><a href="/login">Login</a></li>
-				<li class="py-2 w-full"><a href="/signup"> Get started for Free </a></li>
+				{#if $currentUser}
+					<li class="py-2 w-full"><a href="/dashboard">Dashboard</a></li>
+				{:else}
+					<li class="py-2 w-full"><a href="/login">Login</a></li>
+					<li class="py-2 w-full"><a href="/signup"> Get started for Free </a></li>
+				{/if}
 			</div>
 		</ul>
 	</div>

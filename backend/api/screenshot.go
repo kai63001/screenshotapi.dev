@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -86,7 +85,6 @@ func screenshot(url string, width int64, height int64, fullScreen bool, noAds bo
 						time.Sleep(2 * time.Second) // Wait for content to load; adjust the delay as needed
 					} else {
 						// back to top
-						log.Println("back to top")
 						err := chromedp.Evaluate(`window.scrollTo(0,0)`, nil).Do(ctx)
 						if err != nil {
 							return err

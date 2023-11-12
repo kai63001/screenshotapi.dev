@@ -4,7 +4,6 @@
 	let isFocused = false;
 	let inputRef: any;
 	export let value:any = undefined;
-	export let type: string = 'text';
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->

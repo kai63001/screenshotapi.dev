@@ -17,17 +17,16 @@
 			path: '/dashboard',
 			active: false
 		},
-		//access,playground,history,subscription,payments
-		{
-			name: 'Access',
-			icon: 'ph:key-bold',
-			path: '/access',
-			active: false
-		},
 		{
 			name: 'Playground',
 			icon: 'material-symbols:joystick-outline',
 			path: '/playground',
+			active: false
+		},
+		{
+			name: 'Access',
+			icon: 'ph:key-bold',
+			path: '/access',
 			active: false
 		},
 		{
@@ -69,7 +68,7 @@
 		<div>
 			<a href='/' class="p-5 flex items-center space-x-2">
 				<img src={logo} alt="logo" width="30px" height="30px" loading="eager" />
-				<p class="ml-2 heading text-xl">SanpCapture</p>
+				<p class="ml-2 heading text-xl">SnapCapture</p>
 			</a>
 			<div class="p-5">
 				<div class="px-5 py-3 bg-[#faf9fb] rounded">

@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
@@ -13,6 +14,10 @@ import (
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	app := pocketbase.New()
 
 	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
@@ -22,22 +27,16 @@ func main() {
 	})
 
 	app.OnModelAfterCreate("users").Add(func(e *core.ModelEvent) error {
-		log.Println("user created", e.Model.GetId())
-		// collection := &models.Collection{
-		// 	Name: "screenshot_usage",
-
 		_, err := app.Dao().DB().NewQuery(`
-			INSERT INTO screenshot_usage (user_id)
-			VALUES ({:user_id})
+			INSERT INTO screenshot_usage (user_id,subscription_plan)
+			VALUES ({:user_id}, {:plan})
 		`).Bind(dbx.Params{
 			"user_id": e.Model.GetId(),
+			"plan":    os.Getenv("FREE_PLAN_ID"),
 		}).Execute()
 		if err != nil {
 			return err
 		}
-		//after create user insert into screenshot_usage table
-		// e.Model.GetId()
-
 		return nil
 	})
 

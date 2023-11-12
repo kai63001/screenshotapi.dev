@@ -4,26 +4,40 @@
 	import { Switch } from '$lib/components/ui/switch';
 	import Icon from '@iconify/svelte';
 
-    $: url = 'https://www.shadcn-svelte.com/docs/components/label';
 
-	let isFullScreen = false;
+
+	$: url = 'https://www.shadcn-svelte.com/docs/components/label';
+	$: isFullScreen = false;
+    $: innerWidth = 1280;
+    $: innerHeight = 1024;
+    $: delay = 2;
+    let isCapturing = false;
+
 	let screenshot =
 		'https://cdn.dribbble.com/users/584114/screenshots/16713619/media/1dd6e9f24135ee727d378a8cfd4f54e5.png';
 
 	const takeScreenshot = async () => {
+        isCapturing = true;
 		const apiUrl = new URL(`${import.meta.env.VITE_API_KEY}/screenshot`);
-		apiUrl.searchParams.append('url', 'https://www.shadcn-svelte.com/docs/components/label');
-		apiUrl.searchParams.append('fullScreen', 'true');
+		apiUrl.searchParams.append('url', url);
+		if (isFullScreen) apiUrl.searchParams.append('fullScreen', 'true');
+        if (innerWidth != 0) apiUrl.searchParams.append('innerWidth', innerWidth.toString())
+        if (innerHeight != 0 && !isFullScreen) apiUrl.searchParams.append('innerHeight', innerHeight.toString())
+        if (delay != 2) apiUrl.searchParams.append('delay', delay.toString())
 		const response = await fetch(apiUrl.toString());
 		const blob = await response.blob();
 		const blobUrl = URL.createObjectURL(blob);
 		screenshot = blobUrl;
+        isCapturing = false;
 	};
 
 	$: APITextConverter = () => {
 		const apiUrl = new URL(`${import.meta.env.VITE_API_KEY}/screenshot`);
 		apiUrl.searchParams.append('url', url);
-		apiUrl.searchParams.append('fullScreen', 'true');
+		if (isFullScreen) apiUrl.searchParams.append('fullScreen', 'true');
+        if (innerWidth != 0) apiUrl.searchParams.append('innerWidth', innerWidth.toString())
+        if (innerHeight != 0 && !isFullScreen) apiUrl.searchParams.append('innerHeight', innerHeight.toString())
+        if (delay != 2 && delay) apiUrl.searchParams.append('delay', delay.toString())
 		return apiUrl.toString();
 	};
 </script>
@@ -39,11 +53,19 @@
 	<div class="grid gap-4 grid-cols-1 lg:grid-cols-2">
 		<div class="flex flex-col space-y-4">
 			<div class="bg-white p-5 rounded-md">
-				<InputField bind:value={url} icon="mdi:web" label="URL" required={true} placeholder="https://example.com" />
+				<InputField
+					bind:value={url}
+					icon="mdi:web"
+					label="URL"
+					required={true}
+					placeholder="https://example.com"
+				/>
 				<p class="text-xs text-gray-500 py-1">Enter a webpage URL here</p>
 				<div class="flex justify-end -mt-3">
 					<button
 						on:click|preventDefault={takeScreenshot}
+                        disabled={isCapturing}
+                        class:opacity-50={isCapturing}
 						class="flex items-center bg-primary hover:bg-red-600 duration-200 text-white px-6 py-3 rounded-md"
 					>
 						<Icon class="text-white mr-1" icon="tabler:capture-filled" width="20px" height="20px" />
@@ -59,6 +81,7 @@
 						help="The browser window width."
 						type="number"
 						placeholder="1280"
+                        bind:value={innerWidth}
 					/>
 					<InputField
 						icon="material-symbols:height"
@@ -66,6 +89,7 @@
 						disabled={isFullScreen}
 						help="The browser window height."
 						type="number"
+                        bind:value={innerHeight}
 						placeholder="1024"
 					/>
 				</div>
@@ -81,12 +105,12 @@
 						label="Delay"
 						help="Specify the delay in seconds before capturing the screenshot."
 						type="number"
+                        bind:value={delay}
 						placeholder="2"
 					/>
 					<InputField
 						icon="material-symbols:avg-time"
 						label="Timeout"
-						disabled={isFullScreen}
 						help="Should the site fail to respond within the set timeframe, the API request will be unsuccessful."
 						type="number"
 						placeholder="30"

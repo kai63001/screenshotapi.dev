@@ -1,6 +1,6 @@
 <script>
 	// @ts-nocheck
-	import bg from '$lib/assets/image/index/bg.png?&format=webp&quality=100';
+	import bg from '$lib/assets/image/index/bg.png?&format=webp&quality=100&w=700&h=450';
 
 	import Button from '$lib/components/ButtonCustom.svelte';
 	import Icon from '@iconify/svelte';
@@ -58,7 +58,7 @@
 						<div class="bg-red-400 w-1 h-1" />
 					</div>
 				</div>
-				<img loading="eager" src={bg} width={'100%'} alt="google" />
+				<img loading="eager" src={bg} width={'700px'} height={'450px'} alt="snapcapture example screenshot" />
 			</div>
 		</div>
 	</div>
