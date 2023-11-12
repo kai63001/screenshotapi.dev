@@ -6,7 +6,7 @@
 
 
 
-	$: url = 'https://www.shadcn-svelte.com/docs/components/label';
+	$: url = 'https://unclelife.co';
 	$: isFullScreen = false;
     $: innerWidth = 1280;
     $: innerHeight = 1024;
@@ -14,7 +14,7 @@
     let isCapturing = false;
 
 	let screenshot =
-		'https://cdn.dribbble.com/users/584114/screenshots/16713619/media/1dd6e9f24135ee727d378a8cfd4f54e5.png';
+		'https://underconstructionpage.com/wp-content/uploads/screenshots-article/screenshotapi.png';
 
 	const takeScreenshot = async () => {
         isCapturing = true;
@@ -126,7 +126,9 @@
 				>{APITextConverter()}</textarea
 			>
 			<h2 class="text-xl font-semibold">Screenshot</h2>
-			<img src={screenshot} alt="screenshot" class="w-full mt-2 rounded-md" />
+            <div class="p-5 rounded-md bg-[#E4E9EC] mt-2">
+                <img src={screenshot} alt="screenshot" class="w-full rounded-md" />
+            </div>
 		</div>
 	</div>
 </div>

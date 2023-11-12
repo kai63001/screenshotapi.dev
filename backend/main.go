@@ -11,6 +11,7 @@ import (
 	"github.com/pocketbase/pocketbase/core"
 
 	api "backend/api"
+	lib "backend/lib"
 )
 
 func main() {
@@ -27,15 +28,58 @@ func main() {
 	})
 
 	app.OnModelAfterCreate("users").Add(func(e *core.ModelEvent) error {
-		_, err := app.Dao().DB().NewQuery(`
+		_, errCreateScreenshotUsage := app.Dao().DB().NewQuery(`
 			INSERT INTO screenshot_usage (user_id,subscription_plan)
 			VALUES ({:user_id}, {:plan})
 		`).Bind(dbx.Params{
 			"user_id": e.Model.GetId(),
 			"plan":    os.Getenv("FREE_PLAN_ID"),
 		}).Execute()
-		if err != nil {
-			return err
+		if errCreateScreenshotUsage != nil {
+			return errCreateScreenshotUsage
+		}
+
+		type AccessKey struct {
+		}
+
+		listAccessKey := []AccessKey{}
+
+		accessKeyExists := true
+		accessKey := ""
+		//create pointer for store result
+
+		for accessKeyExists {
+			accessKey = lib.GenerateRandomString(15)
+			errAccessKeyExists := app.Dao().DB().NewQuery(`
+            SELECT access_key
+            FROM access_keys
+            WHERE access_key = {:access_key}
+    `).Bind(dbx.Params{
+				"access_key": accessKey,
+			}).All(&listAccessKey)
+
+			log.Println("accessKeyExists", accessKeyExists)
+
+			if errAccessKeyExists != nil {
+				return errAccessKeyExists
+			}
+
+			if (len(listAccessKey)) == 0 {
+				accessKeyExists = false
+			}
+			listAccessKey = []AccessKey{}
+		}
+
+		// create access key
+		_, errCreateAccessKey := app.Dao().DB().NewQuery(`
+			INSERT INTO access_keys (user_id,access_key)
+			VALUES ({:user_id}, {:access_key})
+		`).Bind(dbx.Params{
+			"user_id":    e.Model.GetId(),
+			"access_key": accessKey,
+		}).Execute()
+		if errCreateAccessKey != nil {
+			return errCreateAccessKey
 		}
 		return nil
 	})
