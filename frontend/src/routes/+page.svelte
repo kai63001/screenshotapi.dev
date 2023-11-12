@@ -28,7 +28,7 @@
 				Effortless, High-Quality Webpage Screenshots in Seconds {'–'}
 				<strong>Fully Customizable to Fit Your Unique Needs.</strong>
 				Tailored for Developers and Businesses.
-				<a class="text-secondary hover:underline" href="/"> Learn More. </a>
+				<a class="text-primary hover:underline" href="/"> Learn More. </a>
 			</p>
 			<Button class="mt-5 flex items-center space-x-2 shadow-md"
 				>Get started for Free <Icon

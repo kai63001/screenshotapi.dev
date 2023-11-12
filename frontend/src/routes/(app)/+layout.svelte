@@ -3,7 +3,7 @@
 	import logo from '$lib/assets/image/snapcaptureLogo.png?w=30&h=30&format=webp&quality=100';
 	//@ts-ignore
 	import avatar from '$lib/assets/avatar/man.png?w=50&h=50&format=webp&quality=100';
-    import { page } from '$app/stores';
+	import { page } from '$app/stores';
 
 	import { onMount } from 'svelte';
 	import { currentUser, pb } from '$lib/pocketbase';
@@ -67,7 +67,7 @@
 <div class="flex">
 	<nav class="w-1/5 flex flex-col justify-between">
 		<div>
-			<a href='/' class="p-5 flex items-center space-x-2">
+			<a href="/" class="p-5 flex items-center space-x-2">
 				<img src={logo} alt="logo" width="30px" height="30px" loading="eager" />
 				<p class="ml-2 heading text-xl">SnapCapture</p>
 			</a>
@@ -90,8 +90,9 @@
 			</div>
 			<ul class="pr-5 flex flex-col space-y-1">
 				{#each navbarList as nav}
-					<li class:bg-block={nav.path == currentPath}>
+					<li>
 						<a
+							class:bg-block={nav.path == currentPath}
 							href={nav.path}
 							class="flex items-center space-x-2 cursor-pointer py-4 rounded-r-md hover:bg-red-100"
 						>

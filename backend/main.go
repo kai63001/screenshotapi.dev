@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -10,6 +11,8 @@ import (
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
 	api "backend/api"
 	lib "backend/lib"
@@ -22,10 +25,18 @@ func main() {
 	}
 	app := pocketbase.New()
 
+	clientOptions := options.Client().ApplyURI(os.Getenv("MONGO_DB_URI"))
+	client, err := mongo.Connect(context.Background(), clientOptions)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	collection := client.Database("capture").Collection("logs")
+
 	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
 		e.Router.GET("/api/screenshot", func(c echo.Context) error {
 			database := app.Dao().DB()
-			return api.TakeScreenshot(c, database)
+			return api.TakeScreenshot(c, database, collection)
 		})
 		e.Router.GET("/*", apis.StaticDirectoryHandler(os.DirFS("./pb_public"), false))
 		return nil

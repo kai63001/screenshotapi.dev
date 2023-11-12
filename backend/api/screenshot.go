@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -9,11 +10,12 @@ import (
 	"github.com/chromedp/chromedp"
 	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/dbx"
+	"go.mongodb.org/mongo-driver/mongo"
 
 	module "backend/module"
 )
 
-func TakeScreenshot(c echo.Context, db dbx.Builder) error {
+func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection) error {
 	//get query url
 	url := c.QueryParam("url")
 	if url == "" {
@@ -112,6 +114,16 @@ func TakeScreenshot(c echo.Context, db dbx.Builder) error {
 			"message": errUpdateScreenshotUsage.Error(),
 		})
 	}
+
+	fullUrl := c.Request().URL.String()
+	result, _ := mongo.InsertOne(context.Background(), map[string]interface{}{
+		"user_id":    userData.UserId,
+		"access_key": access_key,
+		"url":        url,
+		"fullUrl":    fullUrl,
+		"created":    time.Now(),
+	})
+	log.Println("resul", result)
 
 	return c.Blob(http.StatusOK, "image/png", buf)
 }

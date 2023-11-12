@@ -6,13 +6,13 @@
 	import { onMount } from 'svelte';
 	import { Toaster, toast } from 'svelte-french-toast';
 
-	$: access_key = '';
+	let access_key = '';
 
-	$: url = 'https://unclelife.co';
-	$: isFullScreen = false;
-	$: innerWidth = 1280;
-	$: innerHeight = 1024;
-	$: delay = 2;
+	let url = 'https://unclelife.co';
+	let isFullScreen = false;
+	let innerWidth = 1280;
+	let innerHeight = 1024;
+	let delay = 2;
 	let isCapturing = false;
 
 	let screenshot = '';
@@ -22,10 +22,10 @@
 		const apiUrl = new URL(`${import.meta.env.VITE_API_KEY}/screenshot`);
 		apiUrl.searchParams.append('url', url);
 		apiUrl.searchParams.append('access_key', access_key);
-		if (isFullScreen) apiUrl.searchParams.append('fullScreen', 'true');
-		if (innerWidth != 0) apiUrl.searchParams.append('innerWidth', innerWidth.toString());
+		if (isFullScreen) apiUrl.searchParams.append('full_screen', 'true');
+		if (innerWidth != 0) apiUrl.searchParams.append('width', innerWidth.toString());
 		if (innerHeight != 0 && !isFullScreen)
-			apiUrl.searchParams.append('innerHeight', innerHeight.toString());
+			apiUrl.searchParams.append('height', innerHeight.toString());
 		if (delay != 2) apiUrl.searchParams.append('delay', delay.toString());
 		const response = await fetch(apiUrl.toString());
 		const blob = await response.blob();
@@ -47,10 +47,10 @@
 		const apiUrl = new URL(`${import.meta.env.VITE_API_KEY}/screenshot`);
 		apiUrl.searchParams.append('url', url);
 		apiUrl.searchParams.append('access_key', access_key);
-		if (isFullScreen) apiUrl.searchParams.append('fullScreen', 'true');
-		if (innerWidth != 0) apiUrl.searchParams.append('innerWidth', innerWidth.toString());
+		if (isFullScreen) apiUrl.searchParams.append('full_screen', 'true');
+		if (innerWidth != 0) apiUrl.searchParams.append('width', innerWidth.toString());
 		if (innerHeight != 0 && !isFullScreen)
-			apiUrl.searchParams.append('innerHeight', innerHeight.toString());
+			apiUrl.searchParams.append('height', innerHeight.toString());
 		if (delay != 2 && delay) apiUrl.searchParams.append('delay', delay.toString());
 		return apiUrl.toString();
 	};
@@ -140,7 +140,7 @@
 			<textarea
 				rows="5"
 				disabled
-				class="text-mute mt-2 w-full overflow-auto bg-[#E4E9EC] p-2 text-sm cursor-text rounded"
+				class="text-mute mt-2 w-full overflow-auto bg-[#E4E9EC] hover:bg-[#d3d4d4] p-2 text-sm cursor-text rounded"
 				>{APITextConverter()}</textarea
 			>
 			<h2 class="text-xl font-semibold">Screenshot</h2>

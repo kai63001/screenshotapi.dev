@@ -75,6 +75,7 @@
 		<ul class="md:hidden">
 			<div class="my-2">
 				<button
+					title="Toggle Menu"
 					on:click={() => {
 						openToggle = !openToggle;
 					}}
@@ -83,7 +84,7 @@
 					<Icon icon="ci:hamburger-md" width="30" />
 				</button>
 			</div>
-			<div
+			<ol
 				class:h-screen={openToggle}
 				class:h-0={!openToggle}
 				class="absolute w-full duration-300 overflow-hidden bg-white left-0 px-3 flex flex-col space-y-1 shadow-xl"
@@ -97,7 +98,7 @@
 					<li class="py-2 w-full"><a href="/login">Login</a></li>
 					<li class="py-2 w-full"><a href="/signup"> Get started for Free </a></li>
 				{/if}
-			</div>
+			</ol>
 		</ul>
 	</div>
 </nav>
