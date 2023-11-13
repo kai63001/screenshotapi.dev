@@ -32,7 +32,7 @@
  code[class*='language-']::-moz-selection,
  code[class*='language-'] ::-moz-selection {
    text-shadow: none;
-   background: rgba(29, 59, 83, 0.99);
+   background: #2D2D2D;
  }
  
  pre[class*='language-']::selection,
@@ -40,7 +40,7 @@
  code[class*='language-']::selection,
  code[class*='language-'] ::selection {
    text-shadow: none;
-   background: rgba(29, 59, 83, 0.99);
+   background: #2D2D2D;
  }
  
  @media print {
@@ -60,7 +60,7 @@
  :not(pre) > code[class*='language-'],
  pre[class*='language-'] {
    color: #d6deeb;
-   background: #19212e;
+   background: #2D2D2D;
  }
  
  :not(pre) > code[class*='language-'] {

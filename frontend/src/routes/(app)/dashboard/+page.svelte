@@ -20,7 +20,6 @@
 				fields:
 					'screenshots_taken,expand.subscription_plan.included_screenshots,expand.subscription_plan.price_per_extra_screenshot,expand.subscription_plan.name'
 			});
-		console.log(quotaCollection);
         quota = {
             screenshots_taken: quotaCollection.screenshots_taken,
             included_screenshots: quotaCollection?.expand?.subscription_plan?.included_screenshots,

@@ -12,10 +12,6 @@
 			url: '/'
 		},
 		{
-			name: 'Use Cases',
-			url: '/about'
-		},
-		{
 			name: 'Pricing',
 			url: '/pricing'
 		},
