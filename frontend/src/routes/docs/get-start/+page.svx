@@ -1,7 +1,7 @@
 <script>
 	import Nav from '$lib/components/index/Navbar.svelte';
   //@ts-ignore
-	import Blog from './blog.md';
+	import Blog from './Blog.md';
 </script>
 
 <header>
