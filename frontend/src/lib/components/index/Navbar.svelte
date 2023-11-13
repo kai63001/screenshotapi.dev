@@ -45,7 +45,7 @@
 	});
 </script>
 
-<nav id="navbar" class="shadow-md m-auto fixed bg-white w-full">
+<nav id="navbar" class="shadow-md m-auto fixed bg-white w-full z-50">
 	<div class="flex items-center justify-between max-w-7xl px-2 m-auto">
 		<a href="/" class="flex space-x-2 items-center">
 			<img src={logo} alt="logo" width="25px" height="25px" loading="eager" />
