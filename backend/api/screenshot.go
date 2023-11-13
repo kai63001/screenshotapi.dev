@@ -51,6 +51,13 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection) err
 	if err != nil {
 		noAds = false
 	}
+
+	noCookieStr := c.QueryParam("no_cookie")
+	noCookie, err := strconv.ParseBool(noCookieStr)
+	if err != nil {
+		noCookie = false
+	}
+
 	//delay
 	delayStr := c.QueryParam("delay")
 	delay, err := strconv.ParseInt(delayStr, 10, 64)
@@ -93,7 +100,7 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection) err
 	defer cancel()
 
 	var buf []byte
-	if err := chromedp.Run(ctx, screenshot(url, width, height, fullScreen, noAds, delay, &buf)); err != nil {
+	if err := chromedp.Run(ctx, screenshot(url, width, height, fullScreen, noAds, noCookie, delay, &buf)); err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"status":  "error",
 			"message": err.Error(),
@@ -128,7 +135,7 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection) err
 	return c.Blob(http.StatusOK, "image/png", buf)
 }
 
-func screenshot(url string, width int64, height int64, fullScreen bool, noAds bool, delay int64, res *[]byte) chromedp.Tasks {
+func screenshot(url string, width int64, height int64, fullScreen bool, noAds bool, noCookie bool, delay int64, res *[]byte) chromedp.Tasks {
 	var newHeight int64
 	viewportDivID := "customViewportDiv"
 	if fullScreen {
@@ -136,7 +143,6 @@ func screenshot(url string, width int64, height int64, fullScreen bool, noAds bo
 		return chromedp.Tasks{
 			chromedp.Navigate(url),
 			chromedp.WaitVisible(`body`, chromedp.ByQuery),
-			chromedp.Sleep(time.Duration(delay) * time.Second), // Wait for page to render
 			chromedp.ActionFunc(func(ctx context.Context) error {
 				// Execute JavaScript to get the total height of the content
 				err := chromedp.Evaluate(`document.documentElement.scrollHeight`, &newHeight).Do(ctx)
@@ -191,8 +197,29 @@ func screenshot(url string, width int64, height int64, fullScreen bool, noAds bo
 				document.head.appendChild(style2);
 				`
 				}
+				if noCookie {
+					script += `
+				var style = document.createElement('style');
+				style.innerHTML = 'div[id^="cookie"] { display: none; }';
+				document.head.appendChild(style);
+				var acceptButtons = ['button[aria-label="Accept cookies"]', 'button[id*="cookie"]', 'button[class*="cookie"]', '.cookie-accept', '.cookie-agree', '.cookie-consent-accept'];
+                acceptButtons.forEach(function(selector) {
+                    var btn = document.querySelector(selector);
+                    if(btn) {
+                        btn.click();
+                    }
+                });
+				var allButtons = document.querySelectorAll('button');
+                allButtons.forEach(function(btn) {
+                    if(btn.textContent.toLowerCase().includes('cookie')) {
+                        btn.click();
+                    }
+                });
+				`
+				}
 				return chromedp.Evaluate(script, nil).Do(ctx)
 			}),
+			chromedp.Sleep(time.Duration(delay) * time.Second),
 			chromedp.Screenshot("#"+viewportDivID, res, chromedp.NodeVisible, chromedp.ByQuery),
 		}
 	} else {
@@ -200,7 +227,6 @@ func screenshot(url string, width int64, height int64, fullScreen bool, noAds bo
 			chromedp.Navigate(url),
 			chromedp.EmulateViewport(width, height),
 			chromedp.WaitVisible(`body`, chromedp.ByQuery),
-			chromedp.Sleep(time.Duration(delay) * time.Second),
 			chromedp.ActionFunc(func(ctx context.Context) error {
 				script := `
                 var div = document.createElement('div');
@@ -214,17 +240,38 @@ func screenshot(url string, width int64, height int64, fullScreen bool, noAds bo
             `
 				if noAds {
 					script += `
-			var style = document.createElement('style');
-			style.innerHTML = 'div[id^="google_ads_iframe"] { display: none; }';
-			document.head.appendChild(style);
-			//ezo_ad 
-			var style2 = document.createElement('style');
-			style2.innerHTML = '.ezo_ad { display: none; }';
-			document.head.appendChild(style2);
-			`
+				var style = document.createElement('style');
+				style.innerHTML = 'div[id^="google_ads_iframe"] { display: none; }';
+				document.head.appendChild(style);
+				//ezo_ad 
+				var style2 = document.createElement('style');
+				style2.innerHTML = '.ezo_ad { display: none; }';
+				document.head.appendChild(style2);
+				`
+				}
+				if noCookie {
+					script += `
+				var style = document.createElement('style');
+				style.innerHTML = 'div[id^="cookie"] { display: none; }';
+				document.head.appendChild(style);
+				var acceptButtons = ['button[aria-label="Accept cookies"]', 'button[id*="cookie"]', 'button[class*="cookie"]', '.cookie-accept', '.cookie-agree', '.cookie-consent-accept'];
+                acceptButtons.forEach(function(selector) {
+                    var btn = document.querySelector(selector);
+                    if(btn) {
+                        btn.click();
+                    }
+                });
+				var allButtons = document.querySelectorAll('button');
+                allButtons.forEach(function(btn) {
+                    if(btn.textContent.toLowerCase().includes('cookie')) {
+                        btn.click();
+                    }
+                });
+				`
 				}
 				return chromedp.Evaluate(script, nil).Do(ctx)
 			}),
+			chromedp.Sleep(time.Duration(delay) * time.Second),
 			chromedp.Screenshot("#"+viewportDivID, res, chromedp.NodeVisible, chromedp.ByQuery),
 		}
 	}

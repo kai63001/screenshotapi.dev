@@ -13,6 +13,9 @@
 	let innerWidth = 1280;
 	let innerHeight = 1024;
 	let delay = 2;
+    let noAds = false;
+    let noCookie = false;
+
 	let isCapturing = false;
 
 	let screenshot = '';
@@ -27,6 +30,8 @@
 		if (innerHeight != 0 && !isFullScreen)
 			apiUrl.searchParams.append('height', innerHeight.toString());
 		if (delay != 2) apiUrl.searchParams.append('delay', delay.toString());
+        if (noAds) apiUrl.searchParams.append('no_ads', 'true');
+        if (noCookie) apiUrl.searchParams.append('no_cookie', 'true');
 		const response = await fetch(apiUrl.toString());
 		const blob = await response.blob();
 		if (blob.type === 'application/json') {
@@ -52,6 +57,8 @@
 		if (innerHeight != 0 && !isFullScreen)
 			apiUrl.searchParams.append('height', innerHeight.toString());
 		if (delay != 2 && delay) apiUrl.searchParams.append('delay', delay.toString());
+        if (noAds) apiUrl.searchParams.append('no_ads', 'true');
+        if (noCookie) apiUrl.searchParams.append('no_cookie', 'true');
 		return apiUrl.toString();
 	};
 
@@ -135,6 +142,20 @@
 					/>
 				</div>
 			</div>
+			<div class="bg-white p-5 rounded-md flex-col flex space-y-2">
+                <div class="flex items-center space-x-3">
+                    <Switch bind:checked={noAds} id="no-ads" />
+                    <Label for="no-ads" class="text-gray-500">
+                        Block ads
+                    </Label>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <Switch bind:checked={noCookie} id="no-cookie" />
+                    <Label for="no-cookie" class="text-gray-500">
+                        Block cookie popups
+                    </Label>
+                </div>
+            </div>
 		</div>
 		<div class="bg-white p-5 rounded-md">
 			<textarea
