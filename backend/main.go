@@ -52,11 +52,10 @@ func main() {
 
 	app.OnModelAfterCreate("users").Add(func(e *core.ModelEvent) error {
 		_, errCreateScreenshotUsage := app.Dao().DB().NewQuery(`
-			INSERT INTO screenshot_usage (user_id,subscription_plan)
-			VALUES ({:user_id}, {:plan})
+			INSERT INTO screenshot_usage (user_id)
+			VALUES ({:user_id})
 		`).Bind(dbx.Params{
 			"user_id": e.Model.GetId(),
-			"plan":    os.Getenv("FREE_PLAN_ID"),
 		}).Execute()
 		if errCreateScreenshotUsage != nil {
 			return errCreateScreenshotUsage
