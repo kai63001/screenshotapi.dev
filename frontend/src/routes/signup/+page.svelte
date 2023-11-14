@@ -97,7 +97,7 @@
 		/>
 
 		<p class="block text-xs relative -top-5 h-0">
-			Already have an account? <a href="/login" class="text-secondary hover:underline">Log In</a>.
+			Already have an account? <a href="/login" class="text-primary hover:underline">Log In</a>.
 		</p>
 
 		<button
@@ -114,10 +114,10 @@
 		</button>
 		<!-- term and policy -->
 		<p class="text-xs text-gray-500 relative -top-4">
-			By registering, you agree to our <a href="/terms" class="text-secondary hover:underline"
+			By registering, you agree to our <a href="/terms" class="text-primary hover:underline"
 				>Terms of Service</a
 			>
-			and <a href="/privacy" class="text-secondary hover:underline">Privacy Policy</a>.
+			and <a href="/privacy" class="text-primary hover:underline">Privacy Policy</a>.
 		</p>
 	</form>
 </div>

@@ -50,8 +50,8 @@
 
 	$: APITextConverter = () => {
 		const apiUrl = new URL(`${import.meta.env.VITE_API_KEY}/screenshot`);
-		apiUrl.searchParams.append('url', url);
 		apiUrl.searchParams.append('access_key', access_key);
+		apiUrl.searchParams.append('url', url);
 		if (isFullScreen) apiUrl.searchParams.append('full_screen', 'true');
 		if (innerWidth != 0) apiUrl.searchParams.append('width', innerWidth.toString());
 		if (innerHeight != 0 && !isFullScreen)

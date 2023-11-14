@@ -1,6 +1,9 @@
 <script>
+	import Switch from '$lib/components/ui/switch/switch.svelte';
 	import { pb, currentUser } from '$lib/pocketbase';
 	import axios from 'axios';
+	import Label from '$lib/components/ui/label/label.svelte';
+	import { onMount } from 'svelte';
 
 	const instance = axios.create({
 		baseURL: import.meta.env.VITE_API_KEY,
@@ -9,9 +12,115 @@
 		}
 	});
 
-	const subscription = async () => {
-		const data = await instance.post(`/subscription`, {});
-		console.log(data);
+	let pricingPlans = [
+		{
+			id: 'ixe3ipu5fabnv9t',
+			name: 'Free',
+			pricing: {
+				monthly: 0,
+				yearly: 0
+			},
+			features: [
+				{
+					name: 'Feature 1'
+				},
+				{
+					name: 'Feature 2'
+				},
+				{
+					name: 'Feature 3'
+				}
+			]
+		},
+		{
+			id: '8tdlog3vnb768j9',
+			name: 'Hobbyist',
+			pricing: {
+				monthly: 14,
+				yearly: 140
+			},
+			features: [
+				{
+					name: 'Feature 1'
+				},
+				{
+					name: 'Feature 2'
+				},
+				{
+					name: 'Feature 3'
+				}
+			]
+		},
+		{
+			id: '8tdlog3vnb768j9',
+			name: 'Business',
+			pricing: {
+				monthly: 48,
+				yearly: 480
+			},
+			features: [
+				{
+					name: 'Feature 1'
+				},
+				{
+					name: 'Feature 2'
+				},
+				{
+					name: 'Feature 3'
+				}
+			]
+		},
+		{
+			id: '8tdlog3vnb768j9',
+			name: 'Professional',
+			pricing: {
+				monthly: 148,
+				yearly: 1480
+			},
+			features: [
+				{
+					name: 'Feature 1'
+				},
+				{
+					name: 'Feature 2'
+				},
+				{
+					name: 'Feature 3'
+				}
+			]
+		}
+	];
+
+	let isYearly = true;
+
+	onMount(async () => {
+		//get subscription plan list
+		const data = await pb.collection('subscription_plans').getFullList();
+
+		//map data and pricingPlans with name
+		pricingPlans = pricingPlans.map((plan) => {
+			const planData = data.find((item) => item.name === plan.name);
+			if (planData) {
+				plan.id = planData.id;
+				plan.pricing.monthly = planData.monthly;
+				plan.pricing.yearly = planData.yearly;
+				plan.stripe_pricing_id = planData.stripe_pricing_id;
+			}
+			return plan;
+		});
+	});
+
+	let loading = false;
+
+	const subscription = async (pricing_id) => {
+		loading = true;
+		const { data } = await instance.post(`/subscription`, {
+			pricing_id
+		});
+		const url = data.url;
+		//open stripe checkout with url
+		window.open(url, '_blank');
+		loading = false;
 	};
 </script>
 
@@ -24,16 +133,130 @@
 		</p>
 	</div>
 	<div class="bg-white p-5 rounded-md">
-		<button class="p-5 bg-red-500" on:click={subscription}> test sub </button>
+		<div class="bg-gray-100 py-12">
+			<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+				<div class="text-center">
+					<h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">Pricing Plans</h2>
+					<p class="mt-4 text-lg text-gray-500">Choose a plan that works best for your business</p>
+					<div class="flex items-center justify-center space-x-2 mt-4 relative">
+						<Label for="changeYearly">
+							<span class="text-gray-500">Monthly</span>
+						</Label>
+						<Switch id="changeYearly" bind:checked={isYearly} />
+						<Label for="changeYearly">
+							<span class="text-gray-500">Yearly</span>
+							<div
+								class="absolute ml-12 text-xs top-0 bg-primary text-white rounded-full px-2 py-1"
+							>
+								Save 2 months
+							</div>
+						</Label>
+					</div>
+				</div>
+				<div class="mt-5">
+					<div class="flex justify-center">
+						<div class="w-full grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4">
+							{#each pricingPlans as plan, index}
+								<div class="bg-white rounded-lg shadow-lg">
+									<div class="px-6 py-8">
+										<div class="text-center">
+											<h3 class="text-lg leading-6 font-medium text-gray-900">
+												{plan.name}
+											</h3>
+											<div class="mt-4 flex items-center justify-center">
+												<span
+													class="px-1 flex items-start text-6xl leading-none tracking-tight text-gray-900"
+												>
+													<span class="text-4xl font-medium"
+														>${isYearly
+															? Math.round(pricingPlans[index].pricing.yearly / 12)
+															: pricingPlans[index].pricing.monthly}</span
+													>
+												</span>
+												<span class="text-xl leading-7 font-medium text-gray-500"> /mo </span>
+											</div>
+										</div>
+										<div class="mt-6">
+											<ul class="space-y-2">
+												{#each plan.features as feature}
+													<li class="flex items-start">
+														<div class="flex-shrink-0">
+															<!-- Heroicon name: check -->
+															<svg
+																class="h-6 w-6 text-green-500"
+																xmlns="http://www.w3.org/2000/svg"
+																fill="none"
+																viewBox="0 0 24 24"
+																stroke="currentColor"
+															>
+																<path
+																	stroke-linecap="round"
+																	stroke-linejoin="round"
+																	stroke-width="2"
+																	d="M5 13l4 4L19 7"
+																/>
+															</svg>
+														</div>
+														<p class="ml-3 text-base leading-6 text-gray-500">
+															{feature.name}
+														</p>
+													</li>
+												{/each}
+											</ul>
+										</div>
+										<div class="mt-8">
+											<div class="rounded-lg shadow-md">
+												{#if plan.id == $currentUser?.subscription_plan}
+													<button
+														class="block w-full text-center rounded-lg border border-transparent bg-red-700 px-6 py-3 text-base leading-6 font-medium text-white hover:bg-red-500 focus:outline-none focus:red-indigo-700 focus:shadow-outline-indigo transition duration-150 ease-in-out"
+													>
+														Current Plan
+													</button>
+												{:else}
+													<button
+														on:click={() =>
+															subscription(plan.stripe_pricing_id[isYearly ? 'yearly' : 'monthly'])}
+														class="block w-full text-center rounded-lg border border-transparent bg-primary px-6 py-3 text-base leading-6 font-medium text-white hover:bg-red-500 focus:outline-none focus:red-indigo-700 focus:shadow-outline-indigo transition duration-150 ease-in-out"
+														disabled={loading}
+														class:opacity-50={loading}
+													>
+														{#if loading}
+															<div class="flex justify-center">
+																<svg
+																	class="animate-spin text-center -ml-1 mr-3 h-5 w-5 text-white"
+																	xmlns="http://www.w3.org/2000/svg"
+																	fill="none"
+																	viewBox="0 0 24 24"
+																>
+																	<circle
+																		class="opacity-25"
+																		cx="12"
+																		cy="12"
+																		r="10"
+																		stroke="currentColor"
+																		stroke-width="4"
+																	/>
+																	<path
+																		class="opacity-75"
+																		fill="currentColor"
+																		d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0012 20c4.411 0 8-3.589 8-8h-2c0 3.309-2.691 6-6 6-3.309 0-6-2.691-6-6H6c0 4.411 3.589 8 8 8a7.962 7.962 0 005.291-2H6z"
+																	/>
+																</svg>
+															</div>
+														{:else}
+															Upgrade
+														{/if}
+													</button>
+												{/if}
+											</div>
+										</div>
+									</div>
+								</div>
+							{/each}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
-	<script async src="https://js.stripe.com/v3/pricing-table.js">
-	</script>
-    {#if $currentUser}
-	<stripe-pricing-table
-		pricing-table-id="prctbl_1OC7MwH2Tv3zxv6JdzPUO7O8"
-		publishable-key="pk_test_51OC3rdH2Tv3zxv6JEKhyAi3DDtDS13YdMN5Wjgp1ZFoPso3zQsbUOXBuUxnAkHg1yCIualRY7TimSWnZai3Zk0Ll004qO1noLL"
-        client-reference-id="{$currentUser.id}"
-        customer-email="{$currentUser.email}"
-	/>
-    {/if}
 </div>

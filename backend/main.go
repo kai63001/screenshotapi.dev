@@ -105,6 +105,19 @@ func main() {
 			return errCreateAccessKey
 		}
 
+		// update subscription_plan to free user table
+		_, errUpdateSubscriptionPlan := app.Dao().DB().NewQuery(`
+			UPDATE users
+			SET subscription_plan = {:subscription_plan}
+			WHERE id = {:id}
+		`).Bind(dbx.Params{
+			"subscription_plan": os.Getenv("FREE_PLAN_ID"),
+			"id":                e.Model.GetId(),
+		}).Execute()
+		if errUpdateSubscriptionPlan != nil {
+			return errUpdateSubscriptionPlan
+		}
+
 		return nil
 	})
 

@@ -70,7 +70,7 @@
 		<InputField label="Password" name="password" type="password" id="password" required />
 
 		<p class="block text-xs relative -top-5 h-0">
-			Don't have an account? <a href="/signup" class="text-secondary hover:underline">Sign Up</a>.
+			Don't have an account? <a href="/signup" class="text-primary hover:underline">Sign Up</a>.
 		</p>
 
 		<button
@@ -87,10 +87,10 @@
 		</button>
 		<!-- term and policy -->
 		<p class="text-xs text-gray-500 relative -top-4">
-			By Sign In, you agree to our <a href="/terms" class="text-secondary hover:underline"
+			By Sign In, you agree to our <a href="/terms" class="text-primary hover:underline"
 				>Terms of Service</a
 			>
-			and <a href="/privacy" class="text-secondary hover:underline">Privacy Policy</a>.
+			and <a href="/privacy" class="text-primary hover:underline">Privacy Policy</a>.
 		</p>
 	</form>
 </div>

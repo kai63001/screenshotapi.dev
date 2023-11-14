@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"log"
 	"os"
 
@@ -26,8 +27,6 @@ func Subscription(c echo.Context, db dbx.Builder) error {
 
 	stripe.Key = os.Getenv("STRIPE_KEY")
 
-	//print record
-	log.Println(record.Get("stripe_customer_id"))
 	stripe_customer_id := record.Get("stripe_customer_id").(string)
 	if stripe_customer_id == "" {
 		//update stripe_customer_id
@@ -61,12 +60,21 @@ func Subscription(c echo.Context, db dbx.Builder) error {
 		}
 	}
 
+	json_map := make(map[string]interface{})
+	err := json.NewDecoder(c.Request().Body).Decode(&json_map)
+	if err != nil {
+		log.Println("err", err)
+		return err
+	}
+
+	pricing_id := json_map["pricing_id"].(string)
+
 	//create subscription
 	params := &stripe.CheckoutSessionParams{
 		Customer: stripe.String(stripe_customer_id),
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
 			{
-				Price:    stripe.String("price_1OC40uH2Tv3zxv6J2x9TstWP"),
+				Price:    stripe.String(pricing_id),
 				Quantity: stripe.Int64(1),
 			},
 		},
@@ -86,10 +94,9 @@ func Subscription(c echo.Context, db dbx.Builder) error {
 		})
 	}
 
-	log.Println("subscription", subscription.URL)
-
 	return c.JSON(200, map[string]interface{}{
 		"status": "success",
+		"data":   subscription,
 		"url":    subscription.URL,
 	})
 }
