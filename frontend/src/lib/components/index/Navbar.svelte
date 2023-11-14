@@ -9,7 +9,7 @@
 	const menuList = [
 		{
 			name: 'Features',
-			url: '/'
+			url: '/features'
 		},
 		{
 			name: 'Pricing',

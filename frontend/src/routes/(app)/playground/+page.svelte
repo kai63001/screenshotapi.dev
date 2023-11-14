@@ -31,7 +31,7 @@
 			apiUrl.searchParams.append('height', innerHeight.toString());
 		if (delay != 2) apiUrl.searchParams.append('delay', delay.toString());
         if (noAds) apiUrl.searchParams.append('no_ads', 'true');
-        if (noCookie) apiUrl.searchParams.append('no_cookie', 'true');
+        if (noCookie) apiUrl.searchParams.append('no_cookie_banner', 'true');
 		const response = await fetch(apiUrl.toString());
 		const blob = await response.blob();
 		if (blob.type === 'application/json') {
@@ -58,7 +58,7 @@
 			apiUrl.searchParams.append('height', innerHeight.toString());
 		if (delay != 2 && delay) apiUrl.searchParams.append('delay', delay.toString());
         if (noAds) apiUrl.searchParams.append('no_ads', 'true');
-        if (noCookie) apiUrl.searchParams.append('no_cookie', 'true');
+        if (noCookie) apiUrl.searchParams.append('no_cookie_banner', 'true');
 		return apiUrl.toString();
 	};
 
@@ -152,7 +152,7 @@
                 <div class="flex items-center space-x-3">
                     <Switch bind:checked={noCookie} id="no-cookie" />
                     <Label for="no-cookie" class="text-gray-500">
-                        Block cookie popups
+                        Block Cookie Popups
                     </Label>
                 </div>
             </div>

@@ -38,6 +38,14 @@ func main() {
 			database := app.Dao().DB()
 			return api.TakeScreenshot(c, database, collection)
 		})
+		e.Router.POST("/api/subscription", func(c echo.Context) error {
+			database := app.Dao().DB()
+			return api.Subscription(c, database)
+		})
+		e.Router.POST("/api/hook", func(c echo.Context) error {
+			database := app.Dao().DB()
+			return api.Hook(c, database)
+		})
 		e.Router.GET("/*", apis.StaticDirectoryHandler(os.DirFS("./pb_public"), false))
 		return nil
 	})
@@ -96,6 +104,7 @@ func main() {
 		if errCreateAccessKey != nil {
 			return errCreateAccessKey
 		}
+
 		return nil
 	})
 

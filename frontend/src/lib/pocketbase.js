@@ -7,6 +7,7 @@ export const pb = new Pocketbase('http://127.0.0.1:8090/');
 export const currentUser = writable(pb.authStore.model);
 
 pb.authStore.onChange(async (auth) => {
+    // console.log(auth)
     if (!auth) {
         currentUser.set(null)
         localStorage.removeItem('access_key')

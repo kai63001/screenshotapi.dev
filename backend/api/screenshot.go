@@ -52,7 +52,7 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection) err
 		noAds = false
 	}
 
-	noCookieStr := c.QueryParam("no_cookie")
+	noCookieStr := c.QueryParam("no_cookie_banner")
 	noCookie, err := strconv.ParseBool(noCookieStr)
 	if err != nil {
 		noCookie = false
