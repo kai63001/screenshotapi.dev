@@ -69,7 +69,7 @@
 		<div>
 			<a href="/" class="p-5 flex items-center space-x-2">
 				<img src={logo} alt="logo" width="30px" height="30px" loading="eager" />
-				<p class="ml-2 heading text-xl">SnapCapture</p>
+				<p class="ml-2 heading text-xl">ScreenshotAPI</p>
 			</a>
 			<div class="p-5">
 				<div class="px-5 py-3 bg-[#faf9fb] rounded">

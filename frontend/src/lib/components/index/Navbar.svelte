@@ -45,7 +45,7 @@
 	<div class="flex items-center justify-between max-w-7xl px-2 m-auto">
 		<a href="/" class="flex space-x-2 items-center">
 			<img src={logo} alt="logo" width="25px" height="25px" loading="eager" />
-			<p class="heading">SnapCapture</p>
+			<p class="heading">ScreenshotAPI</p>
 		</a>
 		<ul class="hidden md:flex space-x-4">
 			{#each menuList as menu}

@@ -77,7 +77,7 @@
 <div class="flex flex-col items-center justify-center min-h-screen bg-white">
     <a href="/" class="absolute top-0 left-0 m-4 text-gray-800 text-sm font-bold">Home</a>
 	<h1 class="text-4xl font-bold text-gray-800 mb-6">
-		<img src={bg} alt="snapcapture logo" width="50px" height="50px" class="w-10 h-10 inline-block mr-2" />
+		<img src={bg} alt="ScreenshotAPI logo" width="50px" height="50px" class="w-10 h-10 inline-block mr-2" />
 		Register
 	</h1>
 	<form

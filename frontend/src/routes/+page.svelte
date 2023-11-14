@@ -8,10 +8,10 @@
 </script>
 
 <svelte:head>
-	<title>SnapCapture: Easy Webpage Screenshot API for Developers & Businesses</title>
+	<title>ScreenshotAPI: Easy Webpage Screenshot API for Developers & Businesses</title>
 	<meta
 		name="description"
-		content="Discover SnapCapture, the user-friendly screenshot API designed for seamless integration. Capture high-quality webpage screenshots with our fast, customizable tool. Ideal for developers and businesses, SnapCapture enhances your project with efficient web capture technology. Start simplifying your content management and web archiving today."
+		content="Discover ScreenshotAPI, the user-friendly screenshot API designed for seamless integration. Capture high-quality webpage screenshots with our fast, customizable tool. Ideal for developers and businesses, SnapCapture enhances your project with efficient web capture technology. Start simplifying your content management and web archiving today."
 	/>
 </svelte:head>
 <header>
@@ -58,7 +58,7 @@
 						<div class="bg-red-400 w-1 h-1" />
 					</div>
 				</div>
-				<img loading="eager" src={bg} width={'700px'} height={'450px'} alt="snapcapture example screenshot" />
+				<img loading="eager" src={bg} width={'700px'} height={'450px'} alt="ScreenshotAPI example screenshot" />
 			</div>
 		</div>
 	</div>

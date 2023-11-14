@@ -79,7 +79,8 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection) err
 	errCheckQuota := db.
 		Select("screenshot_usage.screenshots_taken", "subscription_plans.name", "subscription_plans.included_screenshots").
 		From("screenshot_usage").
-		InnerJoin("subscription_plans", dbx.NewExp("subscription_plans.id = screenshot_usage.subscription_plan")).
+		InnerJoin("users", dbx.NewExp("users.id = screenshot_usage.user_id")).
+		InnerJoin("subscription_plans", dbx.NewExp("subscription_plans.id = users.subscription_plan")).
 		Where(dbx.NewExp("screenshot_usage.user_id = {:user_id}", dbx.Params{"user_id": userData.UserId})).
 		One(&quotaData)
 	if errCheckQuota != nil {
@@ -89,7 +90,7 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection) err
 		})
 	}
 
-	if quotaData.ScreenshotUsage.ScreenshotTaken >= quotaData.SubscriptionPlans.IncludedScreenshots && quotaData.SubscriptionPlans.Name == "FREE" {
+	if quotaData.ScreenshotUsage.ScreenshotTaken >= quotaData.SubscriptionPlans.IncludedScreenshots && quotaData.SubscriptionPlans.Name == "Free" {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"status":  "error",
 			"message": "You have reached your quota",
