@@ -1,6 +1,6 @@
 <script>
 	// @ts-nocheck
-	import bg from '$lib/assets/image/index/bg.png?&format=webp&quality=100&w=700&h=450';
+	import bg from '$lib/assets/image/index/bg.png?format=webp&quality=100&w=700&h=450';
 
 	import Button from '$lib/components/ButtonCustom.svelte';
 	import Icon from '@iconify/svelte';

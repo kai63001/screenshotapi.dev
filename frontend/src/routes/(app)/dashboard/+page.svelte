@@ -28,7 +28,6 @@
 		// 		fields:
 		// 			'expand.screenshot_usage,expand.subscription_plan.included_screenshots'
 		// 	});
-		console.log(quotaCollection);
 		quota = {
 			screenshots_taken: quotaCollection.screenshots_taken,
 			included_screenshots: quotaCollection?.expand?.user_id?.expand?.subscription_plan?.included_screenshots

@@ -14,7 +14,7 @@
 
 	let pricingPlans = [
 		{
-			id: 'ixe3ipu5fabnv9t',
+			id: '',
 			name: 'Free',
 			pricing: {
 				monthly: 0,
@@ -33,7 +33,7 @@
 			]
 		},
 		{
-			id: '8tdlog3vnb768j9',
+			id: '',
 			name: 'Hobbyist',
 			pricing: {
 				monthly: 14,
@@ -52,7 +52,7 @@
 			]
 		},
 		{
-			id: '8tdlog3vnb768j9',
+			id: '',
 			name: 'Business',
 			pricing: {
 				monthly: 48,
@@ -71,7 +71,7 @@
 			]
 		},
 		{
-			id: '8tdlog3vnb768j9',
+			id: '',
 			name: 'Professional',
 			pricing: {
 				monthly: 148,
@@ -92,6 +92,7 @@
 	];
 
 	let isYearly = true;
+	let currentIndex = 0;
 
 	onMount(async () => {
 		//get subscription plan list
@@ -108,6 +109,9 @@
 			}
 			return plan;
 		});
+
+		//get current index of pricing plan
+		currentIndex = pricingPlans.findIndex((plan) => plan.id === $currentUser?.subscription_plan);
 	});
 
 	let loading = false;
@@ -122,6 +126,8 @@
 		window.open(url, '_blank');
 		loading = false;
 	};
+
+
 </script>
 
 <div class="gap-4 grid">
@@ -244,7 +250,11 @@
 																</svg>
 															</div>
 														{:else}
-															Upgrade
+															{#if currentIndex > index}
+																Downgrade
+															{:else}
+																Upgrade
+															{/if}
 														{/if}
 													</button>
 												{/if}

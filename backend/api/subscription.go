@@ -83,8 +83,8 @@ func Subscription(c echo.Context, db dbx.Builder) error {
 			stripe.String("card"),
 		},
 		AllowPromotionCodes: stripe.Bool(true),
-		SuccessURL:          stripe.String("https://screenshotapi.dev/subscription"),
-		CancelURL:           stripe.String("https://screenshotapi.dev/subscription"),
+		SuccessURL:          stripe.String(os.Getenv("FRONTEND_URL") + "/subscription/success"),
+		CancelURL:           stripe.String(os.Getenv("FRONTEND_URL") + "/subscription/cancel"),
 	}
 
 	subscription, err := session.New(params)
