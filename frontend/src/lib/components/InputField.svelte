@@ -33,6 +33,7 @@
 			bind:this={inputRef}
 			bind:value
 			{...$$props}
+			class:cursor-text={$$props.disabled}
 			class="w-full bg-transparent outline-none px-4 py-1 text-sm"
 		/>
 	</div>

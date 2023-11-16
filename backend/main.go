@@ -50,6 +50,10 @@ func main() {
 			database := app.Dao().DB()
 			return api.StripePortal(c, database)
 		})
+		e.Router.PATCH("/api/access_key", func(c echo.Context) error {
+			database := app.Dao().DB()
+			return api.ResetAccessKey(c, database)
+		})
 		e.Router.GET("/*", apis.StaticDirectoryHandler(os.DirFS("./pb_public"), false))
 		return nil
 	})
