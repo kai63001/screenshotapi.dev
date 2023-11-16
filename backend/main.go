@@ -46,6 +46,10 @@ func main() {
 			database := app.Dao().DB()
 			return api.Hook(c, database)
 		})
+		e.Router.POST("/api/portal", func(c echo.Context) error {
+			database := app.Dao().DB()
+			return api.StripePortal(c, database)
+		})
 		e.Router.GET("/*", apis.StaticDirectoryHandler(os.DirFS("./pb_public"), false))
 		return nil
 	})

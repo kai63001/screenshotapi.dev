@@ -117,6 +117,12 @@
 	let loading = false;
 
 	const subscription = async (pricing_id) => {
+		//check if has been subscribed
+		if ($currentUser?.subscription_plan != pricingPlans[0].id) {
+			portalSubscription();
+			return;
+		}
+		if (!pricing_id) return;
 		loading = true;
 		const { data } = await instance.post(`/subscription`, {
 			pricing_id
@@ -127,7 +133,16 @@
 		loading = false;
 	};
 
+	const portalSubscription = async () => {
+		if (!$currentUser?.stripe_customer_id) return;
 
+		loading = true;
+		const { data } = await instance.post(`/portal`);
+		const url = data.portal.url;
+		//open stripe checkout with url
+		window.open(url, '_blank');
+		loading = false;
+	};
 </script>
 
 <div class="gap-4 grid">
@@ -214,14 +229,47 @@
 											<div class="rounded-lg shadow-md">
 												{#if plan.id == $currentUser?.subscription_plan}
 													<button
+														on:click={portalSubscription}
 														class="block w-full text-center rounded-lg border border-transparent bg-red-700 px-6 py-3 text-base leading-6 font-medium text-white hover:bg-red-500 focus:outline-none focus:red-indigo-700 focus:shadow-outline-indigo transition duration-150 ease-in-out"
 													>
-														Current Plan
+														{#if loading}
+															<div class="flex justify-center">
+																<svg
+																	class="animate-spin text-center -ml-1 mr-3 h-5 w-5 text-white"
+																	xmlns="http://www.w3.org/2000/svg"
+																	fill="none"
+																	viewBox="0 0 24 24"
+																>
+																	<circle
+																		class="opacity-25"
+																		cx="12"
+																		cy="12"
+																		r="10"
+																		stroke="currentColor"
+																		stroke-width="4"
+																	/>
+																	<path
+																		class="opacity-75"
+																		fill="currentColor"
+																		d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0012 20c4.411 0 8-3.589 8-8h-2c0 3.309-2.691 6-6 6-3.309 0-6-2.691-6-6H6c0 4.411 3.589 8 8 8a7.962 7.962 0 005.291-2H6z"
+																	/>
+																</svg>
+															</div>
+														{:else if $currentUser?.subscription_plan == plan.id && $currentUser?.stripe_customer_id}
+															Manage Subscription
+														{:else}
+															Current Plan
+														{/if}
 													</button>
 												{:else}
 													<button
-														on:click={() =>
-															subscription(plan.stripe_pricing_id[isYearly ? 'yearly' : 'monthly'])}
+														on:click={() => {
+															if (index == 0) {
+																portalSubscription();
+																return;
+															}
+															subscription(plan.stripe_pricing_id[isYearly ? 'yearly' : 'monthly']);
+														}}
 														class="block w-full text-center rounded-lg border border-transparent bg-primary px-6 py-3 text-base leading-6 font-medium text-white hover:bg-red-500 focus:outline-none focus:red-indigo-700 focus:shadow-outline-indigo transition duration-150 ease-in-out"
 														disabled={loading}
 														class:opacity-50={loading}
@@ -249,12 +297,10 @@
 																	/>
 																</svg>
 															</div>
+														{:else if currentIndex > index}
+															Downgrade
 														{:else}
-															{#if currentIndex > index}
-																Downgrade
-															{:else}
-																Upgrade
-															{/if}
+															Upgrade
 														{/if}
 													</button>
 												{/if}
