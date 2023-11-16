@@ -38,6 +38,10 @@ func main() {
 			database := app.Dao().DB()
 			return api.TakeScreenshot(c, database, collection)
 		})
+		e.Router.GET("/api/history", func(c echo.Context) error {
+			database := app.Dao().DB()
+			return api.GetHistoryScreenshotAPI(c, database, collection)
+		})
 		e.Router.POST("/api/subscription", func(c echo.Context) error {
 			database := app.Dao().DB()
 			return api.Subscription(c, database)
