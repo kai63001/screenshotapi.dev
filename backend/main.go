@@ -27,8 +27,8 @@ func main() {
 	app := pocketbase.New()
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
+		Password: os.Getenv("REDIS_PASSWORD"), // no password set
+		DB:       0,                           // use default DB
 	})
 
 	clientOptions := options.Client().ApplyURI(os.Getenv("MONGO_DB_URI"))

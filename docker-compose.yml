@@ -2,5 +2,8 @@ version: '3.8'
 services:
   redis:
     image: redis
+    restart: always
+    command: >
+          --requirepass kbbgJ6wx4Ucnf3RZLpu3nEhYxh
     ports:
       - 6379:6379
