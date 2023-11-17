@@ -25,9 +25,11 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.17.3 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.23.2 // indirect
 	github.com/aws/smithy-go v1.15.0 // indirect
+	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/chromedp/cdproto v0.0.0-20231108195835-5de19437760b // indirect
 	github.com/chromedp/chromedp v0.9.3 // indirect
 	github.com/chromedp/sysutil v1.0.0 // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/disintegration/imaging v1.6.2 // indirect
 	github.com/domodwyer/mailyak/v3 v3.6.2 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
@@ -61,6 +63,7 @@ require (
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
 	github.com/pocketbase/dbx v1.10.1 // indirect
 	github.com/pocketbase/pocketbase v0.19.3 // indirect
+	github.com/redis/go-redis/v9 v9.3.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/spf13/cast v1.5.1 // indirect
 	github.com/spf13/cobra v1.7.0 // indirect

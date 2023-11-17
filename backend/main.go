@@ -11,6 +11,7 @@ import (
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
+	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -24,6 +25,11 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 	app := pocketbase.New()
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
 
 	clientOptions := options.Client().ApplyURI(os.Getenv("MONGO_DB_URI"))
 	client, err := mongo.Connect(context.Background(), clientOptions)
@@ -36,7 +42,7 @@ func main() {
 	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
 		e.Router.GET("/api/screenshot", func(c echo.Context) error {
 			database := app.Dao().DB()
-			return api.TakeScreenshot(c, database, collection)
+			return api.TakeScreenshot(c, database, collection, rdb)
 		})
 		e.Router.GET("/api/history", func(c echo.Context) error {
 			database := app.Dao().DB()

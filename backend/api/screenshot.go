@@ -10,12 +10,13 @@ import (
 	"github.com/chromedp/chromedp"
 	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/dbx"
+	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	module "backend/module"
 )
 
-func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection) error {
+func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb *redis.Client) error {
 	//get query url
 	url := c.QueryParam("url")
 	if url == "" {
@@ -77,7 +78,7 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection) err
 	//check quota
 	quotaData := module.GetQuotaScreenshot{}
 	errCheckQuota := db.
-		Select("screenshot_usage.screenshots_taken", "subscription_plans.name", "subscription_plans.included_screenshots").
+		Select("screenshot_usage.screenshots_taken", "subscription_plans.name", "subscription_plans.included_screenshots", "subscription_plans.rate_limit_per_minute").
 		From("screenshot_usage").
 		InnerJoin("users", dbx.NewExp("users.id = screenshot_usage.user_id")).
 		InnerJoin("subscription_plans", dbx.NewExp("subscription_plans.id = users.subscription_plan")).
@@ -87,6 +88,34 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection) err
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"status":  "error",
 			"message": "access_key is invalid",
+		})
+	}
+
+	//check rate limit per minute with redis
+	// Key to store the rate limit counter
+	key := "rate_limit:" + userData.UserId
+
+	// Increment the counter by 1
+	count, err := rdb.Incr(context.Background(), key).Result()
+	if err != nil {
+		// Handle Redis error
+		log.Println("err", err)
+	}
+
+	// Set the expiration time to 1 minute
+	if count == 1 {
+		_, err := rdb.Expire(context.Background(), key, time.Minute).Result()
+		if err != nil {
+			// Handle Redis error
+			log.Println("err", err)
+		}
+	}
+
+	// Check if the counter exceeds the rate limit
+	if count > quotaData.SubscriptionPlans.RateLimitPerMinute {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status":  "error",
+			"message": "Rate limit exceeded",
 		})
 	}
 
