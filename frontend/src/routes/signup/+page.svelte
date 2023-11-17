@@ -6,14 +6,14 @@
 	import Icon from '@iconify/svelte';
 	import toast, { Toaster } from 'svelte-french-toast';
 	import { goto } from '$app/navigation';
-    import {onMount} from 'svelte';
+	import { onMount } from 'svelte';
 
-    onMount(async () => {
-        const isAuth = $currentUser;
-        if(isAuth){
-            goto('/dashboard');
-        }
-    })
+	onMount(async () => {
+		const isAuth = $currentUser;
+		if (isAuth) {
+			goto('/dashboard');
+		}
+	});
 
 	let loading = false;
 
@@ -39,7 +39,7 @@
 			}),
 			{
 				loading: 'Registering...',
-				success: 'Registered successfully!',
+				success: 'Registration successfully!',
 				error: 'Registration failed!'
 			},
 			{
@@ -54,11 +54,14 @@
 				pb.collection('users')
 					.create(user)
 					.then(() => {
+						//send verification email
+						pb.collection('users').requestVerification(user?.email)
 						resolve(true);
 						loading = false;
 						goto('/login');
 					})
 					.catch((err) => {
+						console.log(err)
 						Object.keys(err.data.data).forEach((key) => {
 							toast.error(err.data.data[key].message, {
 								color: 'red',
@@ -75,9 +78,15 @@
 </script>
 
 <div class="flex flex-col items-center justify-center min-h-screen bg-white">
-    <a href="/" class="absolute top-0 left-0 m-4 text-gray-800 text-sm font-bold">Home</a>
+	<a href="/" class="absolute top-0 left-0 m-4 text-gray-800 text-sm font-bold">Home</a>
 	<h1 class="text-4xl font-bold text-gray-800 mb-6">
-		<img src={bg} alt="ScreenshotAPI logo" width="50px" height="50px" class="w-10 h-10 inline-block mr-2" />
+		<img
+			src={bg}
+			alt="ScreenshotAPI logo"
+			width="50px"
+			height="50px"
+			class="w-10 h-10 inline-block mr-2"
+		/>
 		Register
 	</h1>
 	<form

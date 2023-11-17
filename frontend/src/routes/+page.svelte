@@ -16,7 +16,9 @@
 </svelte:head>
 <header>
 	<Navbar />
-	<div class="max-w-xl md:max-w-7xl px-2 m-auto flex flex-col lg:flex-row space-y-3 lg:space-y-0 lg:space-x-3 justify-between pt-28">
+	<div
+		class="max-w-xl md:max-w-7xl px-2 m-auto flex flex-col lg:flex-row space-y-3 lg:space-y-0 lg:space-x-3 justify-between pt-28"
+	>
 		<div class="w-full lg:w-6/12">
 			<h1 class="text-5xl font-bold heading leading-tight text-gray-900">
 				Capture Webpages Easily with Our Simple <span
@@ -28,20 +30,22 @@
 				Effortless, High-Quality Webpage Screenshots in Seconds {'–'}
 				<strong>Fully Customizable to Fit Your Unique Needs.</strong>
 				Tailored for Developers and Businesses.
-				<a class="text-primary hover:underline" href="/"> Learn More. </a>
+				<a class="text-primary hover:underline" href="/docs/introduction"> Learn More. </a>
 			</p>
-			<Button class="mt-5 flex items-center space-x-2 shadow-md"
-				>Get started for Free <Icon
-					class="ml-2"
-					icon="material-symbols:arrow-right-alt-rounded"
-					width="25"
-				/></Button
-			>
+			<a href="/playground">
+				<Button class="mt-5 flex items-center space-x-2 shadow-md"
+					>Get started for Free <Icon
+						class="ml-2"
+						icon="material-symbols:arrow-right-alt-rounded"
+						width="25"
+					/></Button
+				>
+			</a>
 			<p class="text-xs mt-1 text-gray-500">No credit card required</p>
 		</div>
 		<div class="w-full lg:w-6/12">
 			<div class="shadow-xl">
-				<div class="bg-gray-800 py-2 px-3 flex justify-end flex-row-reverse rounded-t">
+				<!-- <div class="bg-gray-800 py-2 px-3 flex justify-end flex-row-reverse rounded-t">
 					<div class="mac-menu-bar-dot h-5 w-5 flex items-center">
 						<div class="bg-yellow-400 w-1 h-1" />
 					</div>
@@ -57,8 +61,21 @@
 						<div class="bg-red-400 w-1 h-1" />
 						<div class="bg-red-400 w-1 h-1" />
 					</div>
+				</div> -->
+				<div
+					class="bg-[#2f3238] py-3 px-3 flex justify-end items-center flex-row-reverse rounded-t"
+				>
+					<div class="bg-green-400 w-3 h-3 rounded-full mr-2" />
+					<div class="bg-yellow-400 w-3 h-3 rounded-full mr-2" />
+					<div class="bg-red-400 w-3 h-3 rounded-full mr-2" />
 				</div>
-				<img loading="eager" src={bg} width={'700px'} height={'450px'} alt="ScreenshotAPI example screenshot" />
+				<img
+					loading="eager"
+					src={bg}
+					width={'700px'}
+					height={'450px'}
+					alt="ScreenshotAPI example screenshot"
+				/>
 			</div>
 		</div>
 	</div>
