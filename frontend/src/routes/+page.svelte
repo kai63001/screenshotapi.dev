@@ -1,10 +1,10 @@
 <script>
 	// @ts-nocheck
-	import bg from '$lib/assets/image/index/bg.png?format=webp&quality=100&w=700&h=450';
 
 	import Button from '$lib/components/ButtonCustom.svelte';
 	import Icon from '@iconify/svelte';
 	import Navbar from '$lib/components/index/Navbar.svelte';
+	import Hero from '$lib/components/index/Hero.svelte';
 </script>
 
 <svelte:head>
@@ -44,39 +44,7 @@
 			<p class="text-xs mt-1 text-gray-500">No credit card required</p>
 		</div>
 		<div class="w-full lg:w-6/12">
-			<div class="shadow-xl">
-				<!-- <div class="bg-gray-800 py-2 px-3 flex justify-end flex-row-reverse rounded-t">
-					<div class="mac-menu-bar-dot h-5 w-5 flex items-center">
-						<div class="bg-yellow-400 w-1 h-1" />
-					</div>
-					<div class="mac-menu-bar-dot h-5 w-5 grid grid-cols-2 p-1 gap-0.5 mr-2">
-						<div class="bg-green-400 w-1 h-1" />
-						<div class="bg-green-400 w-1 h-1" />
-						<div class="w-1 h-1" />
-						<div class="bg-green-400 w-1 h-1" />
-					</div>
-					<div class="mac-menu-bar-dot h-5 w-5 grid grid-cols-2 p-1 gap-0.5">
-						<div class="bg-red-400 w-1 h-1" />
-						<div class="bg-red-400 w-1 h-1" />
-						<div class="bg-red-400 w-1 h-1" />
-						<div class="bg-red-400 w-1 h-1" />
-					</div>
-				</div> -->
-				<div
-					class="bg-[#2f3238] py-3 px-3 flex justify-end items-center flex-row-reverse rounded-t"
-				>
-					<div class="bg-green-400 w-3 h-3 rounded-full mr-2" />
-					<div class="bg-yellow-400 w-3 h-3 rounded-full mr-2" />
-					<div class="bg-red-400 w-3 h-3 rounded-full mr-2" />
-				</div>
-				<img
-					loading="eager"
-					src={bg}
-					width={'700px'}
-					height={'450px'}
-					alt="ScreenshotAPI example screenshot"
-				/>
-			</div>
+			<Hero/>
 		</div>
 	</div>
 </header>
