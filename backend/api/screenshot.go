@@ -245,6 +245,22 @@ func screenshot(url string, width int64, height int64, fullScreen bool, noAds bo
                         btn.click();
                     }
                 });
+                var cookieBanner = document.querySelector('div[id^="cookie"]');
+                if (cookieBanner) {
+                    cookieBanner.remove();
+                }
+                var cookieBanner2 = document.querySelector('div[id^="Cookie"]');
+                if (cookieBanner2) {
+                    cookieBanner2.remove();
+                }
+				var cookieBanner3 = document.querySelector('div[name^="cookie"]');
+                if (cookieBanner3) {
+                    cookieBanner3.remove();
+                }
+                var cookieBanner4 = document.querySelector('div[name^="Cookie"]');
+                if (cookieBanner4) {
+                    cookieBanner4.remove();
+                }
 				`
 				}
 				return chromedp.Evaluate(script, nil).Do(ctx)
@@ -297,6 +313,22 @@ func screenshot(url string, width int64, height int64, fullScreen bool, noAds bo
                         btn.click();
                     }
                 });
+				var cookieBanner = document.querySelector('div[id*="cookie"]');
+                if (cookieBanner) {
+                    cookieBanner.remove();
+                }
+                var cookieBanner2 = document.querySelector('div[id*="Cookie"]');
+                if (cookieBanner2) {
+                    cookieBanner2.remove();
+                }
+				var cookieBanner3 = document.querySelector('div[name*="cookie"]');
+                if (cookieBanner3) {
+                    cookieBanner3.remove();
+                }
+                var cookieBanner4 = document.querySelector('div[name*="Cookie"]');
+                if (cookieBanner4) {
+                    cookieBanner4.remove();
+                }
 				`
 				}
 				return chromedp.Evaluate(script, nil).Do(ctx)
