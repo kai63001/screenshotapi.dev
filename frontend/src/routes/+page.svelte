@@ -6,6 +6,7 @@
 	import EverthingYouneed from '$lib/components/index/EverthingYouneed.svelte';
 	import ShowCase from '$lib/components/index/ShowCase.svelte';
 	import PricingBox from '$lib/components/pricing/PricingBox.svelte';
+	import Footer from '$lib/components/index/Footer.svelte';
 </script>
 
 <svelte:head>
@@ -55,10 +56,7 @@
 	<!-- <Feature /> -->
 	<ShowCase />
 
-
 	<PricingBox />
 </main>
 
-<!-- <footer class="bg-gray-200 py-4">
-	<p>&copy; 2022 Screenshot Website API. All rights reserved.</p>
-</footer> -->
+<Footer />

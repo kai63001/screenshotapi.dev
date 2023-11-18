@@ -48,33 +48,20 @@
 			<Table.Header>
 				<Table.Row>
 					<Table.Head class="w-[100px]">Access Key</Table.Head>
-					<Table.Head>Created</Table.Head>
 					<Table.Head>Full URL</Table.Head>
 					<Table.Head>URL</Table.Head>
-					<Table.Head class="text-right">User ID</Table.Head>
-					<Table.Head class="text-right">ID</Table.Head>
+					<Table.Head>Created</Table.Head>
 				</Table.Row>
 			</Table.Header>
 			<Table.Body>
 				{#each histories as history, i (i)}
 					<Table.Row>
 						<Table.Cell class="font-medium">{history.access_key}</Table.Cell>
-						<Table.Cell>{history.created}</Table.Cell>
-						<Table.Cell class="whitespace-pre-line sm:whitespace-normal group">
-							<div class="w-20 sm:w-auto">
-								<div
-									class="text-ellipsis overflow-hidden whitespace-nowrap w-20 group-hover:hidden"
-								>
-									{history.fullUrl}
-								</div>
-								<div class="hidden group-hover:flex">
-									{history.fullUrl}
-								</div>
-							</div>
+						<Table.Cell class="w-[300px] break-words group block">
+							{history.fullUrl}
 						</Table.Cell>
-						<Table.Cell>{history.url}</Table.Cell>
-						<Table.Cell class="text-right">{history.user_id}</Table.Cell>
-						<Table.Cell class="text-right">{history._id}</Table.Cell>
+						<Table.Cell class="break-words">{history.url}</Table.Cell>
+						<Table.Cell class="break-words">{history.created}</Table.Cell>
 					</Table.Row>
 				{/each}
 			</Table.Body>

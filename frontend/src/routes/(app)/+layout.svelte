@@ -24,6 +24,12 @@
 			active: false
 		},
 		{
+			name: 'Custom SET',
+			icon: 'carbon:settings',
+			path: '/custom-set',
+			active: false
+		},
+		{
 			name: 'Access',
 			icon: 'ph:key-bold',
 			path: '/access',

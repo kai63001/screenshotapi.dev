@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
 	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/dbx"
@@ -47,6 +48,13 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 	if err != nil {
 		fullScreen = false
 	}
+
+	scrollDelayStr := c.QueryParam("scroll_delay")
+	scrollDelay, err := strconv.ParseInt(scrollDelayStr, 10, 64)
+	if err != nil {
+		scrollDelay = 1
+	}
+
 	noAdsStr := c.QueryParam("no_ads")
 	noAds, err := strconv.ParseBool(noAdsStr)
 	if err != nil {
@@ -63,7 +71,19 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 	delayStr := c.QueryParam("delay")
 	delay, err := strconv.ParseInt(delayStr, 10, 64)
 	if err != nil {
-		delay = 2
+		delay = 0
+	}
+
+	blockTrackerStr := c.QueryParam("block_trackers")
+	blockTracker, err := strconv.ParseBool(blockTrackerStr)
+	if err != nil {
+		blockTracker = false
+	}
+
+	timeoutStr := c.QueryParam("timeout")
+	timeout, err := strconv.ParseInt(timeoutStr, 10, 64)
+	if err != nil {
+		timeout = 60
 	}
 
 	//get user_id from access_key
@@ -126,16 +146,21 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 		})
 	}
 
-	ctx, cancel := chromedp.NewContext(context.Background())
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+	defer cancel()
+
+	ctx, cancel = chromedp.NewContext(ctx)
 	defer cancel()
 
 	var buf []byte
-	if err := chromedp.Run(ctx, screenshot(url, width, height, fullScreen, noAds, noCookie, delay, &buf)); err != nil {
+	if err := chromedp.Run(ctx, screenshot(url, width, height, fullScreen, scrollDelay, noAds, noCookie, blockTracker, delay, &buf)); err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"status":  "error",
 			"message": err.Error(),
 		})
 	}
+
+	log.Println(timeout)
 
 	//update screenshot_usage
 	_, errUpdateScreenshotUsage := db.NewQuery(`
@@ -165,7 +190,7 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 	return c.Blob(http.StatusOK, "image/png", buf)
 }
 
-func screenshot(url string, width int64, height int64, fullScreen bool, noAds bool, noCookie bool, delay int64, res *[]byte) chromedp.Tasks {
+func screenshot(url string, width int64, height int64, fullScreen bool, scrollDelay int64, noAds bool, noCookie bool, blockTracker bool, delay int64, res *[]byte) chromedp.Tasks {
 	var newHeight int64
 	viewportDivID := "customViewportDiv"
 	if fullScreen {
@@ -192,14 +217,13 @@ func screenshot(url string, width int64, height int64, fullScreen bool, noAds bo
 						if err != nil {
 							return err
 						}
-						time.Sleep(2 * time.Second) // Wait for content to load; adjust the delay as needed
+						time.Sleep(time.Duration(scrollDelay) * time.Second) // Wait for content to load; adjust the delay as needed
 					} else {
 						// back to top
 						err := chromedp.Evaluate(`window.scrollTo(0,0)`, nil).Do(ctx)
 						if err != nil {
 							return err
 						}
-						time.Sleep(2 * time.Second) // Wait for content to load; adjust the delay as needed
 					}
 				}
 
@@ -217,52 +241,28 @@ func screenshot(url string, width int64, height int64, fullScreen bool, noAds bo
                 document.body.appendChild(div);
             `
 				if noAds {
-					script += `
-				var style = document.createElement('style');
-				style.innerHTML = 'div[id^="google_ads_iframe"] { display: none; }';
-				document.head.appendChild(style);
-				//ezo_ad 
-				var style2 = document.createElement('style');
-				style2.innerHTML = '.ezo_ad { display: none; }';
-				document.head.appendChild(style2);
-				`
+					script += noAdsFun()
 				}
 				if noCookie {
-					script += `
-				var style = document.createElement('style');
-				style.innerHTML = 'div[id^="cookie"] { display: none; }';
-				document.head.appendChild(style);
-				var acceptButtons = ['button[aria-label="Accept cookies"]', 'button[id*="cookie"]', 'button[class*="cookie"]', '.cookie-accept', '.cookie-agree', '.cookie-consent-accept'];
-                acceptButtons.forEach(function(selector) {
-                    var btn = document.querySelector(selector);
-                    if(btn) {
-                        btn.click();
-                    }
-                });
-				var allButtons = document.querySelectorAll('button');
-                allButtons.forEach(function(btn) {
-                    if(btn.textContent.toLowerCase().includes('cookie')) {
-                        btn.click();
-                    }
-                });
-                var cookieBanner = document.querySelector('div[id^="cookie"]');
-                if (cookieBanner) {
-                    cookieBanner.remove();
-                }
-                var cookieBanner2 = document.querySelector('div[id^="Cookie"]');
-                if (cookieBanner2) {
-                    cookieBanner2.remove();
-                }
-				var cookieBanner3 = document.querySelector('div[name^="cookie"]');
-                if (cookieBanner3) {
-                    cookieBanner3.remove();
-                }
-                var cookieBanner4 = document.querySelector('div[name^="Cookie"]');
-                if (cookieBanner4) {
-                    cookieBanner4.remove();
-                }
-				`
+					script += noCookieFunc()
 				}
+
+				if blockTracker {
+					err := network.SetBlockedURLS(
+						[]string{
+							"https://*.doubleclick.net/*",
+							"https://*.googleadservices.com/*",
+							"https://*.googlesyndication.com/*",
+							"https://*.google-analytics.com/*",
+							"https://*.googletagmanager.com/*",
+							"https://*.google.com/*",
+						},
+					).Do(ctx)
+					if err != nil {
+						return err
+					}
+				}
+
 				return chromedp.Evaluate(script, nil).Do(ctx)
 			}),
 			chromedp.Sleep(time.Duration(delay) * time.Second),
@@ -285,51 +285,25 @@ func screenshot(url string, width int64, height int64, fullScreen bool, noAds bo
                 document.body.appendChild(div);
             `
 				if noAds {
-					script += `
-				var style = document.createElement('style');
-				style.innerHTML = 'div[id^="google_ads_iframe"] { display: none; }';
-				document.head.appendChild(style);
-				//ezo_ad 
-				var style2 = document.createElement('style');
-				style2.innerHTML = '.ezo_ad { display: none; }';
-				document.head.appendChild(style2);
-				`
+					script += noAdsFun()
 				}
 				if noCookie {
-					script += `
-				var style = document.createElement('style');
-				style.innerHTML = 'div[id^="cookie"] { display: none; }';
-				document.head.appendChild(style);
-				var acceptButtons = ['button[aria-label="Accept cookies"]', 'button[id*="cookie"]', 'button[class*="cookie"]', '.cookie-accept', '.cookie-agree', '.cookie-consent-accept'];
-                acceptButtons.forEach(function(selector) {
-                    var btn = document.querySelector(selector);
-                    if(btn) {
-                        btn.click();
-                    }
-                });
-				var allButtons = document.querySelectorAll('button');
-                allButtons.forEach(function(btn) {
-                    if(btn.textContent.toLowerCase().includes('cookie')) {
-                        btn.click();
-                    }
-                });
-				var cookieBanner = document.querySelector('div[id*="cookie"]');
-                if (cookieBanner) {
-                    cookieBanner.remove();
-                }
-                var cookieBanner2 = document.querySelector('div[id*="Cookie"]');
-                if (cookieBanner2) {
-                    cookieBanner2.remove();
-                }
-				var cookieBanner3 = document.querySelector('div[name*="cookie"]');
-                if (cookieBanner3) {
-                    cookieBanner3.remove();
-                }
-                var cookieBanner4 = document.querySelector('div[name*="Cookie"]');
-                if (cookieBanner4) {
-                    cookieBanner4.remove();
-                }
-				`
+					script += noCookieFunc()
+				}
+				if blockTracker {
+					err := network.SetBlockedURLS(
+						[]string{
+							"https://*.doubleclick.net/*",
+							"https://*.googleadservices.com/*",
+							"https://*.googlesyndication.com/*",
+							"https://*.google-analytics.com/*",
+							"https://*.googletagmanager.com/*",
+							"https://*.google.com/*",
+						},
+					).Do(ctx)
+					if err != nil {
+						return err
+					}
 				}
 				return chromedp.Evaluate(script, nil).Do(ctx)
 			}),
@@ -337,4 +311,53 @@ func screenshot(url string, width int64, height int64, fullScreen bool, noAds bo
 			chromedp.Screenshot("#"+viewportDivID, res, chromedp.NodeVisible, chromedp.ByQuery),
 		}
 	}
+}
+
+func noCookieFunc() string {
+	return `
+	var style = document.createElement('style');
+	style.innerHTML = 'div[id^="cookie"] { display: none; }';
+	document.head.appendChild(style);
+	var acceptButtons = ['button[aria-label="Accept cookies"]', 'button[id*="cookie"]', 'button[class*="cookie"]', '.cookie-accept', '.cookie-agree', '.cookie-consent-accept'];
+	acceptButtons.forEach(function(selector) {
+		var btn = document.querySelector(selector);
+		if(btn) {
+			btn.click();
+		}
+	});
+	var allButtons = document.querySelectorAll('button');
+	allButtons.forEach(function(btn) {
+		if(btn.textContent.toLowerCase().includes('cookie')) {
+			btn.click();
+		}
+	});
+	var cookieBanner = document.querySelector('div[id*="cookie"]');
+	if (cookieBanner) {
+		cookieBanner.remove();
+	}
+	var cookieBanner2 = document.querySelector('div[id*="Cookie"]');
+	if (cookieBanner2) {
+		cookieBanner2.remove();
+	}
+	var cookieBanner3 = document.querySelector('div[name*="cookie"]');
+	if (cookieBanner3) {
+		cookieBanner3.remove();
+	}
+	var cookieBanner4 = document.querySelector('div[name*="Cookie"]');
+	if (cookieBanner4) {
+		cookieBanner4.remove();
+	}
+	`
+}
+
+func noAdsFun() string {
+	return `
+	var style = document.createElement('style');
+	style.innerHTML = 'div[id^="google_ads_iframe"] { display: none; }';
+	document.head.appendChild(style);
+	//ezo_ad 
+	var style2 = document.createElement('style');
+	style2.innerHTML = '.ezo_ad { display: none; }';
+	document.head.appendChild(style2);
+	`
 }

@@ -10,11 +10,14 @@
 
 	let url = 'https://unclelife.co';
 	let isFullScreen = false;
+	let scrollDelay = 1;
 	let innerWidth = 1280;
 	let innerHeight = 1024;
-	let delay = 2;
-    let noAds = false;
-    let noCookie = false;
+	let delay = 0;
+	let timeout = 60;
+	let noAds = false;
+	let noCookie = false;
+	let blockTracker = false;
 
 	let isCapturing = false;
 
@@ -26,21 +29,25 @@
 		apiUrl.searchParams.append('url', url);
 		apiUrl.searchParams.append('access_key', access_key);
 		if (isFullScreen) apiUrl.searchParams.append('full_screen', 'true');
+		if (scrollDelay != 1 && isFullScreen)
+			apiUrl.searchParams.append('scroll_delay', scrollDelay.toString());
 		if (innerWidth != 0) apiUrl.searchParams.append('v_width', innerWidth.toString());
 		if (innerHeight != 0 && !isFullScreen)
 			apiUrl.searchParams.append('v_height', innerHeight.toString());
-		if (delay != 2) apiUrl.searchParams.append('delay', delay.toString());
-        if (noAds) apiUrl.searchParams.append('no_ads', 'true');
-        if (noCookie) apiUrl.searchParams.append('no_cookie_banner', 'true');
+		if (delay != 0) apiUrl.searchParams.append('delay', delay.toString());
+		if (timeout != 0 && timeout != 60) apiUrl.searchParams.append('timeout', timeout.toString());
+		if (noAds) apiUrl.searchParams.append('no_ads', 'true');
+		if (noCookie) apiUrl.searchParams.append('no_cookie_banner', 'true');
+		if (blockTracker) apiUrl.searchParams.append('block_tracker', 'true');
 		const response = await fetch(apiUrl.toString());
 		const blob = await response.blob();
 		if (blob.type === 'application/json') {
 			const json = await blob.text();
 			const data = JSON.parse(json);
-            toast.error(data.message, {
-                duration: 3000,
-                position: 'top-right'
-            });
+			toast.error(data.message, {
+				duration: 3000,
+				position: 'top-right'
+			});
 		} else {
 			const blobUrl = URL.createObjectURL(blob);
 			screenshot = blobUrl;
@@ -53,12 +60,16 @@
 		apiUrl.searchParams.append('access_key', access_key);
 		apiUrl.searchParams.append('url', url);
 		if (isFullScreen) apiUrl.searchParams.append('full_screen', 'true');
+		if (scrollDelay != 1 && isFullScreen)
+			apiUrl.searchParams.append('scroll_delay', scrollDelay.toString());
 		if (innerWidth != 0) apiUrl.searchParams.append('v_width', innerWidth.toString());
 		if (innerHeight != 0 && !isFullScreen)
 			apiUrl.searchParams.append('v_height', innerHeight.toString());
-		if (delay != 2 && delay) apiUrl.searchParams.append('delay', delay.toString());
-        if (noAds) apiUrl.searchParams.append('no_ads', 'true');
-        if (noCookie) apiUrl.searchParams.append('no_cookie_banner', 'true');
+		if (delay != 0 && delay) apiUrl.searchParams.append('delay', delay.toString());
+		if (timeout != 0 && timeout != 60) apiUrl.searchParams.append('timeout', timeout.toString());
+		if (noAds) apiUrl.searchParams.append('no_ads', 'true');
+		if (noCookie) apiUrl.searchParams.append('no_cookie_banner', 'true');
+		if (blockTracker) apiUrl.searchParams.append('block_tracker', 'true');
 		return apiUrl.toString();
 	};
 
@@ -122,6 +133,19 @@
 					<Switch bind:checked={isFullScreen} id="full-screen" />
 					<Label for="full-screen" class="text-gray-500">Full Screen</Label>
 				</div>
+				{#if isFullScreen}
+					<div class="grid grid-cols-2 gap-4 mt-4">
+						<InputField
+							icon="material-symbols:height"
+							label="Scroll Delay (Seconds)"
+							disabled={!isFullScreen}
+							help="Delay in seconds before scrolling to the next section."
+							type="number"
+							bind:value={scrollDelay}
+							placeholder="1"
+						/>
+					</div>
+				{/if}
 			</div>
 			<div class="bg-white p-5 rounded-md">
 				<div class="grid grid-cols-2 gap-4">
@@ -138,24 +162,25 @@
 						label="Timeout"
 						help="Should the site fail to respond within the set timeframe, the API request will be unsuccessful."
 						type="number"
+						bind:value={timeout}
 						placeholder="30"
 					/>
 				</div>
 			</div>
 			<div class="bg-white p-5 rounded-md flex-col flex space-y-2">
-                <div class="flex items-center space-x-3">
-                    <Switch bind:checked={noAds} id="no-ads" />
-                    <Label for="no-ads" class="text-gray-500">
-                        Block ads
-                    </Label>
-                </div>
-                <div class="flex items-center space-x-3">
-                    <Switch bind:checked={noCookie} id="no-cookie" />
-                    <Label for="no-cookie" class="text-gray-500">
-                        Block Cookie Popups
-                    </Label>
-                </div>
-            </div>
+				<div class="flex items-center space-x-3">
+					<Switch bind:checked={noAds} id="no-ads" />
+					<Label for="no-ads" class="text-gray-500">Block ads</Label>
+				</div>
+				<div class="flex items-center space-x-3">
+					<Switch bind:checked={noCookie} id="no-cookie" />
+					<Label for="no-cookie" class="text-gray-500">Block Cookie Popups</Label>
+				</div>
+				<div class="flex items-center space-x-3">
+					<Switch bind:checked={blockTracker} id="no-trakcer" />
+					<Label for="no-trakcer" class="text-gray-500">Block Tracker</Label>
+				</div>
+			</div>
 		</div>
 		<div class="bg-white p-5 rounded-md">
 			<textarea
