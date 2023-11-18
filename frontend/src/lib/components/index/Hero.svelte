@@ -1,6 +1,6 @@
 <script lang="ts">
 	//@ts-ignore
-	import bg from '$lib/assets/image/index/881fcd8b-8f01-4d8d-8656-10544c588efd.png?format=webp&quality=100&w=19200&h=1080';
+	import bg from '$lib/assets/image/index/881fcd8b-8f01-4d8d-8656-10544c588efd.png?format=webp&quality=100&w=600&h=317';
 	//@ts-ignore
 	import { onMount } from 'svelte';
 

@@ -3,6 +3,9 @@
 
 	import Typewriter from 'typewriter-effect/dist/core';
 
+    //@ts-ignore
+    import bg from '$lib/assets/image/index/cookiebot_with_banner.jpg?format=webp&quality=100&w=573&h=456';
+
 	function displayApiResponse() {
 		const targetElement = document.getElementById('showcase3-response');
 
@@ -33,8 +36,9 @@
 	<div class="w-6/12">
 		<div class="shadow-md rounded-md p-5">
 			<img
-				src={'https://screenshotone.com/cookiebot_with_banner.jpg'}
-				alt="Show Case 1"
+				src={bg}
+				alt="Show Case S3 UPLOAD API SCREENSHOT"
+                loading="lazy"
 				width="100%"
 				height="100%"
 				class="w-full inline-block mr-2 border rounded-md"
