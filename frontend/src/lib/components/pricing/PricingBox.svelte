@@ -9,7 +9,7 @@
 	let isYearly = true;
 </script>
 
-<div class="text-center">
+<div class="text-center mt-10">
 	<h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">Pricing Plans</h2>
 	<p class="mt-4 text-lg text-gray-500">Choose a plan that works best for your business</p>
 	<div class="flex items-center justify-center space-x-2 mt-4 relative">
@@ -96,4 +96,8 @@
 			{/each}
 		</div>
 	</div>
+</div>
+<div class="text-center mt-5">
+	<strong>No Credit card required</strong>
+	<p class='text-muted-foreground'>Extra is charged if enabled only</p>
 </div>

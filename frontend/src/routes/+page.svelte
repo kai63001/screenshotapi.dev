@@ -5,6 +5,7 @@
 	import Hero from '$lib/components/index/Hero.svelte';
 	import EverthingYouneed from '$lib/components/index/EverthingYouneed.svelte';
 	import ShowCase from '$lib/components/index/ShowCase.svelte';
+	import PricingBox from '$lib/components/pricing/PricingBox.svelte';
 </script>
 
 <svelte:head>
@@ -53,6 +54,9 @@
 	<EverthingYouneed />
 	<!-- <Feature /> -->
 	<ShowCase />
+
+
+	<PricingBox />
 </main>
 
 <!-- <footer class="bg-gray-200 py-4">

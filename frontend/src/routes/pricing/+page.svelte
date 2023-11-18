@@ -19,7 +19,7 @@
 	<Navbar />
 </header>
 
-<main class="py-8 max-w-xl md:max-w-7xl px-2 m-auto pt-28">
+<main class="py-8 max-w-xl md:max-w-7xl px-2 m-auto pt-16">
     <section>
         <PricingBox/>
     </section>
