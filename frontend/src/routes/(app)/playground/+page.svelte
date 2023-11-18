@@ -18,6 +18,7 @@
 	let noAds = false;
 	let noCookie = false;
 	let blockTracker = false;
+	let async = false;
 
 	let isCapturing = false;
 
@@ -39,11 +40,21 @@
 		if (noAds) apiUrl.searchParams.append('no_ads', 'true');
 		if (noCookie) apiUrl.searchParams.append('no_cookie_banner', 'true');
 		if (blockTracker) apiUrl.searchParams.append('block_tracker', 'true');
+		if (async) apiUrl.searchParams.append('async', 'true');
 		const response = await fetch(apiUrl.toString());
 		const blob = await response.blob();
 		if (blob.type === 'application/json') {
 			const json = await blob.text();
 			const data = JSON.parse(json);
+			console.log(data)
+			if (data.data) {
+				toast.success(data.data, {
+					duration: 3000,
+					position: 'top-right'
+				});
+				isCapturing = false;
+				return;
+			} 
 			toast.error(data.message, {
 				duration: 3000,
 				position: 'top-right'
@@ -70,6 +81,7 @@
 		if (noAds) apiUrl.searchParams.append('no_ads', 'true');
 		if (noCookie) apiUrl.searchParams.append('no_cookie_banner', 'true');
 		if (blockTracker) apiUrl.searchParams.append('block_tracker', 'true');
+		if (async) apiUrl.searchParams.append('async', 'true');
 		return apiUrl.toString();
 	};
 
@@ -179,6 +191,10 @@
 				<div class="flex items-center space-x-3">
 					<Switch bind:checked={blockTracker} id="no-trakcer" />
 					<Label for="no-trakcer" class="text-gray-500">Block Tracker</Label>
+				</div>
+				<div class="flex items-center space-x-3">
+					<Switch bind:checked={async} id="no-async" />
+					<Label for="no-async" class="text-gray-500">Async Screenshot</Label>
 				</div>
 			</div>
 		</div>

@@ -86,6 +86,12 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 		timeout = 60
 	}
 
+	asyncChromeStr := c.QueryParam("async")
+	asyncChrome, err := strconv.ParseBool(asyncChromeStr)
+	if err != nil {
+		asyncChrome = false
+	}
+
 	//get user_id from access_key
 	userData := module.UserForKey{}
 	errAccessKey := db.Select("user_id").From("access_keys").Where(dbx.NewExp("access_key = {:access_key}", dbx.Params{"access_key": access_key})).One(&userData)
@@ -153,14 +159,31 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 	defer cancel()
 
 	var buf []byte
-	if err := chromedp.Run(ctx, screenshot(url, width, height, fullScreen, scrollDelay, noAds, noCookie, blockTracker, delay, &buf)); err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"status":  "error",
-			"message": err.Error(),
-		})
-	}
+	if asyncChrome {
+		go func() {
+			// Execute chromedp tasks in a separate goroutine
+			ctxAsync, cancel := chromedp.NewContext(context.Background())
+			defer cancel()
+			err := chromedp.Run(ctxAsync, screenshot(url, width, height, fullScreen, scrollDelay, noAds, noCookie, blockTracker, delay, &buf))
+			if err != nil {
+				log.Printf("Error taking screenshot: %v", err)
+				// Handle error (e.g., send a notification or log the error)
+			}
 
-	log.Println(timeout)
+			// Process the screenshot (e.g., save to database or file system)
+			// ...
+
+			// Log or handle the completion of the screenshot task
+			log.Println("Screenshot task completed")
+		}()
+	} else {
+		if err := chromedp.Run(ctx, screenshot(url, width, height, fullScreen, scrollDelay, noAds, noCookie, blockTracker, delay, &buf)); err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"status":  "error",
+				"message": err.Error(),
+			})
+		}
+	}
 
 	//update screenshot_usage
 	_, errUpdateScreenshotUsage := db.NewQuery(`
@@ -187,7 +210,14 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 	})
 	log.Println("resul", result)
 
-	return c.Blob(http.StatusOK, "image/png", buf)
+	if asyncChrome {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"status": "success",
+			"data":   "Screenshot is being processed",
+		})
+	} else {
+		return c.Blob(http.StatusOK, "image/png", buf)
+	}
 }
 
 func screenshot(url string, width int64, height int64, fullScreen bool, scrollDelay int64, noAds bool, noCookie bool, blockTracker bool, delay int64, res *[]byte) chromedp.Tasks {
