@@ -1,15 +1,10 @@
 <script lang="ts">
-	import { fade, scale } from 'svelte/transition';
-
 	//@ts-ignore
 	import bg from '$lib/assets/image/index/881fcd8b-8f01-4d8d-8656-10544c588efd.png?format=webp&quality=100&w=19200&h=1080';
 	//@ts-ignore
-	import smallBg from '$lib/assets/image/index/22f8c15f-e713-42bb-80ae-19022bc7358b.png??format=webp&quality=100&w=19200&h=1080';
 	import { onMount } from 'svelte';
 
 	import Typewriter from 'typewriter-effect/dist/core';
-	let widthImage = 700;
-	let height = 300;
 
 	function displayApiResponse() {
 		const targetElement = document.getElementById('api-response');
