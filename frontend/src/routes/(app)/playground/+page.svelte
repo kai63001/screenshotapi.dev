@@ -26,9 +26,9 @@
 		apiUrl.searchParams.append('url', url);
 		apiUrl.searchParams.append('access_key', access_key);
 		if (isFullScreen) apiUrl.searchParams.append('full_screen', 'true');
-		if (innerWidth != 0) apiUrl.searchParams.append('width', innerWidth.toString());
+		if (innerWidth != 0) apiUrl.searchParams.append('v_width', innerWidth.toString());
 		if (innerHeight != 0 && !isFullScreen)
-			apiUrl.searchParams.append('height', innerHeight.toString());
+			apiUrl.searchParams.append('v_height', innerHeight.toString());
 		if (delay != 2) apiUrl.searchParams.append('delay', delay.toString());
         if (noAds) apiUrl.searchParams.append('no_ads', 'true');
         if (noCookie) apiUrl.searchParams.append('no_cookie_banner', 'true');
@@ -53,9 +53,9 @@
 		apiUrl.searchParams.append('access_key', access_key);
 		apiUrl.searchParams.append('url', url);
 		if (isFullScreen) apiUrl.searchParams.append('full_screen', 'true');
-		if (innerWidth != 0) apiUrl.searchParams.append('width', innerWidth.toString());
+		if (innerWidth != 0) apiUrl.searchParams.append('v_width', innerWidth.toString());
 		if (innerHeight != 0 && !isFullScreen)
-			apiUrl.searchParams.append('height', innerHeight.toString());
+			apiUrl.searchParams.append('v_height', innerHeight.toString());
 		if (delay != 2 && delay) apiUrl.searchParams.append('delay', delay.toString());
         if (noAds) apiUrl.searchParams.append('no_ads', 'true');
         if (noCookie) apiUrl.searchParams.append('no_cookie_banner', 'true');

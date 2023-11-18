@@ -32,12 +32,12 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 			"message": "access_key is required",
 		})
 	}
-	widthStr := c.QueryParam("width")
+	widthStr := c.QueryParam("v_width")
 	width, err := strconv.ParseInt(widthStr, 10, 64)
 	if err != nil {
 		width = 1280
 	}
-	heightStr := c.QueryParam("height")
+	heightStr := c.QueryParam("v_height")
 	height, err := strconv.ParseInt(heightStr, 10, 64)
 	if err != nil {
 		height = 1024
