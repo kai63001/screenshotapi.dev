@@ -11,7 +11,7 @@
 	onMount(async () => {
 		const isAuth = $currentUser;
 		if (isAuth) {
-			goto('/dashboard');
+			goto('/playground');
 		}
 	});
 
@@ -45,7 +45,7 @@
 			.then(() => {
 				loading = false;
 				setTimeout(() => {
-					goto('/dashboard');
+					goto('/playground');
 				}, 1500);
 			})
 			.catch((e) => {
@@ -58,7 +58,7 @@
 <div class="flex flex-col items-center justify-center min-h-screen bg-white">
 	<a href="/" class="absolute top-0 left-0 m-4 text-gray-800 text-sm font-bold">Home</a>
 	<h1 class="text-4xl font-bold text-gray-800 mb-6">
-		<img src={bg} alt="logo" class="w-10 h-10 inline-block mr-2" />
+		<img src={bg} width="50px" height="50px" alt="ScreenshotAPI logo" class="w-10 h-10 inline-block mr-2" />
 		Sign In
 	</h1>
 	<form
@@ -70,7 +70,11 @@
 		<InputField label="Password" name="password" type="password" id="password" required />
 
 		<p class="block text-xs relative -top-5 h-0">
-			Don't have an account? <a href="/signup" class="text-secondary hover:underline">Sign Up</a>.
+			Don't have an account? <a href="/signup" class="text-primary hover:underline">Sign Up</a>.
+		</p>
+		<!-- forgot password -->
+		<p class="block text-xs relative -top-6 h-0">
+			<a href="/reset-password" class="text-primary hover:underline">Forgot Password</a>
 		</p>
 
 		<button
@@ -87,10 +91,10 @@
 		</button>
 		<!-- term and policy -->
 		<p class="text-xs text-gray-500 relative -top-4">
-			By Sign In, you agree to our <a href="/terms" class="text-secondary hover:underline"
+			By Sign In, you agree to our <a href="/terms" class="text-primary hover:underline"
 				>Terms of Service</a
 			>
-			and <a href="/privacy" class="text-secondary hover:underline">Privacy Policy</a>.
+			and <a href="/privacy" class="text-primary hover:underline">Privacy Policy</a>.
 		</p>
 	</form>
 </div>

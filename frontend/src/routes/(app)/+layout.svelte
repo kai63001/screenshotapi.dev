@@ -3,7 +3,7 @@
 	import logo from '$lib/assets/image/snapcaptureLogo.png?w=30&h=30&format=webp&quality=100';
 	//@ts-ignore
 	import avatar from '$lib/assets/avatar/man.png?w=50&h=50&format=webp&quality=100';
-    import { page } from '$app/stores';
+	import { page } from '$app/stores';
 
 	import { onMount } from 'svelte';
 	import { currentUser, pb } from '$lib/pocketbase';
@@ -17,17 +17,16 @@
 			path: '/dashboard',
 			active: false
 		},
-		//access,playground,history,subscription,payments
-		{
-			name: 'Access',
-			icon: 'ph:key-bold',
-			path: '/access',
-			active: false
-		},
 		{
 			name: 'Playground',
 			icon: 'material-symbols:joystick-outline',
 			path: '/playground',
+			active: false
+		},
+		{
+			name: 'Access',
+			icon: 'ph:key-bold',
+			path: '/access',
 			active: false
 		},
 		{
@@ -59,6 +58,7 @@
 	});
 
 	const logout = async () => {
+		await localStorage.removeItem('access_key');
 		await pb.authStore.clear();
 		goto('/login');
 	};
@@ -67,15 +67,15 @@
 <div class="flex">
 	<nav class="w-1/5 flex flex-col justify-between">
 		<div>
-			<a href='/' class="p-5 flex items-center space-x-2">
+			<a href="/" class="p-5 flex items-center space-x-2">
 				<img src={logo} alt="logo" width="30px" height="30px" loading="eager" />
-				<p class="ml-2 heading text-xl">SanpCapture</p>
+				<p class="ml-2 heading text-xl">ScreenshotAPI</p>
 			</a>
 			<div class="p-5">
 				<div class="px-5 py-3 bg-[#faf9fb] rounded">
 					<div class="flex items-center space-x-2">
-						<div class="w-10 h-10 rounded-full bg-[#e5e7eb]">
-							<img src={avatar} alt="avatar" width="100%" loading="eager" />
+						<div class="hidden xl:block w-10 h-10 rounded-full bg-[#e5e7eb]">
+							<img src={avatar} alt="avatar" width="40px" height="40px" loading="eager" />
 						</div>
 						<div class="flex flex-col">
 							<p class="text-sm font-semibold capitalize">
@@ -90,8 +90,9 @@
 			</div>
 			<ul class="pr-5 flex flex-col space-y-1">
 				{#each navbarList as nav}
-					<li class:bg-block={nav.path == currentPath}>
+					<li>
 						<a
+							class:bg-block={nav.path == currentPath}
 							href={nav.path}
 							class="flex items-center space-x-2 cursor-pointer py-4 rounded-r-md hover:bg-red-100"
 						>

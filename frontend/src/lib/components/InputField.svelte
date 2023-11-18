@@ -4,7 +4,6 @@
 	let isFocused = false;
 	let inputRef: any;
 	export let value:any = undefined;
-	export let type: string = 'text';
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -34,6 +33,7 @@
 			bind:this={inputRef}
 			bind:value
 			{...$$props}
+			class:cursor-text={$$props.disabled}
 			class="w-full bg-transparent outline-none px-4 py-1 text-sm"
 		/>
 	</div>
