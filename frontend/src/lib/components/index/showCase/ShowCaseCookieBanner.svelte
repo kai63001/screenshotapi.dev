@@ -31,8 +31,8 @@
 	});
 </script>
 
-<div class="flex justify-between gap-10 mt-10 items-center">
-	<div class="w-6/12 order-2">
+<div class="flex flex-col md:flex-row justify-between gap-10 mt-10 items-center">
+	<div class="w-full md:w-6/12 order-1 md:order-2">
 		<div class="shadow-md rounded-md p-5">
 			<img
 				src={bg}
@@ -49,7 +49,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="w-6/12 order-1">
+	<div class="w-full md:w-6/12 order-2 md:order-1">
 		<p class="font-semibold text-lg text-red-500">Seamless Capture Experience</p>
 		<h2 class="text-4xl font-semibold heading">
 			Eliminate Distractions with Cookie Banner Removal

@@ -32,8 +32,8 @@
 	});
 </script>
 
-<div class="flex justify-between space-x-10 mt-10 items-center">
-	<div class="w-6/12">
+<div class="flex flex-col md:flex-row justify-between md:space-x-10 mt-10 items-center">
+	<div class="w-full md:w-6/12">
 		<div class="shadow-md rounded-md p-5">
 			<img
 				src={bg}
@@ -50,7 +50,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="w-6/12">
+	<div class="w-full md:w-6/12 md:mt-0 mt-10">
 		<p class="font-semibold text-lg text-red-500">Direct S3 Bucket Integration</p>
 		<h2 class="text-4xl font-semibold heading">Seamless Storage with One Click</h2>
 		<p class="mt-2 text-muted-foreground">
