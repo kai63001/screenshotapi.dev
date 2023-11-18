@@ -38,6 +38,8 @@
 		<img
 			loading="eager"
 			id="imager"
+			width="100%"
+			height="100%"
             src={bg}
 			class="object-contain shadow-lg rounded-md transition-all duration-500 ease-in-out transform hover:scale-105 hover:shadow-xl cursor-pointer"
 			alt="ScreenshotAPI example screenshot"
