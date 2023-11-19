@@ -25,7 +25,7 @@
 		},
 		{
 			name: 'Custom SET',
-			icon: 'carbon:settings',
+			icon: 'icon-park-outline:full-selection',
 			path: '/custom-set',
 			active: false
 		},

@@ -46,7 +46,7 @@
 		if (blob.type === 'application/json') {
 			const json = await blob.text();
 			const data = JSON.parse(json);
-			console.log(data)
+			// console.log(data)
 			if (data.data) {
 				toast.success(data.data, {
 					duration: 3000,
