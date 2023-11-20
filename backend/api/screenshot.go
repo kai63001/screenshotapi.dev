@@ -228,6 +228,7 @@ func screenshot(url string, width int64, height int64, fullScreen bool, scrollDe
 		return chromedp.Tasks{
 			chromedp.Navigate(url),
 			chromedp.WaitVisible(`body`, chromedp.ByQuery),
+			chromedp.Sleep(time.Duration(delay) * time.Second),
 			chromedp.ActionFunc(func(ctx context.Context) error {
 				// Execute JavaScript to get the total height of the content
 				err := chromedp.Evaluate(`document.documentElement.scrollHeight`, &newHeight).Do(ctx)
@@ -295,7 +296,6 @@ func screenshot(url string, width int64, height int64, fullScreen bool, scrollDe
 
 				return chromedp.Evaluate(script, nil).Do(ctx)
 			}),
-			chromedp.Sleep(time.Duration(delay) * time.Second),
 			chromedp.Screenshot("#"+viewportDivID, res, chromedp.NodeVisible, chromedp.ByQuery),
 		}
 	} else {
@@ -303,6 +303,7 @@ func screenshot(url string, width int64, height int64, fullScreen bool, scrollDe
 			chromedp.Navigate(url),
 			chromedp.EmulateViewport(width, height),
 			chromedp.WaitVisible(`body`, chromedp.ByQuery),
+			chromedp.Sleep(time.Duration(delay) * time.Second),
 			chromedp.ActionFunc(func(ctx context.Context) error {
 				script := `
                 var div = document.createElement('div');
@@ -337,7 +338,6 @@ func screenshot(url string, width int64, height int64, fullScreen bool, scrollDe
 				}
 				return chromedp.Evaluate(script, nil).Do(ctx)
 			}),
-			chromedp.Sleep(time.Duration(delay) * time.Second),
 			chromedp.Screenshot("#"+viewportDivID, res, chromedp.NodeVisible, chromedp.ByQuery),
 		}
 	}

@@ -40,27 +40,27 @@ func main() {
 	collection := client.Database("capture").Collection("logs")
 
 	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
-		e.Router.GET("/api/screenshot", func(c echo.Context) error {
+		e.Router.GET("/v1/screenshot", func(c echo.Context) error {
 			database := app.Dao().DB()
 			return api.TakeScreenshot(c, database, collection, rdb)
 		})
-		e.Router.GET("/api/history", func(c echo.Context) error {
+		e.Router.GET("/v1/history", func(c echo.Context) error {
 			database := app.Dao().DB()
 			return api.GetHistoryScreenshotAPI(c, database, collection)
 		})
-		e.Router.POST("/api/subscription", func(c echo.Context) error {
+		e.Router.POST("/v1/subscription", func(c echo.Context) error {
 			database := app.Dao().DB()
 			return api.Subscription(c, database)
 		})
-		e.Router.POST("/api/hook", func(c echo.Context) error {
+		e.Router.POST("/v1/hook", func(c echo.Context) error {
 			database := app.Dao().DB()
 			return api.Hook(c, database)
 		})
-		e.Router.POST("/api/portal", func(c echo.Context) error {
+		e.Router.POST("/v1/portal", func(c echo.Context) error {
 			database := app.Dao().DB()
 			return api.StripePortal(c, database)
 		})
-		e.Router.PATCH("/api/access_key", func(c echo.Context) error {
+		e.Router.PATCH("/v1/access_key", func(c echo.Context) error {
 			database := app.Dao().DB()
 			return api.ResetAccessKey(c, database)
 		})

@@ -18,7 +18,11 @@
 		selectedCustomSet = {};
 		openDialog = true;
 	}
-	let selectedData = {};
+	let selectedData: any = {
+		s3_endpoint: '',
+		javascript: '',
+		css: ''
+	};
 
 	// check when selectedCustomSet change
 	$: if (selectedCustomSet.value) {
@@ -70,9 +74,6 @@
 			selectedData = data[0];
 		}
 	});
-
-	let lang_javascript = '';
-    let lang_css = '';
 </script>
 
 <div class="gap-4 grid">
@@ -110,12 +111,54 @@
 	{#if selectedCustomSet.value}
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 			<div class="bg-white p-5 rounded-md">
-				<h2>Javascript</h2>
-				<CodeMirror bind:value={lang_javascript} lang={javascript()} />
+				<h2 class="text-xl mb-2">Javascript</h2>
+				<span class="text-xs text-gray-500">Enter a javascript code here</span>
+				<CodeMirror bind:value={selectedData.javascript} lang={javascript()} />
 			</div>
 			<div class="bg-white p-5 rounded-md">
-				<h2>CSS</h2>
-				<CodeMirror bind:value={lang_javascript} lang={css()} />
+				<h2 class="text-xl mb-2">CSS</h2>
+				<span class="text-xs text-gray-500">Enter a css code here</span>
+				<CodeMirror bind:value={selectedData.css} lang={css()} />
+			</div>
+			<div class="bg-white p-5 rounded-md">
+				<h2 class="text-xl mb-2">Request options</h2>
+				<span class="text-xs text-gray-500"> Enter a request options here </span>
+				<div class="flex flex-col space-y-2">
+					<InputField
+						bind:value={selectedData.user_agent}
+						label="User Agent"
+						placeholder="my-bucket"
+					/>
+				</div>
+			</div>
+			<div class="bg-white p-5 rounded-md">
+				<h2 class="text-xl mb-2">S3-compatible storage configuration</h2>
+				<span class="text-xs text-gray-500"
+					>Enter your S3-compatible storage configuration here</span
+				>
+				<div class="flex flex-col space-y-2">
+					<InputField
+						bind:value={selectedData.s3_endpoint}
+						label="Endpoint"
+						help="If you haven't created the bucket in the `us-east-1` AWS region, please, specify your bucket region through an endpoint in a format like https://s3..amazonaws.com. Any S3-compatible storage is supported, e.g. 'https://<accountId>.r2.cloudflarestorage.com' for Cloudlfare R2 storage."
+						placeholder="https://s3.example.com"
+					/>
+					<InputField
+						bind:value={selectedData.s3_bucket}
+						label="Default Bucket"
+						placeholder="my-bucket"
+					/>
+					<InputField
+						bind:value={selectedData.s3_access_key}
+						label="Access Key"
+						placeholder="my-access-key"
+					/>
+					<InputField
+						bind:value={selectedData.s3_secret_key}
+						label="Secret Key"
+						placeholder="my-secret-key"
+					/>
+				</div>
 			</div>
 		</div>
 	{/if}
