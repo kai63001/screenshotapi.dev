@@ -14,6 +14,7 @@
 
 	let customList = [];
 	let selectedCustomSet: any = {};
+	let fullData = [];
 	$: if (selectedCustomSet.value === 'custom') {
 		selectedCustomSet = {};
 		openDialog = true;
@@ -26,7 +27,7 @@
 
 	// check when selectedCustomSet change
 	$: if (selectedCustomSet.value) {
-		console.log(selectedCustomSet.value);
+		selectedData = fullData.find((item) => item.id === selectedCustomSet.value);
 	}
 
 	let openDialog = false;
@@ -72,8 +73,26 @@
 		if (customList.length > 0) {
 			selectedCustomSet = customList[0];
 			selectedData = data[0];
+			fullData = data;
 		}
 	});
+
+	let loading = false;
+	const saveCustomSet = async () => {
+		loading = true;
+		//update data
+		await pb.collection('custom_sets').update(selectedCustomSet.value, selectedData).catch((e)=>{
+			toast.error(e.message, {
+				duration: 1500,
+				position: 'top-right'
+			});
+		});
+		loading = false;
+		toast.success('Custom SET saved successfully!', {
+			duration: 1500,
+			position: 'top-right'
+		});
+	};
 </script>
 
 <div class="gap-4 grid">
@@ -84,28 +103,39 @@
 			screenshots that meet your exact needs.
 		</p>
 	</div>
-	<div class="bg-white p-5 rounded-md">
-		<Label>Select a custom SET screenshot API.</Label>
-		<Select.Root bind:selected={selectedCustomSet}>
-			<Select.Trigger class="mt-2">
-				<Select.Value placeholder="Select a Custom SET" />
-			</Select.Trigger>
-			<Select.Content>
-				<Select.Group>
-					{#each customList as fruit}
-						<Select.Item value={fruit.value} label={fruit.label}>{fruit.label}</Select.Item>
-					{/each}
-					<Select.Separator />
-					<Select.Item value="custom" label="Create New Custom SET">
-						<Icon icon="mdi:plus" class="text-primary mr-2" width="20px" height="20px" />
-						Create New Custom SET</Select.Item
-					>
-				</Select.Group>
-			</Select.Content>
-			<Select.Input name="customSet" />
-		</Select.Root>
-
-		<!-- {JSON.stringify(selectedCustomSet)} -->
+	<div class="bg-white p-5 rounded-md flex items-end">
+		<div class="w-full">
+			<Label>Select a custom SET screenshot API.</Label>
+			<Select.Root bind:selected={selectedCustomSet}>
+				<Select.Trigger class="mt-2">
+					<Select.Value placeholder="Select a Custom SET" />
+				</Select.Trigger>
+				<Select.Content>
+					<Select.Group>
+						{#each customList as fruit}
+							<Select.Item value={fruit.value} label={fruit.label}>{fruit.label}</Select.Item>
+						{/each}
+						<Select.Separator />
+						<Select.Item value="custom" label="Create New Custom SET">
+							<Icon icon="mdi:plus" class="text-primary mr-2" width="20px" height="20px" />
+							Create New Custom SET</Select.Item
+						>
+					</Select.Group>
+				</Select.Content>
+				<Select.Input name="customSet" />
+			</Select.Root>
+		</div>
+		<div class="w-2/12 ml-5">
+			<button
+				on:click={saveCustomSet}
+				disabled={loading}
+				class:opacity-50={loading}
+				class="flex items-center space-x-2 bg-primary rounded-md w-full text-white justify-center py-2"
+			>
+				<Icon icon="mdi:content-save" class="text-white mr-2" width="20px" height="20px" />
+				Save
+			</button>
+		</div>
 	</div>
 	<!-- main -->
 	{#if selectedCustomSet.value}
@@ -129,6 +159,20 @@
 						label="User Agent"
 						placeholder="my-bucket"
 					/>
+					<div>
+						<span class="text-xs text-gray-500">Cookies</span>
+						<CodeMirror
+							bind:value={selectedData.cookies}
+							placeholder="name=value; Domain=example.com"
+						/>
+					</div>
+					<div>
+						<span class="text-xs text-gray-500">Headers</span>
+						<CodeMirror
+							bind:value={selectedData.headers}
+							placeholder="Referer: https://screenshotapi.dev"
+						/>
+					</div>
 				</div>
 			</div>
 			<div class="bg-white p-5 rounded-md">
@@ -138,23 +182,23 @@
 				>
 				<div class="flex flex-col space-y-2">
 					<InputField
-						bind:value={selectedData.s3_endpoint}
+						bind:value={selectedData.bucket_endpoint}
 						label="Endpoint"
-						help="If you haven't created the bucket in the `us-east-1` AWS region, please, specify your bucket region through an endpoint in a format like https://s3..amazonaws.com. Any S3-compatible storage is supported, e.g. 'https://<accountId>.r2.cloudflarestorage.com' for Cloudlfare R2 storage."
+						help=""
 						placeholder="https://s3.example.com"
 					/>
 					<InputField
-						bind:value={selectedData.s3_bucket}
+						bind:value={selectedData.bucket_default}
 						label="Default Bucket"
 						placeholder="my-bucket"
 					/>
 					<InputField
-						bind:value={selectedData.s3_access_key}
+						bind:value={selectedData.bucket_access_key}
 						label="Access Key"
 						placeholder="my-access-key"
 					/>
 					<InputField
-						bind:value={selectedData.s3_secret_key}
+						bind:value={selectedData.bucket_secret_key}
 						label="Secret Key"
 						placeholder="my-secret-key"
 					/>
