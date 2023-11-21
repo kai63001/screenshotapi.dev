@@ -92,6 +92,8 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 		asyncChrome = false
 	}
 
+	custom := c.QueryParam("custom")
+
 	//get user_id from access_key
 	userData := module.UserForKey{}
 	errAccessKey := db.Select("user_id").From("access_keys").Where(dbx.NewExp("access_key = {:access_key}", dbx.Params{"access_key": access_key})).One(&userData)
@@ -114,6 +116,15 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"status":  "error",
 			"message": "access_key is invalid",
+		})
+	}
+
+	customData := module.CustomSet{}
+	errCustom := db.Select("id", "name", "user_id", "css", "javascript", "cookies", "user_agent", "headers", "bucket_endpoint", "bucket_default", "bucket_access_key", "bucket_secret_key").From("custom_sets").Where(dbx.NewExp("id = {:id}", dbx.Params{"id": custom})).One(&customData)
+	if errCustom != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status":  "error",
+			"message": "custom is invalid",
 		})
 	}
 

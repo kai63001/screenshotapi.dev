@@ -5,6 +5,9 @@
 	import Icon from '@iconify/svelte';
 	import { onMount } from 'svelte';
 	import { Toaster, toast } from 'svelte-french-toast';
+	import * as Select from '$lib/components/ui/select';
+	import {pb} from '$lib/pocketbase';
+	import { goto } from '$app/navigation';
 
 	let access_key = '';
 
@@ -24,6 +27,13 @@
 
 	let screenshot = '';
 
+	let customList = [];
+	let selectedCustomSet: any = {};
+
+	$: if (selectedCustomSet.value === 'custom') {
+		goto('/custom-set');
+	}
+
 	const takeScreenshot = async () => {
 		isCapturing = true;
 		const apiUrl = new URL(`${import.meta.env.VITE_API_KEY}/screenshot`);
@@ -41,6 +51,7 @@
 		if (noCookie) apiUrl.searchParams.append('no_cookie_banner', 'true');
 		if (blockTracker) apiUrl.searchParams.append('block_tracker', 'true');
 		if (async) apiUrl.searchParams.append('async', 'true');
+		if (selectedCustomSet.label) apiUrl.searchParams.append('custom', selectedCustomSet.label);
 		const response = await fetch(apiUrl.toString());
 		const blob = await response.blob();
 		if (blob.type === 'application/json') {
@@ -54,7 +65,7 @@
 				});
 				isCapturing = false;
 				return;
-			} 
+			}
 			toast.error(data.message, {
 				duration: 3000,
 				position: 'top-right'
@@ -82,11 +93,21 @@
 		if (noCookie) apiUrl.searchParams.append('no_cookie_banner', 'true');
 		if (blockTracker) apiUrl.searchParams.append('block_tracker', 'true');
 		if (async) apiUrl.searchParams.append('async', 'true');
+		if (selectedCustomSet.label) apiUrl.searchParams.append('custom', selectedCustomSet.label);
 		return apiUrl.toString();
 	};
 
 	onMount(async () => {
 		access_key = localStorage.getItem('access_key') || '';
+
+		const data = await pb.collection('custom_sets').getFullList();
+		//map data and customList with name
+		customList = data.map((item) => {
+			return {
+				value: item.id,
+				label: item.name
+			};
+		});
 	});
 </script>
 
@@ -178,6 +199,26 @@
 						placeholder="30"
 					/>
 				</div>
+			</div>
+			<div class="bg-white p-5 rounded-md">
+				<Select.Root bind:selected={selectedCustomSet}>
+					<Select.Trigger class="mt-2">
+						<Select.Value placeholder="Select a Custom SET" />
+					</Select.Trigger>
+					<Select.Content>
+						<Select.Group>
+							{#each customList as fruit}
+								<Select.Item value={fruit.value} label={fruit.label}>{fruit.label}</Select.Item>
+							{/each}
+							<Select.Separator />
+							<Select.Item value="custom" label="Create New Custom SET">
+								<Icon icon="mdi:plus" class="text-primary mr-2" width="20px" height="20px" />
+								Create New Custom SET</Select.Item
+							>
+						</Select.Group>
+					</Select.Content>
+					<Select.Input name="customSet" />
+				</Select.Root>
 			</div>
 			<div class="bg-white p-5 rounded-md flex-col flex space-y-2">
 				<div class="flex items-center space-x-3">

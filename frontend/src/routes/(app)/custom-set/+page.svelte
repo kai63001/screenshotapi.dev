@@ -41,6 +41,20 @@
 			});
 			return;
 		}
+		//check name not duplicate with the same user_id
+		try {
+			const checkName = await pb
+				.collection('custom_sets')
+				.getFirstListItem(`name = "${createCustomSetName}" && user_id = "${$currentUser.id}"`);
+			if (checkName) {
+				toast.error('Name already exists', {
+					duration: 1500,
+					position: 'top-right'
+				});
+				return;
+			}
+		} catch (error) {}
+
 		//create new custom set to database
 		const data = await pb.collection('custom_sets').create({
 			name: createCustomSetName,
@@ -57,6 +71,8 @@
 			duration: 1500,
 			position: 'top-right'
 		});
+		//refresh
+		location.reload();
 	};
 
 	onMount(async () => {
@@ -81,12 +97,15 @@
 	const saveCustomSet = async () => {
 		loading = true;
 		//update data
-		await pb.collection('custom_sets').update(selectedCustomSet.value, selectedData).catch((e)=>{
-			toast.error(e.message, {
-				duration: 1500,
-				position: 'top-right'
+		await pb
+			.collection('custom_sets')
+			.update(selectedCustomSet.value, selectedData)
+			.catch((e) => {
+				toast.error(e.message, {
+					duration: 1500,
+					position: 'top-right'
+				});
 			});
-		});
 		loading = false;
 		toast.success('Custom SET saved successfully!', {
 			duration: 1500,
@@ -125,17 +144,19 @@
 				<Select.Input name="customSet" />
 			</Select.Root>
 		</div>
-		<div class="w-2/12 ml-5">
-			<button
-				on:click={saveCustomSet}
-				disabled={loading}
-				class:opacity-50={loading}
-				class="flex items-center space-x-2 bg-primary rounded-md w-full text-white justify-center py-2"
-			>
-				<Icon icon="mdi:content-save" class="text-white mr-2" width="20px" height="20px" />
-				Save
-			</button>
-		</div>
+		{#if selectedCustomSet.value}
+			<div class="w-2/12 ml-5">
+				<button
+					on:click={saveCustomSet}
+					disabled={loading}
+					class:opacity-50={loading}
+					class="flex items-center space-x-2 bg-primary rounded-md w-full text-white justify-center py-2"
+				>
+					<Icon icon="mdi:content-save" class="text-white mr-2" width="20px" height="20px" />
+					Save
+				</button>
+			</div>
+		{/if}
 	</div>
 	<!-- main -->
 	{#if selectedCustomSet.value}
