@@ -2,9 +2,11 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/chromedp/cdproto/network"
@@ -120,12 +122,14 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 	}
 
 	customData := module.CustomSet{}
-	errCustom := db.Select("id", "name", "user_id", "css", "javascript", "cookies", "user_agent", "headers", "bucket_endpoint", "bucket_default", "bucket_access_key", "bucket_secret_key").From("custom_sets").Where(dbx.NewExp("id = {:id}", dbx.Params{"id": custom})).One(&customData)
-	if errCustom != nil {
-		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"status":  "error",
-			"message": "custom is invalid",
-		})
+	if custom != "" {
+		errCustom := db.Select("id", "name", "user_id", "css", "javascript", "cookies", "localStorage", "user_agent", "headers", "bucket_endpoint", "bucket_default", "bucket_access_key", "bucket_secret_key").From("custom_sets").Where(dbx.NewExp("name = {:name} and user_id = {:user_id}", dbx.Params{"name": custom, "user_id": userData.UserId})).One(&customData)
+		if errCustom != nil {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"status":  "error",
+				"message": "custom is invalid",
+			})
+		}
 	}
 
 	//check rate limit per minute with redis
@@ -175,20 +179,15 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 			// Execute chromedp tasks in a separate goroutine
 			ctxAsync, cancel := chromedp.NewContext(context.Background())
 			defer cancel()
-			err := chromedp.Run(ctxAsync, screenshot(url, width, height, fullScreen, scrollDelay, noAds, noCookie, blockTracker, delay, &buf))
+			err := chromedp.Run(ctxAsync, screenshot(url, width, height, fullScreen, scrollDelay, noAds, noCookie, blockTracker, delay, customData, &buf))
 			if err != nil {
 				log.Printf("Error taking screenshot: %v", err)
-				// Handle error (e.g., send a notification or log the error)
 			}
 
-			// Process the screenshot (e.g., save to database or file system)
-			// ...
-
-			// Log or handle the completion of the screenshot task
 			log.Println("Screenshot task completed")
 		}()
 	} else {
-		if err := chromedp.Run(ctx, screenshot(url, width, height, fullScreen, scrollDelay, noAds, noCookie, blockTracker, delay, &buf)); err != nil {
+		if err := chromedp.Run(ctx, screenshot(url, width, height, fullScreen, scrollDelay, noAds, noCookie, blockTracker, delay, customData, &buf)); err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 				"status":  "error",
 				"message": err.Error(),
@@ -231,18 +230,53 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 	}
 }
 
-func screenshot(url string, width int64, height int64, fullScreen bool, scrollDelay int64, noAds bool, noCookie bool, blockTracker bool, delay int64, res *[]byte) chromedp.Tasks {
+func screenshot(url string, width int64, height int64, fullScreen bool, scrollDelay int64, noAds bool, noCookie bool, blockTracker bool, delay int64, customData module.CustomSet, res *[]byte) chromedp.Tasks {
 	var newHeight int64
 	viewportDivID := "customViewportDiv"
 	if fullScreen {
 		//print log
 		return chromedp.Tasks{
 			chromedp.Navigate(url),
+			chromedp.ActionFunc(func(ctx context.Context) error {
+				if customData.Cookies != "" {
+					err := chromedp.Evaluate(fmt.Sprintf(`document.cookie = "%s";`, customData.Cookies), nil).Do(ctx)
+					if err != nil {
+						return err
+					}
+				}
+
+				if customData.LocalStorage != "" {
+					localStorageScript := ""
+					for _, pair := range strings.Split(customData.LocalStorage, ";") {
+						parts := strings.SplitN(pair, "=", 2)
+						if len(parts) == 2 {
+							key := strings.TrimSpace(parts[0])
+							value := strings.TrimSpace(parts[1])
+							localStorageScript += fmt.Sprintf(`localStorage.setItem("%s", "%s");`, key, value)
+						}
+					}
+					if localStorageScript != "" {
+						err := chromedp.Evaluate(localStorageScript, nil).Do(ctx)
+						if err != nil {
+							return err
+						}
+					}
+				}
+
+				if customData.Cookies != "" || customData.LocalStorage != "" {
+					err := chromedp.Reload().Do(ctx)
+					if err != nil {
+						return err
+					}
+				}
+				return nil
+			}),
 			chromedp.WaitVisible(`body`, chromedp.ByQuery),
 			chromedp.Sleep(time.Duration(delay) * time.Second),
 			chromedp.ActionFunc(func(ctx context.Context) error {
 				// Execute JavaScript to get the total height of the content
 				err := chromedp.Evaluate(`document.documentElement.scrollHeight`, &newHeight).Do(ctx)
+				log.Println("newHeight", newHeight)
 				if err != nil {
 					return err
 				}
@@ -252,6 +286,7 @@ func screenshot(url string, width int64, height int64, fullScreen bool, scrollDe
 				// Set the viewport with static width and dynamic height
 				return chromedp.EmulateViewport(width, newHeight).Do(ctx)
 			}),
+
 			chromedp.ActionFunc(func(ctx context.Context) error {
 				for i := 0; i < 2; i++ { // You might need to adjust the number of iterations
 					if i == 0 {
@@ -272,39 +307,10 @@ func screenshot(url string, width int64, height int64, fullScreen bool, scrollDe
 				return nil
 			}),
 			chromedp.ActionFunc(func(ctx context.Context) error {
-				script := `
-                var div = document.createElement('div');
-                div.id = '` + viewportDivID + `';
-                div.style.position = 'absolute';
-                div.style.top = '0';
-                div.style.left = '0';
-                div.style.width = '` + strconv.FormatInt(width, 10) + `px';
-				div.style.height = document.documentElement.scrollHeight + 'px';
-                document.body.appendChild(div);
-            `
-				if noAds {
-					script += noAdsFun()
+				script, err := mainScript(noAds, noCookie, blockTracker, viewportDivID, width, newHeight, ctx)
+				if (err) != nil {
+					return err
 				}
-				if noCookie {
-					script += noCookieFunc()
-				}
-
-				if blockTracker {
-					err := network.SetBlockedURLS(
-						[]string{
-							"https://*.doubleclick.net/*",
-							"https://*.googleadservices.com/*",
-							"https://*.googlesyndication.com/*",
-							"https://*.google-analytics.com/*",
-							"https://*.googletagmanager.com/*",
-							"https://*.google.com/*",
-						},
-					).Do(ctx)
-					if err != nil {
-						return err
-					}
-				}
-
 				return chromedp.Evaluate(script, nil).Do(ctx)
 			}),
 			chromedp.Screenshot("#"+viewportDivID, res, chromedp.NodeVisible, chromedp.ByQuery),
@@ -312,11 +318,57 @@ func screenshot(url string, width int64, height int64, fullScreen bool, scrollDe
 	} else {
 		return chromedp.Tasks{
 			chromedp.Navigate(url),
+			chromedp.ActionFunc(func(ctx context.Context) error {
+				if customData.Cookies != "" {
+					err := chromedp.Evaluate(fmt.Sprintf(`document.cookie = "%s";`, customData.Cookies), nil).Do(ctx)
+					if err != nil {
+						return err
+					}
+				}
+
+				if customData.LocalStorage != "" {
+					localStorageScript := ""
+					for _, pair := range strings.Split(customData.LocalStorage, ";") {
+						parts := strings.SplitN(pair, "=", 2)
+						if len(parts) == 2 {
+							key := strings.TrimSpace(parts[0])
+							value := strings.TrimSpace(parts[1])
+							localStorageScript += fmt.Sprintf(`localStorage.setItem("%s", "%s");`, key, value)
+						}
+					}
+					if localStorageScript != "" {
+						err := chromedp.Evaluate(localStorageScript, nil).Do(ctx)
+						if err != nil {
+							return err
+						}
+					}
+				}
+
+				if customData.Cookies != "" || customData.LocalStorage != "" {
+					err := chromedp.Reload().Do(ctx)
+					if err != nil {
+						return err
+					}
+				}
+				return nil
+			}),
 			chromedp.EmulateViewport(width, height),
 			chromedp.WaitVisible(`body`, chromedp.ByQuery),
 			chromedp.Sleep(time.Duration(delay) * time.Second),
 			chromedp.ActionFunc(func(ctx context.Context) error {
-				script := `
+				script, err := mainScript(noAds, noCookie, blockTracker, viewportDivID, width, height, ctx)
+				if (err) != nil {
+					return err
+				}
+				return chromedp.Evaluate(script, nil).Do(ctx)
+			}),
+			chromedp.Screenshot("#"+viewportDivID, res, chromedp.NodeVisible, chromedp.ByQuery),
+		}
+	}
+}
+
+func mainScript(noAds bool, noCookie bool, blockTracker bool, viewportDivID string, width int64, height int64, ctx context.Context) (string, error) {
+	script := `
                 var div = document.createElement('div');
                 div.id = '` + viewportDivID + `';
                 div.style.position = 'absolute';
@@ -326,32 +378,29 @@ func screenshot(url string, width int64, height int64, fullScreen bool, scrollDe
                 div.style.height = '` + strconv.FormatInt(height, 10) + `px';
                 document.body.appendChild(div);
             `
-				if noAds {
-					script += noAdsFun()
-				}
-				if noCookie {
-					script += noCookieFunc()
-				}
-				if blockTracker {
-					err := network.SetBlockedURLS(
-						[]string{
-							"https://*.doubleclick.net/*",
-							"https://*.googleadservices.com/*",
-							"https://*.googlesyndication.com/*",
-							"https://*.google-analytics.com/*",
-							"https://*.googletagmanager.com/*",
-							"https://*.google.com/*",
-						},
-					).Do(ctx)
-					if err != nil {
-						return err
-					}
-				}
-				return chromedp.Evaluate(script, nil).Do(ctx)
-			}),
-			chromedp.Screenshot("#"+viewportDivID, res, chromedp.NodeVisible, chromedp.ByQuery),
+	if noAds {
+		script += noAdsFun()
+	}
+	if noCookie {
+		script += noCookieFunc()
+	}
+	if blockTracker {
+		err := network.SetBlockedURLS(
+			[]string{
+				"https://*.doubleclick.net/*",
+				"https://*.googleadservices.com/*",
+				"https://*.googlesyndication.com/*",
+				"https://*.google-analytics.com/*",
+				"https://*.googletagmanager.com/*",
+				"https://*.google.com/*",
+			},
+		).Do(ctx)
+		if err != nil {
+			return "", err
 		}
 	}
+
+	return script, nil
 }
 
 func noCookieFunc() string {

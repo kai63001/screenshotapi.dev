@@ -8,6 +8,7 @@ type CustomSet struct {
 	CSS             string `json:"css" db:"css"`
 	JavaScript      string `json:"javascript" db:"javascript"`
 	Cookies         string `json:"cookies" db:"cookies"`
+	LocalStorage    string `json:"localStorage" db:"localStorage"`
 	UserAgent       string `json:"user_agent" db:"user_agent"`
 	Headers         string `json:"headers" db:"headers"`
 	BucketEndpoint  string `json:"bucket_endpoint" db:"bucket_endpoint"`

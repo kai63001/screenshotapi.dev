@@ -181,6 +181,13 @@
 						placeholder="my-bucket"
 					/>
 					<div>
+						<span class="text-xs text-gray-500">Local Storage</span>
+						<CodeMirror
+							bind:value={selectedData.localStorage}
+							placeholder="name=value;"
+						/>
+					</div>
+					<div>
 						<span class="text-xs text-gray-500">Cookies</span>
 						<CodeMirror
 							bind:value={selectedData.cookies}
