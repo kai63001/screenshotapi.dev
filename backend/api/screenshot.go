@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -238,36 +239,10 @@ func screenshot(url string, width int64, height int64, fullScreen bool, scrollDe
 		return chromedp.Tasks{
 			chromedp.Navigate(url),
 			chromedp.ActionFunc(func(ctx context.Context) error {
-				if customData.Cookies != "" {
-					err := chromedp.Evaluate(fmt.Sprintf(`document.cookie = "%s";`, customData.Cookies), nil).Do(ctx)
-					if err != nil {
-						return err
-					}
-				}
-
-				if customData.LocalStorage != "" {
-					localStorageScript := ""
-					for _, pair := range strings.Split(customData.LocalStorage, ";") {
-						parts := strings.SplitN(pair, "=", 2)
-						if len(parts) == 2 {
-							key := strings.TrimSpace(parts[0])
-							value := strings.TrimSpace(parts[1])
-							localStorageScript += fmt.Sprintf(`localStorage.setItem("%s", "%s");`, key, value)
-						}
-					}
-					if localStorageScript != "" {
-						err := chromedp.Evaluate(localStorageScript, nil).Do(ctx)
-						if err != nil {
-							return err
-						}
-					}
-				}
-
-				if customData.Cookies != "" || customData.LocalStorage != "" {
-					err := chromedp.Reload().Do(ctx)
-					if err != nil {
-						return err
-					}
+				// use mainCustomScript
+				err := mainCustomScript(customData, ctx)
+				if err != nil {
+					return err
 				}
 				return nil
 			}),
@@ -307,7 +282,7 @@ func screenshot(url string, width int64, height int64, fullScreen bool, scrollDe
 				return nil
 			}),
 			chromedp.ActionFunc(func(ctx context.Context) error {
-				script, err := mainScript(noAds, noCookie, blockTracker, viewportDivID, width, newHeight, ctx)
+				script, err := mainScript(noAds, noCookie, blockTracker, viewportDivID, width, newHeight, customData, ctx)
 				if (err) != nil {
 					return err
 				}
@@ -319,36 +294,10 @@ func screenshot(url string, width int64, height int64, fullScreen bool, scrollDe
 		return chromedp.Tasks{
 			chromedp.Navigate(url),
 			chromedp.ActionFunc(func(ctx context.Context) error {
-				if customData.Cookies != "" {
-					err := chromedp.Evaluate(fmt.Sprintf(`document.cookie = "%s";`, customData.Cookies), nil).Do(ctx)
-					if err != nil {
-						return err
-					}
-				}
-
-				if customData.LocalStorage != "" {
-					localStorageScript := ""
-					for _, pair := range strings.Split(customData.LocalStorage, ";") {
-						parts := strings.SplitN(pair, "=", 2)
-						if len(parts) == 2 {
-							key := strings.TrimSpace(parts[0])
-							value := strings.TrimSpace(parts[1])
-							localStorageScript += fmt.Sprintf(`localStorage.setItem("%s", "%s");`, key, value)
-						}
-					}
-					if localStorageScript != "" {
-						err := chromedp.Evaluate(localStorageScript, nil).Do(ctx)
-						if err != nil {
-							return err
-						}
-					}
-				}
-
-				if customData.Cookies != "" || customData.LocalStorage != "" {
-					err := chromedp.Reload().Do(ctx)
-					if err != nil {
-						return err
-					}
+				// use mainCustomScript
+				err := mainCustomScript(customData, ctx)
+				if err != nil {
+					return err
 				}
 				return nil
 			}),
@@ -356,7 +305,7 @@ func screenshot(url string, width int64, height int64, fullScreen bool, scrollDe
 			chromedp.WaitVisible(`body`, chromedp.ByQuery),
 			chromedp.Sleep(time.Duration(delay) * time.Second),
 			chromedp.ActionFunc(func(ctx context.Context) error {
-				script, err := mainScript(noAds, noCookie, blockTracker, viewportDivID, width, height, ctx)
+				script, err := mainScript(noAds, noCookie, blockTracker, viewportDivID, width, height, customData, ctx)
 				if (err) != nil {
 					return err
 				}
@@ -367,7 +316,42 @@ func screenshot(url string, width int64, height int64, fullScreen bool, scrollDe
 	}
 }
 
-func mainScript(noAds bool, noCookie bool, blockTracker bool, viewportDivID string, width int64, height int64, ctx context.Context) (string, error) {
+func mainCustomScript(customData module.CustomSet, ctx context.Context) error {
+	if customData.Cookies != "" {
+		err := chromedp.Evaluate(fmt.Sprintf(`document.cookie = "%s";`, customData.Cookies), nil).Do(ctx)
+		if err != nil {
+			return err
+		}
+	}
+
+	if customData.LocalStorage != "" {
+		localStorageScript := ""
+		for _, pair := range strings.Split(customData.LocalStorage, ";") {
+			parts := strings.SplitN(pair, "=", 2)
+			if len(parts) == 2 {
+				key := strings.TrimSpace(parts[0])
+				value := strings.TrimSpace(parts[1])
+				localStorageScript += fmt.Sprintf(`localStorage.setItem("%s", "%s");`, key, value)
+			}
+		}
+		if localStorageScript != "" {
+			err := chromedp.Evaluate(localStorageScript, nil).Do(ctx)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	if customData.Cookies != "" || customData.LocalStorage != "" {
+		err := chromedp.Reload().Do(ctx)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func mainScript(noAds bool, noCookie bool, blockTracker bool, viewportDivID string, width int64, height int64, customData module.CustomSet, ctx context.Context) (string, error) {
 	script := `
                 var div = document.createElement('div');
                 div.id = '` + viewportDivID + `';
@@ -398,6 +382,42 @@ func mainScript(noAds bool, noCookie bool, blockTracker bool, viewportDivID stri
 		if err != nil {
 			return "", err
 		}
+	}
+	if customData.CSS != "" {
+		var styleCss string
+		if strings.Contains(customData.CSS, "\n") {
+			css := strings.ReplaceAll(customData.CSS, "\n", "")
+			styleCss = fmt.Sprintf(`
+        var styleCss = document.createElement('style');
+        styleCss.appendChild(document.createTextNode('%s'));
+        document.head.appendChild(styleCss);
+    `, css)
+		} else {
+			styleCss = fmt.Sprintf(`
+        var styleCss = document.createElement('style');
+        styleCss.innerHTML = '%s';
+        document.head.appendChild(styleCss);
+    `, customData.CSS)
+		}
+		script += styleCss
+	}
+	if customData.JavaScript != "" {
+		var scriptCustom string
+		if strings.Contains(customData.JavaScript, "\n") {
+			js, _ := json.Marshal(customData.JavaScript)
+			scriptCustom = fmt.Sprintf(`
+				var scriptCustom = document.createElement('script');
+				scriptCustom.appendChild(document.createTextNode(%s));
+				document.head.appendChild(scriptCustom);
+			`, js)
+		} else {
+			scriptCustom = fmt.Sprintf(`
+				var scriptCustom = document.createElement('script');
+				scriptCustom.innerHTML = '%s';
+				document.head.appendChild(scriptCustom);
+			`, strings.ReplaceAll(customData.JavaScript, "'", "\\'"))
+		}
+		script += scriptCustom
 	}
 
 	return script, nil
