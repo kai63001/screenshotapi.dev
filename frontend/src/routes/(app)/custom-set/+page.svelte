@@ -11,6 +11,7 @@
 	import CodeMirror from 'svelte-codemirror-editor';
 	import { javascript } from '@codemirror/lang-javascript';
 	import { css } from '@codemirror/lang-css';
+	import { json } from '@codemirror/lang-json';
 
 	let customList = [];
 	let selectedCustomSet: any = {};
@@ -182,10 +183,7 @@
 					/>
 					<div>
 						<span class="text-xs text-gray-500">Local Storage</span>
-						<CodeMirror
-							bind:value={selectedData.localStorage}
-							placeholder="name=value;"
-						/>
+						<CodeMirror bind:value={selectedData.localStorage} placeholder="name=value;" />
 					</div>
 					<div>
 						<span class="text-xs text-gray-500">Cookies</span>
@@ -198,7 +196,8 @@
 						<span class="text-xs text-gray-500">Headers</span>
 						<CodeMirror
 							bind:value={selectedData.headers}
-							placeholder="Referer: https://screenshotapi.dev"
+							placeholder={`{\n"User-Agent": "Mozilla/67.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N)"\n}`}
+							lang={json()}
 						/>
 					</div>
 				</div>

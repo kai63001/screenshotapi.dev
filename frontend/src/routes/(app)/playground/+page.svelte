@@ -32,6 +32,8 @@
 
 	$: if (selectedCustomSet.value === 'custom') {
 		goto('/custom-set');
+	} else if (selectedCustomSet.value === 'none') {
+		selectedCustomSet = {};
 	}
 
 	const takeScreenshot = async () => {
@@ -207,6 +209,9 @@
 					</Select.Trigger>
 					<Select.Content>
 						<Select.Group>
+							<Select.Item value="none" label="none">None</Select.Item
+							>
+							<Select.Separator />
 							{#each customList as fruit}
 								<Select.Item value={fruit.value} label={fruit.label}>{fruit.label}</Select.Item>
 							{/each}

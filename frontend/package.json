@@ -31,6 +31,7 @@
 	"dependencies": {
 		"@codemirror/lang-css": "^6.2.1",
 		"@codemirror/lang-javascript": "^6.2.1",
+		"@codemirror/lang-json": "^6.0.1",
 		"@tailwindcss/typography": "^0.5.10",
 		"axios": "^1.6.1",
 		"bits-ui": "^0.9.4",

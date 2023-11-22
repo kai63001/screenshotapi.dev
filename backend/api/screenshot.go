@@ -234,9 +234,53 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 func screenshot(url string, width int64, height int64, fullScreen bool, scrollDelay int64, noAds bool, noCookie bool, blockTracker bool, delay int64, customData module.CustomSet, res *[]byte) chromedp.Tasks {
 	var newHeight int64
 	viewportDivID := "customViewportDiv"
+	header := map[string]interface{}{}
+	//headers customeData
+	if customData.Headers != "" {
+		//convert it to network.Headers
+		err := json.Unmarshal([]byte(customData.Headers), &header)
+		if err != nil {
+			log.Println("err", err)
+		}
+
+	}
+	//check if custom user agent
+	if customData.UserAgent != "" {
+		header["User-Agent"] = customData.UserAgent
+	}
+	networkBlockedURLs := []string{}
+	if noAds {
+		networkBlockedURLs = append(networkBlockedURLs,
+			"https://*.doubleclick.net/*",
+			"https://*.googleadservices.com/*",
+			"https://*.googlesyndication.com/*",
+			"https://*.google-analytics.com/*",
+			"https://*.googletagmanager.com/*",
+			"https://*.google.com/*",
+		)
+	}
+	if blockTracker {
+		networkBlockedURLs = append(networkBlockedURLs,
+			"https://*.google-analytics.com/*",
+			"https://*.googletagmanager.com/*",
+			"https://*.facebook.com/*",
+			"https://*.facebook.net/*",
+			"https://*.twitter.com/*",
+			"https://*.scorecardresearch.com/*",
+			"https://*.quantserve.com/*",
+			"https://*.adnxs.com/*",
+			"https://*.adsrvr.org/*",
+			"https://*.adroll.com/*",
+			"https://*.taboola.com/*",
+			"https://*.outbrain.com/*",
+		)
+	}
 	if fullScreen {
 		//print log
 		return chromedp.Tasks{
+			network.Enable(),
+			network.SetExtraHTTPHeaders(header),
+			network.SetBlockedURLS(networkBlockedURLs),
 			chromedp.Navigate(url),
 			chromedp.ActionFunc(func(ctx context.Context) error {
 				// use mainCustomScript
@@ -251,7 +295,6 @@ func screenshot(url string, width int64, height int64, fullScreen bool, scrollDe
 			chromedp.ActionFunc(func(ctx context.Context) error {
 				// Execute JavaScript to get the total height of the content
 				err := chromedp.Evaluate(`document.documentElement.scrollHeight`, &newHeight).Do(ctx)
-				log.Println("newHeight", newHeight)
 				if err != nil {
 					return err
 				}
@@ -292,6 +335,9 @@ func screenshot(url string, width int64, height int64, fullScreen bool, scrollDe
 		}
 	} else {
 		return chromedp.Tasks{
+			network.Enable(),
+			network.SetExtraHTTPHeaders(header),
+			network.SetBlockedURLS(networkBlockedURLs),
 			chromedp.Navigate(url),
 			chromedp.ActionFunc(func(ctx context.Context) error {
 				// use mainCustomScript
@@ -368,21 +414,21 @@ func mainScript(noAds bool, noCookie bool, blockTracker bool, viewportDivID stri
 	if noCookie {
 		script += noCookieFunc()
 	}
-	if blockTracker {
-		err := network.SetBlockedURLS(
-			[]string{
-				"https://*.doubleclick.net/*",
-				"https://*.googleadservices.com/*",
-				"https://*.googlesyndication.com/*",
-				"https://*.google-analytics.com/*",
-				"https://*.googletagmanager.com/*",
-				"https://*.google.com/*",
-			},
-		).Do(ctx)
-		if err != nil {
-			return "", err
-		}
-	}
+	// if blockTracker {
+	// 	err := network.SetBlockedURLS(
+	// 		[]string{
+	// 			"https://*.doubleclick.net/*",
+	// 			"https://*.googleadservices.com/*",
+	// 			"https://*.googlesyndication.com/*",
+	// 			"https://*.google-analytics.com/*",
+	// 			"https://*.googletagmanager.com/*",
+	// 			"https://*.google.com/*",
+	// 		},
+	// 	).Do(ctx)
+	// 	if err != nil {
+	// 		return "", err
+	// 	}
+	// }
 	if customData.CSS != "" {
 		var styleCss string
 		if strings.Contains(customData.CSS, "\n") {
