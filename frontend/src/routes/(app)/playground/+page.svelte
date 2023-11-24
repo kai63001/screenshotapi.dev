@@ -6,7 +6,7 @@
 	import { onMount } from 'svelte';
 	import { Toaster, toast } from 'svelte-french-toast';
 	import * as Select from '$lib/components/ui/select';
-	import {pb} from '$lib/pocketbase';
+	import { pb } from '$lib/pocketbase';
 	import { goto } from '$app/navigation';
 
 	let access_key = '';
@@ -22,6 +22,7 @@
 	let noCookie = false;
 	let blockTracker = false;
 	let async = false;
+	let saveToS3 = false;
 
 	let isCapturing = false;
 
@@ -29,6 +30,12 @@
 
 	let customList = [];
 	let selectedCustomSet: any = {};
+	let fullCustomData = [];
+
+	let selectedResponse = {
+		value: 'image',
+		label: 'Image'
+	};
 
 	$: if (selectedCustomSet.value === 'custom') {
 		goto('/custom-set');
@@ -38,22 +45,7 @@
 
 	const takeScreenshot = async () => {
 		isCapturing = true;
-		const apiUrl = new URL(`${import.meta.env.VITE_API_KEY}/screenshot`);
-		apiUrl.searchParams.append('url', url);
-		apiUrl.searchParams.append('access_key', access_key);
-		if (isFullScreen) apiUrl.searchParams.append('full_screen', 'true');
-		if (scrollDelay != 1 && isFullScreen)
-			apiUrl.searchParams.append('scroll_delay', scrollDelay.toString());
-		if (innerWidth != 0) apiUrl.searchParams.append('v_width', innerWidth.toString());
-		if (innerHeight != 0 && !isFullScreen)
-			apiUrl.searchParams.append('v_height', innerHeight.toString());
-		if (delay != 0) apiUrl.searchParams.append('delay', delay.toString());
-		if (timeout != 0 && timeout != 60) apiUrl.searchParams.append('timeout', timeout.toString());
-		if (noAds) apiUrl.searchParams.append('no_ads', 'true');
-		if (noCookie) apiUrl.searchParams.append('no_cookie_banner', 'true');
-		if (blockTracker) apiUrl.searchParams.append('block_tracker', 'true');
-		if (async) apiUrl.searchParams.append('async', 'true');
-		if (selectedCustomSet.label) apiUrl.searchParams.append('custom', selectedCustomSet.label);
+		const apiUrl = APITextConverterDuplicate();
 		const response = await fetch(apiUrl.toString());
 		const blob = await response.blob();
 		if (blob.type === 'application/json') {
@@ -80,6 +72,10 @@
 	};
 
 	$: APITextConverter = () => {
+		return APITextConverterDuplicate();
+	};
+
+	const APITextConverterDuplicate = () => {
 		const apiUrl = new URL(`${import.meta.env.VITE_API_KEY}/screenshot`);
 		apiUrl.searchParams.append('access_key', access_key);
 		apiUrl.searchParams.append('url', url);
@@ -104,6 +100,7 @@
 
 		const data = await pb.collection('custom_sets').getFullList();
 		//map data and customList with name
+		fullCustomData = data;
 		customList = data.map((item) => {
 			return {
 				value: item.id,
@@ -111,6 +108,18 @@
 			};
 		});
 	});
+
+	const checkCustomSetHasS3 = () => {
+		if (selectedCustomSet.value === 'custom') return false;
+		if (selectedCustomSet.value === 'none') return false;
+		if (!selectedCustomSet.value) return false;
+		const data = fullCustomData.find((item) => item.id === selectedCustomSet.value);
+		console.log(data);
+		if (data && data.bucket_endpoint && data.bucket_access_key && data.bucket_secret_key)
+			return true;
+
+		return false;
+	};
 </script>
 
 <div class="gap-4 grid">
@@ -203,27 +212,72 @@
 				</div>
 			</div>
 			<div class="bg-white p-5 rounded-md">
-				<Select.Root bind:selected={selectedCustomSet}>
-					<Select.Trigger class="mt-2">
-						<Select.Value placeholder="Select a Custom SET" />
-					</Select.Trigger>
-					<Select.Content>
-						<Select.Group>
-							<Select.Item value="none" label="none">None</Select.Item
-							>
-							<Select.Separator />
-							{#each customList as fruit}
+				<div class="grid grid-cols-2 gap-4">
+					<Select.Root bind:selected={selectedCustomSet}>
+						<Select.Trigger class="mt-2">
+							<Select.Value placeholder="Custom Set" />
+						</Select.Trigger>
+						<Select.Content>
+							<Select.Group>
+								<Select.Item value="none" label="none">None</Select.Item>
+								<Select.Separator />
+								{#each customList as fruit}
+									<Select.Item value={fruit.value} label={fruit.label}>{fruit.label}</Select.Item>
+								{/each}
+								<Select.Separator />
+								<Select.Item value="custom" label="Create New Custom SET">
+									<Icon icon="mdi:plus" class="text-primary mr-2" width="20px" height="20px" />
+									Create New</Select.Item
+								>
+							</Select.Group>
+						</Select.Content>
+						<Select.Input name="customSet" />
+					</Select.Root>
+					<Select.Root bind:selected={selectedResponse}>
+						<Select.Trigger class="mt-2">
+							<Select.Value placeholder="Response" />
+						</Select.Trigger>
+						<Select.Content>
+							<Select.Group>
+								<Select.Separator />
+								<!-- {#each customList as fruit}
 								<Select.Item value={fruit.value} label={fruit.label}>{fruit.label}</Select.Item>
-							{/each}
-							<Select.Separator />
-							<Select.Item value="custom" label="Create New Custom SET">
-								<Icon icon="mdi:plus" class="text-primary mr-2" width="20px" height="20px" />
-								Create New Custom SET</Select.Item
-							>
-						</Select.Group>
-					</Select.Content>
-					<Select.Input name="customSet" />
-				</Select.Root>
+							{/each} -->
+								<Select.Item value={'image'} label={'Image'}>Image</Select.Item>
+								<Select.Item value={'json'} label={'JSON'}>JSON</Select.Item>
+							</Select.Group>
+						</Select.Content>
+						<Select.Input name="customSet" />
+					</Select.Root>
+				</div>
+				<!-- check if when custom set have s3 data -->
+				{#if selectedCustomSet.value && checkCustomSetHasS3()}
+					<div class="flex flex-col mt-2 space-y-2">
+						<div class="flex items-center space-x-3">
+							<Switch bind:checked={saveToS3} id="save-to-s3" />
+							<Label for="save-to-s3" class="text-gray-500">Save to S3</Label>
+						</div>
+					</div>
+					{#if saveToS3}
+						<div class="grid grid-cols-2 gap-4 mt-4">
+							<InputField
+								icon="material-symbols:width"
+								label="Bucket Endpoint"
+								help="The bucket endpoint."
+								type="text"
+								placeholder="https://s3.amazonaws.com"
+								bind:value={selectedCustomSet.bucket_endpoint}
+							/>
+						</div>
+					{/if}
+				{/if}
+			</div>
+
+			<div class="bg-white p-5 rounded-md flex-col flex space-y-2">
+				<div class="flex items-center space-x-3">
+					<Switch bind:checked={async} id="no-async" />
+					<Label for="no-async" class="text-gray-500">Async Screenshot Request</Label>
+				</div>
 			</div>
 			<div class="bg-white p-5 rounded-md flex-col flex space-y-2">
 				<div class="flex items-center space-x-3">
@@ -237,10 +291,6 @@
 				<div class="flex items-center space-x-3">
 					<Switch bind:checked={blockTracker} id="no-trakcer" />
 					<Label for="no-trakcer" class="text-gray-500">Block Tracker</Label>
-				</div>
-				<div class="flex items-center space-x-3">
-					<Switch bind:checked={async} id="no-async" />
-					<Label for="no-async" class="text-gray-500">Async Screenshot</Label>
 				</div>
 			</div>
 		</div>
