@@ -17,6 +17,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 
+	lib "backend/lib"
 	module "backend/module"
 )
 
@@ -221,6 +222,13 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 	})
 	log.Println("resul", result)
 
+	if customData.BucketDefault != "" && customData.BucketAccessKey != "" && customData.BucketSecretKey != "" && customData.BucketEndpoint != "" {
+		err := lib.UploadToS3(buf, "romeo.png", customData.BucketDefault, customData.BucketAccessKey, customData.BucketSecretKey, customData.BucketEndpoint)
+		if err != nil {
+			log.Println("err", err)
+		}
+	}
+
 	if asyncChrome {
 		return c.JSON(http.StatusOK, map[string]interface{}{
 			"status": "success",
@@ -257,6 +265,9 @@ func screenshot(url string, width int64, height int64, fullScreen bool, scrollDe
 			"https://*.google-analytics.com/*",
 			"https://*.googletagmanager.com/*",
 			"https://*.google.com/*",
+			//ezoic
+			"https://*.ezoic.net/*",
+			"https://*.ezoic.com/*",
 		)
 	}
 	if blockTracker {
@@ -429,24 +440,18 @@ func mainScript(noAds bool, noCookie bool, blockTracker bool, viewportDivID stri
 	// 		return "", err
 	// 	}
 	// }
+
 	if customData.CSS != "" {
-		var styleCss string
-		if strings.Contains(customData.CSS, "\n") {
-			css := strings.ReplaceAll(customData.CSS, "\n", "")
-			styleCss = fmt.Sprintf(`
-        var styleCss = document.createElement('style');
-        styleCss.appendChild(document.createTextNode('%s'));
-        document.head.appendChild(styleCss);
-    `, css)
-		} else {
-			styleCss = fmt.Sprintf(`
-        var styleCss = document.createElement('style');
-        styleCss.innerHTML = '%s';
-        document.head.appendChild(styleCss);
-    `, customData.CSS)
-		}
+		// Escape single quotes in CSS
+		css := strings.ReplaceAll(customData.CSS, "'", "\\'")
+
+		// Create the script to inject CSS
+		styleCss := "var styleCss = document.createElement('style');"
+		styleCss += "styleCss.innerHTML = `" + css + "`;"
+		styleCss += "document.head.appendChild(styleCss);"
 		script += styleCss
 	}
+
 	if customData.JavaScript != "" {
 		var scriptCustom string
 		if strings.Contains(customData.JavaScript, "\n") {
