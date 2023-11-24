@@ -98,6 +98,12 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 
 	custom := c.QueryParam("custom")
 
+	saveToS3Str := c.QueryParam("save_to_s3")
+	saveToS3, err := strconv.ParseBool(saveToS3Str)
+	if err != nil {
+		saveToS3 = false
+	}
+
 	//get user_id from access_key
 	userData := module.UserForKey{}
 	errAccessKey := db.Select("user_id").From("access_keys").Where(dbx.NewExp("access_key = {:access_key}", dbx.Params{"access_key": access_key})).One(&userData)
@@ -185,6 +191,12 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 			if err != nil {
 				log.Printf("Error taking screenshot: %v", err)
 			}
+			if saveToS3 && asyncChrome && customData.BucketDefault != "" && customData.BucketAccessKey != "" && customData.BucketSecretKey != "" && customData.BucketEndpoint != "" {
+				err := lib.UploadToS3(buf, "romeo.png", customData.BucketDefault, customData.BucketAccessKey, customData.BucketSecretKey, customData.BucketEndpoint)
+				if err != nil {
+					log.Println("err", err)
+				}
+			}
 
 			log.Println("Screenshot task completed")
 		}()
@@ -222,7 +234,7 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 	})
 	log.Println("resul", result)
 
-	if customData.BucketDefault != "" && customData.BucketAccessKey != "" && customData.BucketSecretKey != "" && customData.BucketEndpoint != "" {
+	if saveToS3 && !asyncChrome && customData.BucketDefault != "" && customData.BucketAccessKey != "" && customData.BucketSecretKey != "" && customData.BucketEndpoint != "" {
 		err := lib.UploadToS3(buf, "romeo.png", customData.BucketDefault, customData.BucketAccessKey, customData.BucketSecretKey, customData.BucketEndpoint)
 		if err != nil {
 			log.Println("err", err)
@@ -286,6 +298,7 @@ func screenshot(url string, width int64, height int64, fullScreen bool, scrollDe
 			"https://*.outbrain.com/*",
 		)
 	}
+
 	if fullScreen {
 		//print log
 		return chromedp.Tasks{
@@ -425,21 +438,6 @@ func mainScript(noAds bool, noCookie bool, blockTracker bool, viewportDivID stri
 	if noCookie {
 		script += noCookieFunc()
 	}
-	// if blockTracker {
-	// 	err := network.SetBlockedURLS(
-	// 		[]string{
-	// 			"https://*.doubleclick.net/*",
-	// 			"https://*.googleadservices.com/*",
-	// 			"https://*.googlesyndication.com/*",
-	// 			"https://*.google-analytics.com/*",
-	// 			"https://*.googletagmanager.com/*",
-	// 			"https://*.google.com/*",
-	// 		},
-	// 	).Do(ctx)
-	// 	if err != nil {
-	// 		return "", err
-	// 	}
-	// }
 
 	if customData.CSS != "" {
 		// Escape single quotes in CSS

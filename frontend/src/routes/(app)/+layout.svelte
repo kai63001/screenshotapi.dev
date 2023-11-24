@@ -71,7 +71,7 @@
 </script>
 
 <div class="flex">
-	<nav class="w-1/5 flex flex-col justify-between">
+	<nav class="w-1/5 flex flex-col justify-between fixed h-screen">
 		<div>
 			<a href="/" class="p-5 flex items-center space-x-2">
 				<img src={logo} alt="logo" width="30px" height="30px" loading="eager" />
@@ -133,6 +133,7 @@
 			</ul>
 		</div>
 	</nav>
+	<div class="w-1/5"></div>
 	<div class="w-4/5 bg-[#F5F4F6] min-h-screen h-full p-5">
 		<slot />
 	</div>

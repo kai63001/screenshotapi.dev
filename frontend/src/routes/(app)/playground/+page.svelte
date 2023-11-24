@@ -45,7 +45,7 @@
 
 	const takeScreenshot = async () => {
 		isCapturing = true;
-		const apiUrl = APITextConverterDuplicate();
+		const apiUrl = apiText;
 		const response = await fetch(apiUrl.toString());
 		const blob = await response.blob();
 		if (blob.type === 'application/json') {
@@ -71,11 +71,9 @@
 		isCapturing = false;
 	};
 
-	$: APITextConverter = () => {
-		return APITextConverterDuplicate();
-	};
+	$: apiText = APITextConverterDuplicate();
 
-	const APITextConverterDuplicate = () => {
+	$: APITextConverterDuplicate = () => {
 		const apiUrl = new URL(`${import.meta.env.VITE_API_KEY}/screenshot`);
 		apiUrl.searchParams.append('access_key', access_key);
 		apiUrl.searchParams.append('url', url);
@@ -92,6 +90,10 @@
 		if (blockTracker) apiUrl.searchParams.append('block_tracker', 'true');
 		if (async) apiUrl.searchParams.append('async', 'true');
 		if (selectedCustomSet.label) apiUrl.searchParams.append('custom', selectedCustomSet.label);
+		if (selectedResponse.value && selectedResponse.value != 'image')
+			apiUrl.searchParams.append('response', selectedResponse.value);
+		if (saveToS3) apiUrl.searchParams.append('save_to_s3', 'true');
+
 		return apiUrl.toString();
 	};
 
@@ -213,42 +215,45 @@
 			</div>
 			<div class="bg-white p-5 rounded-md">
 				<div class="grid grid-cols-2 gap-4">
-					<Select.Root bind:selected={selectedCustomSet}>
-						<Select.Trigger class="mt-2">
-							<Select.Value placeholder="Custom Set" />
-						</Select.Trigger>
-						<Select.Content>
-							<Select.Group>
-								<Select.Item value="none" label="none">None</Select.Item>
-								<Select.Separator />
-								{#each customList as fruit}
-									<Select.Item value={fruit.value} label={fruit.label}>{fruit.label}</Select.Item>
-								{/each}
-								<Select.Separator />
-								<Select.Item value="custom" label="Create New Custom SET">
-									<Icon icon="mdi:plus" class="text-primary mr-2" width="20px" height="20px" />
-									Create New</Select.Item
-								>
-							</Select.Group>
-						</Select.Content>
-						<Select.Input name="customSet" />
-					</Select.Root>
-					<Select.Root bind:selected={selectedResponse}>
-						<Select.Trigger class="mt-2">
-							<Select.Value placeholder="Response" />
-						</Select.Trigger>
-						<Select.Content>
-							<Select.Group>
-								<Select.Separator />
-								<!-- {#each customList as fruit}
-								<Select.Item value={fruit.value} label={fruit.label}>{fruit.label}</Select.Item>
-							{/each} -->
-								<Select.Item value={'image'} label={'Image'}>Image</Select.Item>
-								<Select.Item value={'json'} label={'JSON'}>JSON</Select.Item>
-							</Select.Group>
-						</Select.Content>
-						<Select.Input name="customSet" />
-					</Select.Root>
+					<div>
+						<label for="customSet" class="text-gray-500 text-sm">Custom Set</label>
+						<Select.Root bind:selected={selectedCustomSet}>
+							<Select.Trigger class="mt-2">
+								<Select.Value placeholder="Custom Set" />
+							</Select.Trigger>
+							<Select.Content>
+								<Select.Group>
+									<Select.Item value="none" label="none">None</Select.Item>
+									<Select.Separator />
+									{#each customList as fruit}
+										<Select.Item value={fruit.value} label={fruit.label}>{fruit.label}</Select.Item>
+									{/each}
+									<Select.Separator />
+									<Select.Item value="custom" label="Create New Custom SET">
+										<Icon icon="mdi:plus" class="text-primary mr-2" width="20px" height="20px" />
+										Create New</Select.Item
+									>
+								</Select.Group>
+							</Select.Content>
+							<Select.Input id="customSet" name="customSet" />
+						</Select.Root>
+					</div>
+					<div>
+						<label for="response" class="text-gray-500 text-sm"> Response </label>
+						<Select.Root bind:selected={selectedResponse}>
+							<Select.Trigger class="mt-2">
+								<Select.Value placeholder="Response" />
+							</Select.Trigger>
+							<Select.Content>
+								<Select.Group>
+									<Select.Separator />
+									<Select.Item value={'image'} label={'Image'}>Image</Select.Item>
+									<Select.Item value={'json'} label={'JSON'}>JSON</Select.Item>
+								</Select.Group>
+							</Select.Content>
+							<Select.Input name="response" id="response" />
+						</Select.Root>
+					</div>
 				</div>
 				<!-- check if when custom set have s3 data -->
 				{#if selectedCustomSet.value && checkCustomSetHasS3()}
@@ -261,11 +266,11 @@
 					{#if saveToS3}
 						<div class="grid grid-cols-2 gap-4 mt-4">
 							<InputField
-								icon="material-symbols:width"
-								label="Bucket Endpoint"
-								help="The bucket endpoint."
+								icon="ph:path"
+								label="Path & File Name"
+								help="File name of the screenshot. Empy for random name."
 								type="text"
-								placeholder="https://s3.amazonaws.com"
+								placeholder="screenshots/screenshot_github"
 								bind:value={selectedCustomSet.bucket_endpoint}
 							/>
 						</div>
@@ -299,7 +304,7 @@
 				rows="5"
 				disabled
 				class="text-mute mt-2 w-full overflow-auto bg-[#E4E9EC] hover:bg-[#d3d4d4] p-2 text-sm cursor-text rounded"
-				>{APITextConverter()}</textarea
+				>{apiText}</textarea
 			>
 			<h2 class="text-xl font-semibold">Screenshot</h2>
 			{#if screenshot}
