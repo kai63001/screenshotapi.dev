@@ -24,6 +24,39 @@
 	let async = false;
 	let saveToS3 = false;
 	let path_file_name = '';
+	let query = 80;
+	let formatImage = {
+		value: 'png',
+		label: 'PNG'
+	};
+
+
+	let formatImageList = [
+		{
+			value: 'png',
+			label: 'PNG'
+		},
+		{
+			value: 'jpg',
+			label: 'JPG'
+		},
+		{
+			value: 'jpeg',
+			label: 'JPEG'
+		},
+		{
+			value: 'webp',
+			label: 'WEBP'
+		},
+		{
+			value: 'pdf',
+			label: 'PDF'
+		},
+		{
+			value: 'svg',
+			label: 'SVG'
+		}
+	]
 
 	let isCapturing = false;
 
@@ -202,7 +235,7 @@
 				<div class="grid grid-cols-2 gap-4">
 					<InputField
 						icon="mingcute:time-fill"
-						label="Delay"
+						label="Format"
 						help="Specify the delay in seconds before capturing the screenshot."
 						type="number"
 						bind:value={delay}
@@ -216,6 +249,34 @@
 						bind:value={timeout}
 						placeholder="30"
 					/>
+				</div>
+			</div>
+			<div class="bg-white p-5 rounded-md">
+				<div class="grid grid-cols-2 gap-4">
+					<div>
+						<label for="format" class="text-muted-foreground text-sm">Format</label>
+						<Select.Root bind:selected={formatImage}>
+							<Select.Trigger class="mt-2">
+								<Select.Value placeholder="Format Image" />
+							</Select.Trigger>
+							<Select.Content>
+								<Select.Group>
+									{#each formatImageList as fruit}
+										<Select.Item value={fruit.value} label={fruit.label}>{fruit.label}</Select.Item>
+									{/each}
+								</Select.Group>
+							</Select.Content>
+							<Select.Input id="format" name="format" />
+						</Select.Root>
+					</div>
+					<div>
+						<label for="format" class="text-muted-foreground text-sm">Format</label>
+						<input
+							class="w-full block form border rounded px-3 py-1.5 mt-2"
+							placeholder="80"
+							type="number"
+						/>
+					</div>
 				</div>
 			</div>
 			<div class="bg-white p-5 rounded-md">

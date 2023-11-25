@@ -115,6 +115,17 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 		responseType = "image"
 	}
 
+	imageQualityStr := c.QueryParam("quality")
+	imageQuality, err := strconv.Atoi(imageQualityStr)
+	if err != nil || imageQuality < 0 || imageQuality > 100 {
+		imageQuality = 80 // Default quality
+	}
+
+	imageFormat := c.QueryParam("format")
+	if imageFormat == "" {
+		imageFormat = "png" // Default format
+	}
+
 	//get user_id from access_key
 	userData := module.UserForKey{}
 	errAccessKey := db.Select("user_id").From("access_keys").Where(dbx.NewExp("access_key = {:access_key}", dbx.Params{"access_key": access_key})).One(&userData)

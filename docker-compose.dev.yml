@@ -7,3 +7,15 @@ services:
           --requirepass kbbgJ6wx4Ucnf3RZLpu3nEhYxh
     ports:
       - 6379:6379
+  backend:
+    image: golang:1.21-alpine3.18
+    restart: always
+    container_name: backend
+    volumes:
+      - ./backend:/app
+    working_dir: /app
+    ports:
+      - 8090:8090
+    links:
+      - redis
+    command: go build -o main && ./main
