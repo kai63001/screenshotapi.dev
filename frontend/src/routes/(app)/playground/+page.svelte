@@ -23,6 +23,7 @@
 	let blockTracker = false;
 	let async = false;
 	let saveToS3 = false;
+	let path_file_name = '';
 
 	let isCapturing = false;
 
@@ -31,6 +32,8 @@
 	let customList = [];
 	let selectedCustomSet: any = {};
 	let fullCustomData = [];
+
+	let dataRespnse = {};
 
 	let selectedResponse = {
 		value: 'image',
@@ -44,6 +47,7 @@
 	}
 
 	const takeScreenshot = async () => {
+		dataRespnse = {};
 		isCapturing = true;
 		const apiUrl = apiText;
 		const response = await fetch(apiUrl.toString());
@@ -57,6 +61,7 @@
 					duration: 3000,
 					position: 'top-right'
 				});
+				dataRespnse = data;
 				isCapturing = false;
 				return;
 			}
@@ -93,6 +98,7 @@
 		if (selectedResponse.value && selectedResponse.value != 'image')
 			apiUrl.searchParams.append('response', selectedResponse.value);
 		if (saveToS3) apiUrl.searchParams.append('save_to_s3', 'true');
+		if (path_file_name) apiUrl.searchParams.append('path_file_name', path_file_name);
 
 		return apiUrl.toString();
 	};
@@ -116,7 +122,6 @@
 		if (selectedCustomSet.value === 'none') return false;
 		if (!selectedCustomSet.value) return false;
 		const data = fullCustomData.find((item) => item.id === selectedCustomSet.value);
-		console.log(data);
 		if (data && data.bucket_endpoint && data.bucket_access_key && data.bucket_secret_key)
 			return true;
 
@@ -271,7 +276,7 @@
 								help="File name of the screenshot. Empy for random name."
 								type="text"
 								placeholder="screenshots/screenshot_github"
-								bind:value={selectedCustomSet.bucket_endpoint}
+								bind:value={path_file_name}
 							/>
 						</div>
 					{/if}
@@ -306,12 +311,28 @@
 				class="text-mute mt-2 w-full overflow-auto bg-[#E4E9EC] hover:bg-[#d3d4d4] p-2 text-sm cursor-text rounded"
 				>{apiText}</textarea
 			>
-			<h2 class="text-xl font-semibold">Screenshot</h2>
+			{#if Object.keys(dataRespnse).length > 0}
+				<h2 class="text-xl font-semibold">API Response</h2>
+				<textarea
+					rows="5"
+					disabled
+					class="text-mute mt-2 w-full overflow-auto bg-[#E4E9EC] hover:bg-[#d3d4d4] p-2 text-sm cursor-text rounded"
+					>{JSON.stringify(dataRespnse, null, 2)}</textarea
+				>
+			{:else}
+				<h2 class="text-xl font-semibold">Screenshot</h2>
+				{#if screenshot}
+					<div class="p-5 rounded-md bg-[#E4E9EC] mt-2">
+						<img src={screenshot} alt="screenshot" class="w-full rounded-md" />
+					</div>
+				{/if}
+			{/if}
+			<!-- <h2 class="text-xl font-semibold">Screenshot</h2>
 			{#if screenshot}
 				<div class="p-5 rounded-md bg-[#E4E9EC] mt-2">
 					<img src={screenshot} alt="screenshot" class="w-full rounded-md" />
 				</div>
-			{/if}
+			{/if} -->
 		</div>
 	</div>
 </div>

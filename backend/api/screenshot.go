@@ -104,6 +104,12 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 		saveToS3 = false
 	}
 
+	pathFileName := c.QueryParam("path_file_name")
+	if pathFileName == "" {
+		//randomString
+		pathFileName = lib.GenerateRandomString(10)
+	}
+
 	//get user_id from access_key
 	userData := module.UserForKey{}
 	errAccessKey := db.Select("user_id").From("access_keys").Where(dbx.NewExp("access_key = {:access_key}", dbx.Params{"access_key": access_key})).One(&userData)
@@ -192,7 +198,7 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 				log.Printf("Error taking screenshot: %v", err)
 			}
 			if saveToS3 && asyncChrome && customData.BucketDefault != "" && customData.BucketAccessKey != "" && customData.BucketSecretKey != "" && customData.BucketEndpoint != "" {
-				err := lib.UploadToS3(buf, "romeo.png", customData.BucketDefault, customData.BucketAccessKey, customData.BucketSecretKey, customData.BucketEndpoint)
+				err := lib.UploadToS3(buf, pathFileName+".png", customData.BucketDefault, customData.BucketAccessKey, customData.BucketSecretKey, customData.BucketEndpoint)
 				if err != nil {
 					log.Println("err", err)
 				}
@@ -235,7 +241,7 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 	log.Println("resul", result)
 
 	if saveToS3 && !asyncChrome && customData.BucketDefault != "" && customData.BucketAccessKey != "" && customData.BucketSecretKey != "" && customData.BucketEndpoint != "" {
-		err := lib.UploadToS3(buf, "romeo.png", customData.BucketDefault, customData.BucketAccessKey, customData.BucketSecretKey, customData.BucketEndpoint)
+		err := lib.UploadToS3(buf, pathFileName+".png", customData.BucketDefault, customData.BucketAccessKey, customData.BucketSecretKey, customData.BucketEndpoint)
 		if err != nil {
 			log.Println("err", err)
 		}
