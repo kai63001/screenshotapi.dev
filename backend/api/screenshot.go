@@ -110,6 +110,11 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 		pathFileName = lib.GenerateRandomString(10)
 	}
 
+	responseType := c.QueryParam("response_type")
+	if responseType == "" {
+		responseType = "image"
+	}
+
 	//get user_id from access_key
 	userData := module.UserForKey{}
 	errAccessKey := db.Select("user_id").From("access_keys").Where(dbx.NewExp("access_key = {:access_key}", dbx.Params{"access_key": access_key})).One(&userData)
@@ -249,10 +254,23 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 
 	if asyncChrome {
 		return c.JSON(http.StatusOK, map[string]interface{}{
-			"status": "success",
-			"data":   "Screenshot is being processed",
+			"status":     "success",
+			"data":       "Screenshot task processing",
+			"fileName":   pathFileName,
+			"bucketName": customData.BucketDefault,
 		})
 	} else {
+		if responseType == "json" {
+			returnData := map[string]interface{}{
+				"status": "success",
+				"data":   "Screenshot task completed",
+			}
+			if saveToS3 && customData.BucketDefault != "" && customData.BucketAccessKey != "" && customData.BucketSecretKey != "" && customData.BucketEndpoint != "" {
+				returnData["fileName"] = pathFileName
+				returnData["bucketName"] = customData.BucketDefault
+			}
+			return c.JSON(http.StatusOK, returnData)
+		}
 		return c.Blob(http.StatusOK, "image/png", buf)
 	}
 }
@@ -379,7 +397,6 @@ func screenshot(url string, width int64, height int64, fullScreen bool, scrollDe
 			}),
 			chromedp.EmulateViewport(width, height),
 			chromedp.WaitVisible(`body`, chromedp.ByQuery),
-			chromedp.Sleep(time.Duration(delay) * time.Second),
 			chromedp.ActionFunc(func(ctx context.Context) error {
 				script, err := mainScript(noAds, noCookie, blockTracker, viewportDivID, width, height, customData, ctx)
 				if (err) != nil {
@@ -387,6 +404,7 @@ func screenshot(url string, width int64, height int64, fullScreen bool, scrollDe
 				}
 				return chromedp.Evaluate(script, nil).Do(ctx)
 			}),
+			chromedp.Sleep(time.Duration(delay) * time.Second),
 			chromedp.Screenshot("#"+viewportDivID, res, chromedp.NodeVisible, chromedp.ByQuery),
 		}
 	}

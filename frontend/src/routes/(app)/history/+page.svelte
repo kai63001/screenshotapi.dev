@@ -14,6 +14,7 @@
 	let histories = [];
 	let hasNextPage = false;
 	let hasPrevPage = false;
+	let totalDocs = 0;
 	let page = 1;
 
 	let loading = false;
@@ -26,6 +27,7 @@
 		histories = [...histories, ...data.data];
 		hasNextPage = data.hasNextPage;
 		hasPrevPage = data.hasPrevPage;
+		totalDocs = data.totalCount;
 
 		page++;
 		loading = false;
@@ -44,7 +46,15 @@
 	</div>
 	<div class="bg-white p-5 rounded-md overflow-x-auto">
 		<Table.Root>
-			<Table.Caption>A list of your recent API history.</Table.Caption>
+			<Table.Caption>
+				{#if histories.length > 0}
+					Showing {histories.length} of {totalDocs} results
+				{:else if loading}
+					Loading...
+				{:else}
+					No results found
+				{/if}
+			</Table.Caption>
 			<Table.Header>
 				<Table.Row>
 					<Table.Head class="w-[100px]">Access Key</Table.Head>

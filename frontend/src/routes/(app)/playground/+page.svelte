@@ -96,7 +96,7 @@
 		if (async) apiUrl.searchParams.append('async', 'true');
 		if (selectedCustomSet.label) apiUrl.searchParams.append('custom', selectedCustomSet.label);
 		if (selectedResponse.value && selectedResponse.value != 'image')
-			apiUrl.searchParams.append('response', selectedResponse.value);
+			apiUrl.searchParams.append('response_type', selectedResponse.value);
 		if (saveToS3) apiUrl.searchParams.append('save_to_s3', 'true');
 		if (path_file_name) apiUrl.searchParams.append('path_file_name', path_file_name);
 

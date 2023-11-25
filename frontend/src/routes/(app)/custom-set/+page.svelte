@@ -223,11 +223,13 @@
 						bind:value={selectedData.bucket_access_key}
 						label="Access Key"
 						placeholder="my-access-key"
+						type="password"
 					/>
 					<InputField
 						bind:value={selectedData.bucket_secret_key}
 						label="Secret Key"
 						placeholder="my-secret-key"
+						type="password"
 					/>
 				</div>
 			</div>
