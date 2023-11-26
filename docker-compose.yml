@@ -7,16 +7,15 @@ services:
           --requirepass kbbgJ6wx4Ucnf3RZLpu3nEhYxh
     ports:
       - 6379:6379
-  backendscreenshot:
+  backend:
     build: 
       context: ./backend
-      dockerfile: ./dev.Dockerfile
+      dockerfile: ./Dockerfile
     restart: always
-    container_name: backendscreenshot
+    container_name: backend
     volumes:
       - ./backend:/app
-    working_dir: /app
     ports:
-      - 8090:8090
+      - 8080:8080
     links:
       - redis
