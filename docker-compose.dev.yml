@@ -8,7 +8,9 @@ services:
     ports:
       - 6379:6379
   backend:
-    image: golang:1.21-alpine3.18
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile.dev
     restart: always
     container_name: backend
     volumes:
@@ -18,4 +20,3 @@ services:
       - 8090:8090
     links:
       - redis
-    command: go build -o main && ./main
