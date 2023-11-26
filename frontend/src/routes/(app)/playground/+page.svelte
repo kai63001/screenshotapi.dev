@@ -24,7 +24,7 @@
 	let async = false;
 	let saveToS3 = false;
 	let path_file_name = '';
-	let query = 80;
+	let quality = 100;
 	let formatImage = {
 		value: 'png',
 		label: 'PNG'
@@ -133,6 +133,7 @@
 		if (path_file_name) apiUrl.searchParams.append('path_file_name', path_file_name);
 		if (formatImage.value && formatImage.value != 'png')
 			apiUrl.searchParams.append('format', formatImage.value);
+		if (quality && quality != 100) apiUrl.searchParams.append('quality', quality.toString());
 
 		return apiUrl.toString();
 	};
@@ -271,11 +272,12 @@
 						</Select.Root>
 					</div>
 					<div>
-						<label for="format" class="text-muted-foreground text-sm">Format</label>
+						<label for="format" class="text-muted-foreground text-sm">Quality</label>
 						<input
 							class="w-full block form border rounded px-3 py-1.5 mt-2"
-							placeholder="80"
+							placeholder="100"
 							type="number"
+							bind:value={quality}
 						/>
 					</div>
 				</div>
@@ -334,8 +336,8 @@
 						<div class="grid grid-cols-2 gap-4 mt-4">
 							<InputField
 								icon="ph:path"
-								label="Path & File Name"
-								help="File name of the screenshot. Empy for random name."
+								label="Path & File Name ({formatImage?.value?.toUpperCase()})"
+								help="File name of the screenshot. Empty for random name."
 								type="text"
 								placeholder="screenshots/screenshot_github"
 								bind:value={path_file_name}

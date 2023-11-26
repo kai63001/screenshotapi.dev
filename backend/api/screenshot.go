@@ -118,7 +118,7 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 	imageQualityStr := c.QueryParam("quality")
 	imageQuality, err := strconv.Atoi(imageQualityStr)
 	if err != nil || imageQuality < 0 || imageQuality > 100 {
-		imageQuality = 80 // Default quality
+		imageQuality = 100 // Default quality
 	}
 
 	imageFormat := c.QueryParam("format")
@@ -213,6 +213,21 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 			if err != nil {
 				log.Printf("Error taking screenshot: %v", err)
 			}
+
+			if imageFormat != "png" {
+				err := lib.FormatImage(&buf, imageFormat)
+				if err != nil {
+					log.Println("err", err)
+				}
+			}
+			//image quality
+			if imageQuality != 100 {
+				err := lib.ImageQuality(&buf, imageQuality)
+				if err != nil {
+					log.Println("err", err)
+				}
+			}
+
 			imageType := http.DetectContentType(buf)
 			//imageType to dot
 			dotTypeImage := "." + strings.Split(imageType, "/")[1]
@@ -259,44 +274,44 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 	})
 	log.Println("resul", result)
 
-	//format image
-	if imageFormat != "png" {
-		err := lib.FormatImage(&buf, module.ImageFormat{
-			Format:  imageFormat,
-			Quality: int64(imageQuality),
-			Width:   width,
-			Height:  height,
-		})
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-				"status":  "error",
-				"message": err.Error(),
-			})
-		}
-	}
-
-	imageType := http.DetectContentType(buf)
-	//imageType to dot
-	dotTypeImage := "." + strings.Split(imageType, "/")[1]
-
-	if saveToS3 && !asyncChrome && customData.BucketDefault != "" && customData.BucketAccessKey != "" && customData.BucketSecretKey != "" && customData.BucketEndpoint != "" {
-		err := lib.UploadToS3(buf, pathFileName+dotTypeImage, customData.BucketDefault, customData.BucketAccessKey, customData.BucketSecretKey, customData.BucketEndpoint)
-		if err != nil {
-			log.Println("err", err)
-		}
-	}
-
-	//image type of buf
-
 	if asyncChrome {
 		return c.JSON(http.StatusOK, map[string]interface{}{
 			"status":     "success",
 			"data":       "Screenshot task processing",
 			"fileName":   pathFileName,
 			"bucketName": customData.BucketDefault,
-			"imageType":  imageType,
 		})
 	} else {
+		if imageFormat != "png" {
+			err := lib.FormatImage(&buf, imageFormat)
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+					"status":  "error",
+					"message": err.Error(),
+				})
+			}
+		}
+		//image quality
+		if imageQuality != 100 {
+			err := lib.ImageQuality(&buf, imageQuality)
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+					"status":  "error",
+					"message": err.Error(),
+				})
+			}
+		}
+
+		imageType := http.DetectContentType(buf)
+		//imageType to dot
+		dotTypeImage := "." + strings.Split(imageType, "/")[1]
+
+		if saveToS3 && !asyncChrome && customData.BucketDefault != "" && customData.BucketAccessKey != "" && customData.BucketSecretKey != "" && customData.BucketEndpoint != "" {
+			err := lib.UploadToS3(buf, pathFileName+dotTypeImage, customData.BucketDefault, customData.BucketAccessKey, customData.BucketSecretKey, customData.BucketEndpoint)
+			if err != nil {
+				log.Println("err", err)
+			}
+		}
 		if responseType == "json" {
 			returnData := map[string]interface{}{
 				"status":    "success",

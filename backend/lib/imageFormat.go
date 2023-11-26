@@ -1,13 +1,23 @@
 package lib
 
 import (
-	models "backend/module"
-
 	"github.com/h2non/bimg"
 )
 
-func FormatImage(image *[]byte, data models.ImageFormat) error {
-	newImage, err := bimg.NewImage(*image).Convert(CheckDataFormat(data))
+func FormatImage(image *[]byte, formatImage string) error {
+	newImage, err := bimg.NewImage(*image).Convert(CheckDataFormat(formatImage))
+	if err != nil {
+		return err
+	}
+
+	*image = newImage
+	return nil
+}
+
+func ImageQuality(image *[]byte, quality int) error {
+	newImage, err := bimg.NewImage(*image).Process(bimg.Options{
+		Quality: quality,
+	})
 	if err != nil {
 		return err
 	}
@@ -17,9 +27,9 @@ func FormatImage(image *[]byte, data models.ImageFormat) error {
 }
 
 // function check dataFormat is valid and return bimg format type
-func CheckDataFormat(data models.ImageFormat) bimg.ImageType {
+func CheckDataFormat(formatImage string) bimg.ImageType {
 	var format bimg.ImageType
-	switch data.Format {
+	switch formatImage {
 	case "jpeg":
 		format = bimg.JPEG
 	case "png":
