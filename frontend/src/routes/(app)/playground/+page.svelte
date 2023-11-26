@@ -30,7 +30,6 @@
 		label: 'PNG'
 	};
 
-
 	let formatImageList = [
 		{
 			value: 'png',
@@ -56,7 +55,7 @@
 			value: 'svg',
 			label: 'SVG'
 		}
-	]
+	];
 
 	let isCapturing = false;
 
@@ -132,6 +131,8 @@
 			apiUrl.searchParams.append('response_type', selectedResponse.value);
 		if (saveToS3) apiUrl.searchParams.append('save_to_s3', 'true');
 		if (path_file_name) apiUrl.searchParams.append('path_file_name', path_file_name);
+		if (formatImage.value && formatImage.value != 'png')
+			apiUrl.searchParams.append('format', formatImage.value);
 
 		return apiUrl.toString();
 	};
@@ -235,7 +236,7 @@
 				<div class="grid grid-cols-2 gap-4">
 					<InputField
 						icon="mingcute:time-fill"
-						label="Format"
+						label="Delay"
 						help="Specify the delay in seconds before capturing the screenshot."
 						type="number"
 						bind:value={delay}
