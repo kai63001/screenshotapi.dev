@@ -265,14 +265,13 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 	}
 
 	fullUrl := c.Request().URL.String()
-	result, _ := mongo.InsertOne(context.Background(), map[string]interface{}{
+	mongo.InsertOne(context.Background(), map[string]interface{}{
 		"user_id":    userData.UserId,
 		"access_key": access_key,
 		"url":        url,
 		"fullUrl":    fullUrl,
 		"created":    time.Now(),
 	})
-	log.Println("resul", result)
 
 	if asyncChrome {
 		return c.JSON(http.StatusOK, map[string]interface{}{

@@ -11,6 +11,7 @@ import (
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
+	"github.com/pocketbase/pocketbase/tools/cron"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -40,40 +41,55 @@ func main() {
 	collection := client.Database("capture").Collection("logs")
 
 	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
+		//scheduler
+		database := app.Dao().DB()
+
+		scheduler := cron.New()
+
+		// prints "Hello!" every 2 minutes 0 */12 * * *
+		scheduler.MustAdd("hello", "*/1 * * * *", func() {
+			lib.ResetQuotaPerMonth(database)
+		})
+
+		scheduler.Start()
+
 		e.Router.GET("/v1/screenshot", func(c echo.Context) error {
-			database := app.Dao().DB()
+
 			return api.TakeScreenshot(c, database, collection, rdb)
 		})
 		e.Router.GET("/v1/history", func(c echo.Context) error {
-			database := app.Dao().DB()
+
 			return api.GetHistoryScreenshotAPI(c, database, collection)
 		})
 		e.Router.POST("/v1/subscription", func(c echo.Context) error {
-			database := app.Dao().DB()
+
 			return api.Subscription(c, database)
 		})
 		e.Router.POST("/v1/hook", func(c echo.Context) error {
-			database := app.Dao().DB()
+
 			return api.Hook(c, database)
 		})
 		e.Router.POST("/v1/portal", func(c echo.Context) error {
-			database := app.Dao().DB()
+
 			return api.StripePortal(c, database)
 		})
 		e.Router.PATCH("/v1/access_key", func(c echo.Context) error {
-			database := app.Dao().DB()
+
 			return api.ResetAccessKey(c, database)
 		})
 		e.Router.GET("/*", apis.StaticDirectoryHandler(os.DirFS("./pb_public"), false))
+
 		return nil
 	})
 
 	app.OnModelAfterCreate("users").Add(func(e *core.ModelEvent) error {
 		_, errCreateScreenshotUsage := app.Dao().DB().NewQuery(`
-			INSERT INTO screenshot_usage (user_id)
-			VALUES ({:user_id})
+			INSERT INTO screenshot_usage (user_id,next_reset_quota)
+			VALUES ({:user_id}, {:next_reset_quota})
 		`).Bind(dbx.Params{
 			"user_id": e.Model.GetId(),
+			// set next reset quota to 30 days
+			"next_reset_quota": lib.GetNextResetQuota(),
 		}).Execute()
 		if errCreateScreenshotUsage != nil {
 			return errCreateScreenshotUsage
