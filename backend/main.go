@@ -47,7 +47,7 @@ func main() {
 		scheduler := cron.New()
 
 		// prints "Hello!" every 2 minutes 0 */12 * * *
-		scheduler.MustAdd("hello", "*/1 * * * *", func() {
+		scheduler.MustAdd("ResetQuotaPerMonth", "*/12 * * * *", func() {
 			lib.ResetQuotaPerMonth(database)
 		})
 

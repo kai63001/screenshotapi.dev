@@ -20,8 +20,6 @@ func ResetQuotaPerMonth(db dbx.Builder) {
 		log.Println("errUser", errUser)
 	}
 
-	log.Println("screenshotUsage", screenshotUsage)
-
 	for _, sc := range screenshotUsage {
 		// get created date is less than or equal to 30 days
 		if CheckDate(sc.NextResetQuota) {
@@ -50,7 +48,11 @@ func CheckDate(nextResetQuota string) bool {
 	//convert string to time
 	nowNextResetQuota, err := time.Parse("2006-01-02 15:04:05.999999999-07:00", nextResetQuota)
 	if err != nil {
-		log.Println("err", err)
+		nowNextResetQuota2, erro2 := time.Parse("2006-01-02 15:04:05.000Z", nextResetQuota)
+		if erro2 != nil {
+			log.Println("erro2", erro2)
+		}
+		nowNextResetQuota = nowNextResetQuota2
 	}
 
 	now := time.Now()
