@@ -40,16 +40,17 @@
 
 	let loading = false;
 
-	const subscription = async (pricing_id) => {
+	const subscription = async (planId) => {
 		//check if has been subscribed
 		if ($currentUser?.subscription_plan != pricingPlans[0].id) {
 			portalSubscription();
 			return;
 		}
-		if (!pricing_id) return;
+		if (!planId) return;
 		loading = true;
 		const { data } = await instance.post(`/subscription`, {
-			pricing_id
+			plan_id: planId,
+			is_yearly: isYearly
 		});
 		const url = data.url;
 		//open stripe checkout with url
@@ -192,7 +193,7 @@
 																portalSubscription();
 																return;
 															}
-															subscription(plan.stripe_pricing_id[isYearly ? 'yearly' : 'monthly']);
+															subscription(plan.id);
 														}}
 														class="block w-full text-center rounded-lg border border-transparent bg-primary px-6 py-3 text-base leading-6 font-medium text-white hover:bg-red-500 focus:outline-none focus:red-indigo-700 focus:shadow-outline-indigo transition duration-150 ease-in-out"
 														disabled={loading}
