@@ -59,7 +59,7 @@ func main() {
 
 		e.Router.GET("/v1/screenshot", func(c echo.Context) error {
 
-			return api.TakeScreenshot(c, database, collection, rdb)
+			return api.TakeScreenshotByAPI(c, database, collection, rdb)
 		})
 		e.Router.GET("/v1/history", func(c echo.Context) error {
 

@@ -15,7 +15,7 @@
 
 	let pricingPlans = listPricingPlans;
 
-	let isYearly = true;
+	let isYearly = false;
 	let currentIndex = 0;
 
 	onMount(async () => {

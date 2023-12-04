@@ -6,22 +6,18 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"screenshot/lib"
+	"screenshot/module"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
-	"github.com/labstack/echo/v5"
-	"github.com/pocketbase/dbx"
-	"github.com/redis/go-redis/v9"
-	"go.mongodb.org/mongo-driver/mongo"
-
-	lib "backend/lib"
-	module "backend/module"
+	"github.com/labstack/echo/v4"
 )
 
-func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb *redis.Client) error {
+func TakeScreenshot(c echo.Context) error {
 	//get query url
 	url := c.QueryParam("url")
 	if url == "" {
@@ -90,19 +86,7 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 		timeout = 60
 	}
 
-	asyncChromeStr := c.QueryParam("async")
-	asyncChrome, err := strconv.ParseBool(asyncChromeStr)
-	if err != nil {
-		asyncChrome = false
-	}
-
-	custom := c.QueryParam("custom")
-
-	saveToS3Str := c.QueryParam("save_to_s3")
-	saveToS3, err := strconv.ParseBool(saveToS3Str)
-	if err != nil {
-		saveToS3 = false
-	}
+	// custom := c.QueryParam("custom")
 
 	pathFileName := c.QueryParam("path_file_name")
 	if pathFileName == "" {
@@ -126,76 +110,7 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 		imageFormat = "png" // Default format
 	}
 
-	//get user_id from access_key
-	userData := module.UserForKey{}
-	errAccessKey := db.Select("user_id").From("access_keys").Where(dbx.NewExp("access_key = {:access_key}", dbx.Params{"access_key": access_key})).One(&userData)
-	if errAccessKey != nil {
-		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"status":  "error",
-			"message": "access_key is invalid",
-		})
-	}
-	//check quota
-	quotaData := module.GetQuotaScreenshot{}
-	errCheckQuota := db.
-		Select("screenshot_usage.screenshots_taken", "subscription_plans.name", "subscription_plans.included_screenshots", "subscription_plans.rate_limit_per_minute").
-		From("screenshot_usage").
-		InnerJoin("users", dbx.NewExp("users.id = screenshot_usage.user_id")).
-		InnerJoin("subscription_plans", dbx.NewExp("subscription_plans.id = users.subscription_plan")).
-		Where(dbx.NewExp("screenshot_usage.user_id = {:user_id}", dbx.Params{"user_id": userData.UserId})).
-		One(&quotaData)
-	if errCheckQuota != nil {
-		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"status":  "error",
-			"message": "access_key is invalid",
-		})
-	}
-
 	customData := module.CustomSet{}
-	if custom != "" {
-		errCustom := db.Select("id", "name", "user_id", "css", "javascript", "cookies", "localStorage", "user_agent", "headers", "bucket_endpoint", "bucket_default", "bucket_access_key", "bucket_secret_key").From("custom_sets").Where(dbx.NewExp("name = {:name} and user_id = {:user_id}", dbx.Params{"name": custom, "user_id": userData.UserId})).One(&customData)
-		if errCustom != nil {
-			return c.JSON(http.StatusBadRequest, map[string]interface{}{
-				"status":  "error",
-				"message": "custom is invalid",
-			})
-		}
-	}
-
-	//check rate limit per minute with redis
-	// Key to store the rate limit counter
-	key := "rate_limit:" + userData.UserId
-
-	// Increment the counter by 1
-	count, err := rdb.Incr(context.Background(), key).Result()
-	if err != nil {
-		// Handle Redis error
-		log.Println("err", err)
-	}
-
-	// Set the expiration time to 1 minute
-	if count == 1 {
-		_, err := rdb.Expire(context.Background(), key, time.Minute).Result()
-		if err != nil {
-			// Handle Redis error
-			log.Println("err", err)
-		}
-	}
-
-	// Check if the counter exceeds the rate limit
-	if count > quotaData.SubscriptionPlans.RateLimitPerMinute {
-		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"status":  "error",
-			"message": "Rate limit exceeded",
-		})
-	}
-
-	if quotaData.ScreenshotUsage.ScreenshotTaken >= quotaData.SubscriptionPlans.IncludedScreenshots && quotaData.SubscriptionPlans.Name == "Free" {
-		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"status":  "error",
-			"message": "You have reached your quota",
-		})
-	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
 	defer cancel()
@@ -204,128 +119,15 @@ func TakeScreenshot(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb
 	defer cancel()
 
 	var buf []byte
-	if asyncChrome {
-		go func() {
-			// Execute chromedp tasks in a separate goroutine
-			ctxAsync, cancel := chromedp.NewContext(context.Background())
-			defer cancel()
-
-			err := chromedp.Run(ctxAsync, screenshot(url, width, height, fullScreen, scrollDelay, noAds, noCookie, blockTracker, delay, customData, &buf))
-			if err != nil {
-				log.Printf("Error taking screenshot: %v", err)
-			}
-
-			if imageFormat != "png" {
-				err := lib.FormatImage(&buf, imageFormat)
-				if err != nil {
-					log.Println("err", err)
-				}
-			}
-			//image quality
-			if imageQuality != 100 {
-				err := lib.ImageQuality(&buf, imageQuality)
-				if err != nil {
-					log.Println("err", err)
-				}
-			}
-
-			imageType := http.DetectContentType(buf)
-			//imageType to dot
-			dotTypeImage := "." + strings.Split(imageType, "/")[1]
-			if saveToS3 && asyncChrome && customData.BucketDefault != "" && customData.BucketAccessKey != "" && customData.BucketSecretKey != "" && customData.BucketEndpoint != "" {
-				err := lib.UploadToS3(buf, pathFileName+dotTypeImage, customData.BucketDefault, customData.BucketAccessKey, customData.BucketSecretKey, customData.BucketEndpoint)
-				if err != nil {
-					log.Println("err", err)
-				}
-			}
-
-			log.Println("Screenshot task completed")
-		}()
-	} else {
-		if err := chromedp.Run(ctx, screenshot(url, width, height, fullScreen, scrollDelay, noAds, noCookie, blockTracker, delay, customData, &buf)); err != nil {
-			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-				"status":  "error",
-				"message": err.Error(),
-			})
-		}
+	errCh := chromedp.Run(ctx, screenshot(url, width, height, fullScreen, scrollDelay, noAds, noCookie, blockTracker, delay, customData, &buf))
+	if errCh != nil {
+		log.Printf("Error taking screenshot: %v", errCh)
 	}
 
-	//update screenshot_usage
-	_, errUpdateScreenshotUsage := db.NewQuery(`
-		UPDATE screenshot_usage
-		SET screenshots_taken = screenshots_taken + 1
-		WHERE user_id = {:user_id}
-	`).Bind(dbx.Params{
-		"user_id": userData.UserId,
-	}).Execute()
-	if errUpdateScreenshotUsage != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"status":  "error",
-			"message": errUpdateScreenshotUsage.Error(),
-		})
-	}
+	imageType := http.DetectContentType(buf)
 
-	fullUrl := c.Request().URL.String()
-	mongo.InsertOne(context.Background(), map[string]interface{}{
-		"user_id":    userData.UserId,
-		"access_key": access_key,
-		"url":        url,
-		"fullUrl":    fullUrl,
-		"created":    time.Now(),
-	})
-
-	if asyncChrome {
-		return c.JSON(http.StatusOK, map[string]interface{}{
-			"status":     "success",
-			"data":       "Screenshot task processing",
-			"fileName":   pathFileName,
-			"bucketName": customData.BucketDefault,
-		})
-	} else {
-		if imageFormat != "png" {
-			err := lib.FormatImage(&buf, imageFormat)
-			if err != nil {
-				return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-					"status":  "error",
-					"message": err.Error(),
-				})
-			}
-		}
-		//image quality
-		if imageQuality != 100 {
-			err := lib.ImageQuality(&buf, imageQuality)
-			if err != nil {
-				return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-					"status":  "error",
-					"message": err.Error(),
-				})
-			}
-		}
-
-		imageType := http.DetectContentType(buf)
-		//imageType to dot
-		dotTypeImage := "." + strings.Split(imageType, "/")[1]
-
-		if saveToS3 && !asyncChrome && customData.BucketDefault != "" && customData.BucketAccessKey != "" && customData.BucketSecretKey != "" && customData.BucketEndpoint != "" {
-			err := lib.UploadToS3(buf, pathFileName+dotTypeImage, customData.BucketDefault, customData.BucketAccessKey, customData.BucketSecretKey, customData.BucketEndpoint)
-			if err != nil {
-				log.Println("err", err)
-			}
-		}
-		if responseType == "json" {
-			returnData := map[string]interface{}{
-				"status":    "success",
-				"data":      "Screenshot task completed",
-				"imageType": imageType,
-			}
-			if saveToS3 && customData.BucketDefault != "" && customData.BucketAccessKey != "" && customData.BucketSecretKey != "" && customData.BucketEndpoint != "" {
-				returnData["fileName"] = pathFileName
-				returnData["bucketName"] = customData.BucketDefault
-			}
-			return c.JSON(http.StatusOK, returnData)
-		}
-		return c.Blob(http.StatusOK, imageType, buf)
-	}
+	//blob
+	return c.Blob(http.StatusOK, imageType, buf)
 }
 
 func screenshot(url string, width int64, height int64, fullScreen bool, scrollDelay int64, noAds bool, noCookie bool, blockTracker bool, delay int64, customData module.CustomSet, res *[]byte) chromedp.Tasks {
