@@ -9,6 +9,7 @@ require (
 	github.com/gobwas/httphead v0.1.0 // indirect
 	github.com/gobwas/pool v0.2.1 // indirect
 	github.com/gobwas/ws v1.3.0 // indirect
+	github.com/h2non/bimg v1.1.9 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/labstack/echo/v4 v4.11.3 // indirect
 	github.com/labstack/gommon v0.4.1 // indirect

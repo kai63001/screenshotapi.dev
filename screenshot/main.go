@@ -8,7 +8,7 @@ import (
 
 func main() {
 	e := echo.New()
-	e.GET("/v1/screenshot", func(c echo.Context) error {
+	e.POST("/v1/screenshot", func(c echo.Context) error {
 		return api.TakeScreenshot(c)
 	})
 

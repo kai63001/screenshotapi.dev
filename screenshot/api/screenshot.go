@@ -86,7 +86,25 @@ func TakeScreenshot(c echo.Context) error {
 		timeout = 60
 	}
 
-	// custom := c.QueryParam("custom")
+	body := c.Request().Body
+	customData := module.CustomSet{}
+	if body != nil {
+		json_map := make(map[string]interface{})
+		err := json.NewDecoder(body).Decode(&json_map)
+		if err != nil {
+			log.Println("err", err)
+		}
+		customJson, err := json.Marshal(json_map["custom"])
+		if err != nil {
+			log.Println("err", err)
+		}
+		//customJson to struct customData
+		err = json.Unmarshal(customJson, &customData)
+		if err != nil {
+			log.Println("err", err)
+		}
+
+	}
 
 	pathFileName := c.QueryParam("path_file_name")
 	if pathFileName == "" {
@@ -110,8 +128,6 @@ func TakeScreenshot(c echo.Context) error {
 		imageFormat = "png" // Default format
 	}
 
-	customData := module.CustomSet{}
-
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
 	defer cancel()
 
@@ -124,7 +140,31 @@ func TakeScreenshot(c echo.Context) error {
 		log.Printf("Error taking screenshot: %v", errCh)
 	}
 
+	log.Println("imageFormat", imageFormat)
+	//format image
+	if imageFormat != "png" {
+		err := lib.FormatImage(&buf, imageFormat)
+		if err != nil {
+			log.Println("err", err)
+		}
+	}
+	//image quality
+	if imageQuality != 100 {
+		err := lib.ImageQuality(&buf, imageQuality)
+		if err != nil {
+			log.Println("err", err)
+		}
+	}
+
 	imageType := http.DetectContentType(buf)
+	if responseType == "json" {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"status": "success",
+			"data": map[string]interface{}{
+				"type": imageType,
+			},
+		})
+	}
 
 	//blob
 	return c.Blob(http.StatusOK, imageType, buf)
