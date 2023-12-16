@@ -168,10 +168,9 @@ func TakeScreenshotByAPI(c echo.Context, db dbx.Builder, mongo *mongo.Collection
 				"message": errBody.Error(),
 			})
 		}
-		log.Println("body", string(body))
 
 		//convert to json
-		return c.JSON(200, body)
+		return c.JSONBlob(200, body)
 	}
 }
 

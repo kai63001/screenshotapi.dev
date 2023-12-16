@@ -87,9 +87,9 @@
 		if (blob.type === 'application/json') {
 			const json = await blob.text();
 			const data = JSON.parse(json);
-			// console.log(data)
-			if (data.data) {
-				toast.success(data.data, {
+			console.log(data);
+			if (data.status) {
+				toast.success(data.status, {
 					duration: 3000,
 					position: 'top-right'
 				});
