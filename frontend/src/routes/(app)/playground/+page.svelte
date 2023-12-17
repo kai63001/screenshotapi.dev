@@ -88,6 +88,15 @@
 			const json = await blob.text();
 			const data = JSON.parse(json);
 			console.log(data);
+			if (data.status == 'error') {
+				toast.error(data.message, {
+					duration: 3000,
+					position: 'top-right'
+				});
+				dataRespnse = data;
+				isCapturing = false;
+				return;
+			}
 			if (data.status) {
 				toast.success(data.status, {
 					duration: 3000,

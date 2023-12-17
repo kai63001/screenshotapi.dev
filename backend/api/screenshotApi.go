@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -135,43 +136,103 @@ func TakeScreenshotByAPI(c echo.Context, db dbx.Builder, mongo *mongo.Collection
 
 	//request to api
 	fullURL := apiLink + "?" + url
-	resp, errRes := http.Post(fullURL, "application/json", bytes.NewBuffer(body))
-	if errRes != nil {
-		// Handle the connection error gracefully
+
+	fullUrlApi := c.Request().URL.String()
+	mongo.InsertOne(context.Background(), map[string]interface{}{
+		"user_id":    userData.UserId,
+		"access_key": access_key,
+		"url":        url,
+		"fullUrl":    fullUrlApi,
+		"created":    time.Now(),
+	})
+
+	//async
+	asyncChromeStr := c.QueryParam("async")
+	asyncChrome, err := strconv.ParseBool(asyncChromeStr)
+	if err != nil {
+		asyncChrome = false
+	}
+	if asyncChrome {
+		go func() {
+			// Make the HTTP request asynchronously
+			resp, errRes := http.Post(fullURL, "application/json", bytes.NewBuffer(body))
+			if errRes != nil {
+				// Handle the connection error gracefully
+				log.Println("errRes", errRes)
+				return
+			}
+			//update screenshot_usage
+			_, errUpdateScreenshotUsage := db.NewQuery(`
+	UPDATE screenshot_usage
+	SET screenshots_taken = screenshots_taken + 1
+	WHERE user_id = {:user_id}
+`).Bind(dbx.Params{
+				"user_id": userData.UserId,
+			}).Execute()
+			if errUpdateScreenshotUsage != nil {
+				log.Println("errUpdateScreenshotUsage", errUpdateScreenshotUsage)
+			}
+			defer resp.Body.Close()
+		}()
 		return c.JSON(200, map[string]interface{}{
-			"status":  "error",
-			"message": errRes.Error(),
+			"status":  "success",
+			"message": "Screenshot is being processed",
 		})
-	}
-	defer resp.Body.Close()
-
-	//check if resp is application/json
-	contentType := resp.Header.Get("Content-Type")
-	if !strings.Contains(contentType, "application/json") {
-		//convert response to blob
-		body, errBody := ioutil.ReadAll(resp.Body)
-		if errBody != nil {
-			return c.JSON(200, map[string]interface{}{
-				"status":  "error",
-				"message": errBody.Error(),
-			})
-		}
-		return c.Blob(200, contentType, body)
 	} else {
-		log.Println("json")
-		//get body response to json
-		body, errBody := ioutil.ReadAll(resp.Body)
-		if errBody != nil {
-			log.Println("errBody", errBody)
+		resp, errRes := http.Post(fullURL, "application/json", bytes.NewBuffer(body))
+		if errRes != nil {
+			// Handle the connection error gracefully
 			return c.JSON(200, map[string]interface{}{
 				"status":  "error",
-				"message": errBody.Error(),
+				"message": errRes.Error(),
+			})
+		}
+		defer resp.Body.Close()
+
+		//update screenshot_usage
+		_, errUpdateScreenshotUsage := db.NewQuery(`
+	UPDATE screenshot_usage
+	SET screenshots_taken = screenshots_taken + 1
+	WHERE user_id = {:user_id}
+`).Bind(dbx.Params{
+			"user_id": userData.UserId,
+		}).Execute()
+		if errUpdateScreenshotUsage != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"status":  "error",
+				"message": errUpdateScreenshotUsage.Error(),
 			})
 		}
 
-		//convert to json
-		return c.JSONBlob(200, body)
+		//check if resp is application/json
+		contentType := resp.Header.Get("Content-Type")
+		if !strings.Contains(contentType, "application/json") {
+			//convert response to blob
+			body, errBody := ioutil.ReadAll(resp.Body)
+			if errBody != nil {
+				return c.JSON(200, map[string]interface{}{
+					"status":  "error",
+					"message": errBody.Error(),
+				})
+			}
+			return c.Blob(200, contentType, body)
+		} else {
+			log.Println("json")
+			//get body response to json
+			body, errBody := ioutil.ReadAll(resp.Body)
+			if errBody != nil {
+				log.Println("errBody", errBody)
+				return c.JSON(200, map[string]interface{}{
+					"status":  "error",
+					"message": errBody.Error(),
+				})
+			}
+
+			//convert to json
+			return c.JSONBlob(200, body)
+		}
 	}
+
 }
 
 func getNextApiIndex(rdb *redis.Client, ctx context.Context, list []string) (int, error) {

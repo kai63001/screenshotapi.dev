@@ -3,10 +3,14 @@ services:
   redis:
     image: redis
     restart: always
+    container_name: redis
     command: >
+      --appendonly no
       --requirepass kbbgJ6wx4Ucnf3RZLpu3nEhYxh
     ports:
       - 6379:6379
+    volumes:
+      - ./redis:/data
   screenshot:
     build:
       context: ./screenshot
