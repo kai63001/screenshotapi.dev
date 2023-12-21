@@ -51,8 +51,8 @@ func main() {
 			lib.ResetQuotaPerMonth(database)
 		})
 
-		scheduler.MustAdd("ResetQuotaPerMonth", "*/1 * * * *", func() {
-			// lib.ReportUsage(database)
+		scheduler.MustAdd("ResetQuotaPerMonth", "0 */2 * * *", func() {
+			lib.ReportUsage(database)
 		})
 
 		scheduler.Start()

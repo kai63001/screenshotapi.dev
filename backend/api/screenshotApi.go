@@ -77,9 +77,10 @@ func TakeScreenshotByAPI(c echo.Context, db dbx.Builder, mongo *mongo.Collection
 		}
 	}
 
+	// * ---------------------- QUOTA ---------------------- * //
 	quotaData := module.GetQuotaScreenshot{}
 	errCheckQuota := db.
-		Select("screenshot_usage.screenshots_taken", "subscription_plans.name", "subscription_plans.included_screenshots", "subscription_plans.rate_limit_per_minute").
+		Select("screenshot_usage.screenshots_taken", "screenshot_usage.disable_extra", "subscription_plans.name", "subscription_plans.included_screenshots", "subscription_plans.rate_limit_per_minute").
 		From("screenshot_usage").
 		InnerJoin("users", dbx.NewExp("users.id = screenshot_usage.user_id")).
 		InnerJoin("subscription_plans", dbx.NewExp("subscription_plans.id = users.subscription_plan")).
@@ -125,7 +126,26 @@ func TakeScreenshotByAPI(c echo.Context, db dbx.Builder, mongo *mongo.Collection
 			"status":  "error",
 			"message": "You have reached your quota",
 		})
+	} else if quotaData.ScreenshotUsage.ScreenshotTaken >= quotaData.SubscriptionPlans.IncludedScreenshots && quotaData.SubscriptionPlans.Name != "Free" {
+		if quotaData.ScreenshotUsage.DisableExtra {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"status":  "error",
+				"message": "You have reached your quota",
+			})
+		}
+		// ? update screenshot_usage table increase extra_screenshots_taken
+		_, errorExtraScreenshot := db.NewQuery(`
+			UPDATE screenshot_usage
+			SET extra_screenshots_taken = extra_screenshots_taken + 1
+			WHERE user_id = {:user_id}
+		`).Bind(dbx.Params{
+			"user_id": userData.UserId,
+		}).Execute()
+		if errorExtraScreenshot != nil {
+			log.Println("errorExtraScreenshot", errorExtraScreenshot)
+		}
 	}
+	// * ---------------------- QUOTA ---------------------- * //
 
 	//list of links api to take screenshot
 	listApi := []string{
