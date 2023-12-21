@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"screenshot/lib"
@@ -90,18 +91,20 @@ func TakeScreenshot(c echo.Context) error {
 	customData := module.CustomSet{}
 	if body != nil {
 		json_map := make(map[string]interface{})
-		err := json.NewDecoder(body).Decode(&json_map)
+		bodyBytes, _ := ioutil.ReadAll(body)
+		validJson := strings.Replace(string(bodyBytes), "\r", "", -1)
+		err := json.NewDecoder(strings.NewReader(validJson)).Decode(&json_map)
 		if err != nil {
-			log.Println("err", err)
+			log.Println("err 1", err)
 		}
 		customJson, err := json.Marshal(json_map["custom"])
 		if err != nil {
-			log.Println("err", err)
+			log.Println("err 2", err)
 		}
 		//customJson to struct customData
 		err = json.Unmarshal(customJson, &customData)
 		if err != nil {
-			log.Println("err", err)
+			log.Println("err 3", err)
 		}
 
 	}

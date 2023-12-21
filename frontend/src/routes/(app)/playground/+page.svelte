@@ -11,7 +11,7 @@
 
 	let access_key = '';
 
-	let url = 'https://unclelife.co';
+	let url = 'https://screenshotapi.dev';
 	let isFullScreen = false;
 	let scrollDelay = 1;
 	let innerWidth = 1280;

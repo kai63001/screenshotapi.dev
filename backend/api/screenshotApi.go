@@ -1,9 +1,11 @@
 package api
 
 import (
+	lib "backend/lib"
 	module "backend/module"
 	"bytes"
 	"context"
+	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -29,6 +31,20 @@ func TakeScreenshotByAPI(c echo.Context, db dbx.Builder, mongo *mongo.Collection
 		})
 	}
 
+	// * ---------------------- S3 ---------------------- * //
+	saveToS3Str := c.QueryParam("save_to_s3")
+	saveToS3, err := strconv.ParseBool(saveToS3Str)
+	if err != nil {
+		saveToS3 = false
+	}
+
+	pathFileName := c.QueryParam("path_file_name")
+	if pathFileName == "" {
+		//randomString
+		pathFileName = lib.GenerateRandomString(10)
+	}
+	// * ---------------------- S3 ---------------------- * //
+
 	//get user_id from access_key
 	userData := module.UserForKey{}
 	errAccessKey := db.Select("user_id").From("access_keys").Where(dbx.NewExp("access_key = {:access_key}", dbx.Params{"access_key": access_key})).One(&userData)
@@ -42,7 +58,10 @@ func TakeScreenshotByAPI(c echo.Context, db dbx.Builder, mongo *mongo.Collection
 	custom := c.QueryParam("custom")
 	customData := module.CustomSet{}
 	if custom != "" {
-		errCustom := db.Select("id", "name", "user_id", "css", "javascript", "cookies", "localStorage", "user_agent", "headers", "bucket_endpoint", "bucket_default", "bucket_access_key", "bucket_secret_key").From("custom_sets").Where(dbx.NewExp("name = {:name} and user_id = {:user_id}", dbx.Params{"name": custom, "user_id": userData.UserId})).One(&customData)
+		errCustom := db.Select("id", "name", "user_id", "css", "javascript", "cookies", "localStorage", "user_agent", "headers", "bucket_endpoint", "bucket_default", "bucket_access_key", "bucket_secret_key").
+			From("custom_sets").
+			Where(dbx.NewExp("name = {:name} and user_id = {:user_id}", dbx.Params{"name": custom, "user_id": userData.UserId})).
+			One(&customData)
 		if errCustom != nil {
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
 				"status":  "error",
@@ -113,25 +132,32 @@ func TakeScreenshotByAPI(c echo.Context, db dbx.Builder, mongo *mongo.Collection
 
 	apiLink := listApi[indexOfApi]
 
-	body := []byte(`{}`)
+	body, err := json.Marshal(map[string]interface{}{})
 	if (customData != module.CustomSet{}) {
-		body = []byte(`{
-			"custom": {
-				"id": "` + customData.Id + `",
-				"name": "` + customData.Name + `",
-				"user_id": "` + customData.UserId + `",
-				"css": "` + customData.CSS + `",
-				"javascript": "` + customData.JavaScript + `",
-				"cookies": "` + customData.Cookies + `",
-				"localStorage": "` + customData.LocalStorage + `",
-				"user_agent": "` + customData.UserAgent + `",
-				"headers": "` + customData.Headers + `",
-				"bucket_endpoint": "` + customData.BucketEndpoint + `",
-				"bucket_default": "` + customData.BucketDefault + `",
-				"bucket_access_key": "` + customData.BucketAccessKey + `",
-				"bucket_secret_key": "` + customData.BucketSecretKey + `"
-			}
-		}`)
+		custom := map[string]string{
+			"id":                customData.Id,
+			"name":              customData.Name,
+			"user_id":           customData.UserId,
+			"css":               customData.CSS,
+			"javascript":        customData.JavaScript,
+			"cookies":           customData.Cookies,
+			"localStorage":      customData.LocalStorage,
+			"user_agent":        customData.UserAgent,
+			"headers":           customData.Headers,
+			"bucket_endpoint":   customData.BucketEndpoint,
+			"bucket_default":    customData.BucketDefault,
+			"bucket_access_key": customData.BucketAccessKey,
+			"bucket_secret_key": customData.BucketSecretKey,
+		}
+
+		jsonData, err := json.Marshal(map[string]interface{}{
+			"custom": custom,
+		})
+		if err != nil {
+			log.Println("err", err)
+		}
+
+		body = jsonData
 	}
 
 	//request to api
@@ -215,6 +241,17 @@ func TakeScreenshotByAPI(c echo.Context, db dbx.Builder, mongo *mongo.Collection
 					"message": errBody.Error(),
 				})
 			}
+			// * SAVE TO S3 * //
+			imageType := http.DetectContentType(body)
+			//imageType to dot
+			dotTypeImage := "." + strings.Split(imageType, "/")[1]
+			if saveToS3 && asyncChrome && customData.BucketDefault != "" && customData.BucketAccessKey != "" && customData.BucketSecretKey != "" && customData.BucketEndpoint != "" {
+				err := lib.UploadToS3(body, pathFileName+dotTypeImage, customData.BucketDefault, customData.BucketAccessKey, customData.BucketSecretKey, customData.BucketEndpoint)
+				if err != nil {
+					log.Println("err", err)
+				}
+			}
+
 			return c.Blob(200, contentType, body)
 		} else {
 			log.Println("json")
