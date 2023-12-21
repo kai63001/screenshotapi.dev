@@ -106,7 +106,6 @@ func TakeScreenshot(c echo.Context) error {
 		if err != nil {
 			log.Println("err 3", err)
 		}
-
 	}
 
 	pathFileName := c.QueryParam("path_file_name")
