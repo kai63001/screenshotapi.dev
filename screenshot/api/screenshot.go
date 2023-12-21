@@ -393,6 +393,9 @@ func mainScript(noAds bool, noCookie bool, blockTracker bool, viewportDivID stri
 	return script, nil
 }
 
+// noCookieFunc is a function that removes cookie banners and clicks on accept buttons to simulate accepting cookies.
+// It uses JavaScript code to manipulate the DOM and remove cookie-related elements from the webpage.
+// The function does not take any parameters and returns a string containing JavaScript code.
 func noCookieFunc() string {
 	return `
 	var style = document.createElement('style');
@@ -430,6 +433,7 @@ func noCookieFunc() string {
 	`
 }
 
+// noAdsFun is a function that returns a string containing JavaScript code to hide ads on a web page.
 func noAdsFun() string {
 	return `
 	var style = document.createElement('style');

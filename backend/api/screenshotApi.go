@@ -19,6 +19,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+// TakeScreenshotByAPI takes a screenshot using the provided API.
+// It requires the following parameters:
+// - c: the echo.Context object
+// - db: the dbx.Builder object for database operations
+// - mongo: the *mongo.Collection object for MongoDB operations
+// - rdb: the *redis.Client object for Redis operations
+// It returns an error if any operation fails.
 func TakeScreenshotByAPI(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb *redis.Client) error {
 	//get all query params
 	url := c.QueryString()
@@ -245,7 +252,9 @@ func TakeScreenshotByAPI(c echo.Context, db dbx.Builder, mongo *mongo.Collection
 			imageType := http.DetectContentType(body)
 			//imageType to dot
 			dotTypeImage := "." + strings.Split(imageType, "/")[1]
-			if saveToS3 && asyncChrome && customData.BucketDefault != "" && customData.BucketAccessKey != "" && customData.BucketSecretKey != "" && customData.BucketEndpoint != "" {
+			log.Println("dotTypeImage", dotTypeImage)
+			if saveToS3 && !asyncChrome && customData.BucketDefault != "" && customData.BucketAccessKey != "" && customData.BucketSecretKey != "" && customData.BucketEndpoint != "" {
+				log.Println("save to s3")
 				err := lib.UploadToS3(body, pathFileName+dotTypeImage, customData.BucketDefault, customData.BucketAccessKey, customData.BucketSecretKey, customData.BucketEndpoint)
 				if err != nil {
 					log.Println("err", err)
