@@ -318,7 +318,7 @@
 					</div>
 					<div>
 						<label for="response" class="text-gray-500 text-sm"> Response </label>
-						<Select.Root bind:selected={selectedResponse}>
+						<Select.Root disabled bind:selected={selectedResponse}>
 							<Select.Trigger class="mt-2">
 								<Select.Value placeholder="Response" />
 							</Select.Trigger>
@@ -335,7 +335,7 @@
 				</div>
 				<!-- check if when custom set have s3 data -->
 				{#if selectedCustomSet.value && checkCustomSetHasS3()}
-					<div class="flex flex-col mt-2 space-y-2">
+					<div class="flex flex-col mt-4 space-y-2">
 						<div class="flex items-center space-x-3">
 							<Switch bind:checked={saveToS3} id="save-to-s3" />
 							<Label for="save-to-s3" class="text-gray-500">Save to S3</Label>
@@ -384,7 +384,12 @@
 				class="text-mute mt-2 w-full overflow-auto bg-[#E4E9EC] hover:bg-[#d3d4d4] p-2 text-sm cursor-text rounded"
 				>{apiText}</textarea
 			>
-			{#if Object.keys(dataRespnse).length > 0}
+			{#if isCapturing}
+				<div class="flex items-center space-x-2 mt-2">
+					<Icon icon="mdi:loading" class="text-primary animate-spin" width="20px" height="20px" />
+					<p class="text-primary">Capturing...</p>
+				</div>
+			{:else if Object.keys(dataRespnse).length > 0}
 				<h2 class="text-xl font-semibold">API Response</h2>
 				<textarea
 					rows="5"
