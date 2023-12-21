@@ -16,7 +16,7 @@
 		<Label for="changeYearly">
 			<span class="text-gray-500">Monthly</span>
 		</Label>
-		<Switch id="changeYearly" bind:checked={isYearly} />
+		<Switch id="changeYearly"  aria-label="changeYearly" bind:checked={isYearly} />
 		<Label for="changeYearly">
 			<span class="text-gray-500">Yearly</span>
 			<div class="absolute ml-12 text-xs top-0 bg-primary text-white rounded-full px-2 py-1">

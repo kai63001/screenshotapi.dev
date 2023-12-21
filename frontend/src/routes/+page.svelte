@@ -29,11 +29,11 @@
 				>.
 			</h1>
 			<p class="text-lg text-gray-500 mt-5">
-				Effortless, High-Quality Webpage Screenshots in Seconds {'–'}
-				<strong>Fully Customizable to Fit Your Unique Needs.</strong>
-				Tailored for Developers and Businesses.
-				<a class="text-primary hover:underline" href="/docs/introduction"> Learn More. </a>
-			</p>
+                Effortless, High-Quality Webpage Screenshots in Seconds {'–'}
+                <strong>Fully Customizable to Fit Your Unique Needs.</strong>
+                Tailored for Developers and Businesses.
+                <a class="text-red-800 underline" href="/docs/introduction"> Learn More. </a>
+            </p>
 			<a href="/playground">
 				<Button class="mt-5 flex items-center space-x-2 shadow-md"
 					>Get started for Free <Icon

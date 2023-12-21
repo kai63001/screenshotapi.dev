@@ -67,7 +67,7 @@ func resetExtraScreenshotUsage(db dbx.Builder, screenshotUsage module.Screenshot
 func updateScreenshotUsageExtraHistory(db dbx.Builder, screenshotUsage module.ScreenshotUsage, planId string) {
 	_, errorUpdateScreenshotUsage := db.NewQuery(`
 		INSERT INTO extra_usage_histories (extra_screenshots_takend,user_id, subscription_item_id)
-		VALUES ({:extra_screenshots_taken}, {:user_id})
+		VALUES ({:extra_screenshots_taken}, {:user_id}, {:subscription_item_id})
 	`).Bind(dbx.Params{
 		"extra_screenshots_taken": screenshotUsage.ExtraScreenshotsTaken,
 		"user_id":                 screenshotUsage.UserId,

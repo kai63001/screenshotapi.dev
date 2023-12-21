@@ -45,7 +45,7 @@
 		</p>
 	</div>
 	<div class="bg-white p-5 rounded-md overflow-x-auto">
-		<Table.Root>
+		<Table.Root class="table-fixed">
 			<Table.Caption>
 				{#if histories.length > 0}
 					Showing {histories.length} of {totalDocs} results
@@ -57,7 +57,7 @@
 			</Table.Caption>
 			<Table.Header>
 				<Table.Row>
-					<Table.Head class="w-[100px]">Access Key</Table.Head>
+					<Table.Head class="w-[100px] break-words">Access Key</Table.Head>
 					<Table.Head>Full URL</Table.Head>
 					<Table.Head>URL</Table.Head>
 					<Table.Head>Created</Table.Head>
@@ -66,7 +66,7 @@
 			<Table.Body>
 				{#each histories as history, i (i)}
 					<Table.Row>
-						<Table.Cell class="font-medium">{history.access_key}</Table.Cell>
+						<Table.Cell class="font-medium break-words">{history.access_key}</Table.Cell>
 						<Table.Cell class="w-[300px] break-words group block">
 							{history.fullUrl}
 						</Table.Cell>

@@ -44,13 +44,13 @@
 			/>
 			<div class="bg-red-50 p-2 rounded-md flex -ml-[1px] flex-wrap mt-2">
 				<span>https://screenshotapi.dev/api/screenshot</span>
-				<span class="text-red-500">?url=https://screenshotapi.dev</span>
-				<span class="text-red-500" id="showcase2-response" />
+				<span class="text-red-700">?url=https://screenshotapi.dev</span>
+				<span class="text-red-700" id="showcase2-response" />
 			</div>
 		</div>
 	</div>
 	<div class="w-full md:w-6/12 order-2 md:order-1">
-		<p class="font-semibold text-lg text-red-500">Seamless Capture Experience</p>
+		<p class="font-semibold text-lg text-red-700">Seamless Capture Experience</p>
 		<h2 class="text-4xl font-semibold heading">
 			Eliminate Distractions with Cookie Banner Removal
 		</h2>

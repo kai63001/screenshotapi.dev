@@ -45,13 +45,13 @@
 			/>
 			<div class="bg-red-50 p-2 rounded-md flex -ml-[1px] flex-wrap mt-2">
 				<span>https://screenshotapi.dev/api/screenshot</span>
-				<span class="text-red-500">?url=https://apple.com/mac</span>
-				<span class="text-red-500" id="showcase3-response" />
+				<span class="text-red-700">?url=https://apple.com/mac</span>
+				<span class="text-red-700" id="showcase3-response" />
 			</div>
 		</div>
 	</div>
 	<div class="w-full md:w-6/12 md:mt-0 mt-10">
-		<p class="font-semibold text-lg text-red-500">Direct S3 Bucket Integration</p>
+		<p class="font-semibold text-lg text-red-700">Direct S3 Bucket Integration</p>
 		<h2 class="text-4xl font-semibold heading">Seamless Storage with One Click</h2>
 		<p class="mt-2 text-muted-foreground">
 			With our screenshot API, you can effortlessly save your captures directly to an Amazon S3

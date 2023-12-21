@@ -47,19 +47,19 @@
 			/>
             <div class="bg-red-50 p-2 rounded-md flex -ml-[1px] flex-wrap mt-2">
                 <span>https://screenshotapi.dev/api/screenshot</span>
-                <span class="text-red-500">?url=https://screenshotapi.dev</span>
-                <span class="text-red-500" id="showcase1-response" />
+                <span class="text-red-700">?url=https://screenshotapi.dev</span>
+                <span class="text-red-700" id="showcase1-response" />
             </div>
 		</div>
 	</div>
 	<div class="w-full md:w-6/12 md:mt-0 mt-10">
-		<p class="font-semibold text-lg text-red-500">Tailored Browsing Environments</p>
+		<p class="font-semibold text-lg text-red-700">Tailored Browsing Environments</p>
 		<h2 class="text-4xl font-semibold heading">Craft Your Perfect Snapshot Context</h2>
 		<p class="mt-2 text-muted-foreground">
 			Fine-tune your captures with our Custom Set feature. Define a 'custom' profile that lets you
 			manipulate JavaScript, CSS, cookies, localStorage, and more directly through the URL. Just
 			append <code
-				class="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold"
+				class="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold text-red-700"
 			>
 				&profile=custom
 			</code> to your API call, and our service will render the page according to your specifications.

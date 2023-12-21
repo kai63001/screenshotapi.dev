@@ -47,7 +47,7 @@
 
 <section class="py-4 flex flex-col md:flex-row md:space-x-10 justify-between">
 	<div class="w-full md:w-4/12">
-		<p class="font-semibold text-lg text-red-500">ALL YOU REQUIRE</p>
+		<p class="font-semibold text-lg text-red-700">ALL YOU REQUIRE</p>
 		<h2 class="text-4xl font-semibold heading">All-in-one platform</h2>
 		<p class="mt-3">
 			Unlock the full potential of our screenshot API with a free account, ready to deliver 100 snapshots monthly at no cost
