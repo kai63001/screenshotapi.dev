@@ -206,7 +206,26 @@ func TakeScreenshotByAPI(c echo.Context, db dbx.Builder, mongo *mongo.Collection
 				log.Println("errUpdateScreenshotUsage", errUpdateScreenshotUsage)
 			}
 			defer resp.Body.Close()
+			bodyAsync, errBody := ioutil.ReadAll(resp.Body)
+			if errBody != nil {
+				log.Println("errBody", errBody)
+				return
+			}
+
+			// * SAVE TO S3 * //
+			imageType := http.DetectContentType(bodyAsync)
+			//imageType to dot
+			dotTypeImage := "." + strings.Split(imageType, "/")[1]
+			log.Println("dotTypeImage async", dotTypeImage)
+			if saveToS3 && asyncChrome && customData.BucketDefault != "" && customData.BucketAccessKey != "" && customData.BucketSecretKey != "" && customData.BucketEndpoint != "" {
+				log.Println("save to s3 async")
+				err := lib.UploadToS3(bodyAsync, pathFileName+dotTypeImage, customData.BucketDefault, customData.BucketAccessKey, customData.BucketSecretKey, customData.BucketEndpoint)
+				if err != nil {
+					log.Println("err", err)
+				}
+			}
 		}()
+
 		return c.JSON(200, map[string]interface{}{
 			"status":  "success",
 			"message": "Screenshot is being processed",

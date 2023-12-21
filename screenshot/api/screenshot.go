@@ -159,14 +159,6 @@ func TakeScreenshot(c echo.Context) error {
 	}
 
 	imageType := http.DetectContentType(buf)
-	if responseType == "json" {
-		return c.JSON(http.StatusOK, map[string]interface{}{
-			"status": "success",
-			"data": map[string]interface{}{
-				"type": imageType,
-			},
-		})
-	}
 
 	//blob
 	return c.Blob(http.StatusOK, imageType, buf)
