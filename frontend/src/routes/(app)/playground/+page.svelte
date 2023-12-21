@@ -47,14 +47,14 @@
 			value: 'webp',
 			label: 'WEBP'
 		},
-		{
-			value: 'pdf',
-			label: 'PDF'
-		},
-		{
-			value: 'svg',
-			label: 'SVG'
-		}
+		// {
+		// 	value: 'pdf',
+		// 	label: 'PDF'
+		// },
+		// {
+		// 	value: 'svg',
+		// 	label: 'SVG'
+		// }
 	];
 
 	let isCapturing = false;

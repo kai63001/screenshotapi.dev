@@ -32,16 +32,21 @@ func CheckDataFormat(formatImage string) bimg.ImageType {
 	switch formatImage {
 	case "jpeg":
 		format = bimg.JPEG
+		break
 	case "png":
 		format = bimg.PNG
+		break
 	case "webp":
 		format = bimg.WEBP
-	case "tiff":
-		format = bimg.TIFF
+		break
+	// case "tiff":
+	// 	format = bimg.TIFF
 	case "gif":
 		format = bimg.GIF
+		break
 	case "svg":
 		format = bimg.SVG
+		break
 	}
 	return format
 }
