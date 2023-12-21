@@ -58,28 +58,25 @@ func main() {
 		scheduler.Start()
 
 		e.Router.GET("/v1/screenshot", func(c echo.Context) error {
-
 			return api.TakeScreenshotByAPI(c, database, collection, rdb)
 		})
 		e.Router.GET("/v1/history", func(c echo.Context) error {
-
 			return api.GetHistoryScreenshotAPI(c, database, collection)
 		})
 		e.Router.POST("/v1/subscription", func(c echo.Context) error {
-
 			return api.Subscription(c, database)
 		})
 		e.Router.POST("/v1/hook", func(c echo.Context) error {
-
 			return api.Hook(c, database)
 		})
 		e.Router.POST("/v1/portal", func(c echo.Context) error {
-
 			return api.StripePortal(c, database)
 		})
 		e.Router.PATCH("/v1/access_key", func(c echo.Context) error {
-
 			return api.ResetAccessKey(c, database)
+		})
+		e.Router.POST("/v1/update_disable_extra", func(c echo.Context) error {
+			return api.UpdateDisableExtra(c, database)
 		})
 		e.Router.GET("/*", apis.StaticDirectoryHandler(os.DirFS("./pb_public"), false))
 
