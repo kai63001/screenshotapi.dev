@@ -8,31 +8,50 @@
 
 	onMount(() => {
 		getQuotaScreenshot();
+		getDefaultExtra();
 	});
 	let quota = {
 		screenshots_taken: 0,
 		included_screenshots: 0
 	};
+	const getDefaultExtra = async () => {
+		const userId = $currentUser?.id;
+		const defaultExtraCollection = await pb
+			.collection('screenshot_usage')
+			.getFirstListItem(`user_id = '${userId}'`, {
+				fields: 'disable_extra'
+			});
+		defaultExtra = defaultExtraCollection.disable_extra;
+		disableExtra = defaultExtraCollection.disable_extra;
+	};
 
+	let defaultExtra = false;
 	let disableExtra = false;
-
 	$: {
-		if (disableExtra || !disableExtra) {
-			axiosInstance.post('/update_disable_extra', {
+		if (defaultExtra !== disableExtra) {
+			changeDisableExtra();
+		}
+	}
+
+	const changeDisableExtra = async () => {
+		axiosInstance
+			.post('/update_disable_extra', {
 				status: disableExtra
-			}).then((res) => {
+			})
+			.then((res) => {
+				defaultExtra = disableExtra;
 				toast.success('Success', {
 					duration: 2000,
 					position: 'top-right'
 				});
-			}).catch((err) => {
+			})
+			.catch((err) => {
 				toast.error('Error', {
 					duration: 2000,
 					position: 'top-right'
 				});
 			});
-		}
-    }
+	};
 
 	const getQuotaScreenshot = async () => {
 		const userId = $currentUser?.id;
@@ -85,7 +104,7 @@
 		<div class="bg-white p-5 rounded-md w-4/12">
 			<h2 class="font-bold text-2xl">Activate Extra Usage</h2>
 			<div class="flex items-center space-x-2 h-full">
-				<Switch id="extra" bind:checked={disableExtra} />
+				<Switch id="extra" bind:checked={disableExtra} on:change={changeDisableExtra} />
 				<Label for="extra">
 					<span class="font-bold">Disable</span> extra screenshot taken
 				</Label>
