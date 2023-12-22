@@ -61,6 +61,20 @@
 		window.open(url, '_blank');
 		loading = false;
 	};
+
+	// TODO: add upgrade downgrade function
+	// const upgradeDowngrade = async (planId) => {
+	// 	if (!planId) return;
+	// 	loading = true;
+	// 	const { data } = await axiosInstance.post(`/subscription`, {
+	// 		plan_id: planId,
+	// 		is_yearly: isYearly
+	// 	});
+	// 	const url = data.url;
+	// 	//open stripe checkout with url
+	// 	window.open(url, '_blank');
+	// 	loading = false;
+	// };
 </script>
 
 <div class="gap-4 grid">

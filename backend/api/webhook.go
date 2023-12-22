@@ -195,6 +195,28 @@ func Hook(c echo.Context, db dbx.Builder) error {
 				"message": errUpdate.Error(),
 			})
 		}
+
+		status := event.Data.Object["status"].(string)
+
+		// //insert payments
+		_, errInsert := db.NewQuery(`
+			INSERT INTO payments (customer_id, stripe_payment_id, invoice_pdf, status, total_amount, stripe_product_id, product_description)
+			VALUES ({:customer_id}, {:stripe_payment_id}, {:invoice_pdf}, {:status}, {:total_amount}, {:product_id}, {:product_description})
+		`).Bind(dbx.Params{
+			"customer_id":         customerId,
+			"stripe_payment_id":   "",
+			"invoice_pdf":         "",
+			"status":              status,
+			"total_amount":        0,
+			"product_id":          "",
+			"product_description": "",
+		}).Execute()
+		if errInsert != nil {
+			return c.JSON(200, map[string]interface{}{
+				"status":  "error",
+				"message": errInsert.Error(),
+			})
+		}
 	case "invoice.payment_failed":
 		customerId := event.Data.Object["customer"].(string)
 
@@ -210,6 +232,24 @@ func Hook(c echo.Context, db dbx.Builder) error {
 			return c.JSON(200, map[string]interface{}{
 				"status":  "error",
 				"message": errUpdate.Error(),
+			})
+		}
+
+		//insert payments
+		_, errInsert := db.NewQuery(`
+			INSERT INTO payments (customer_id, stripe_payment_id, invoice_pdf, status, total_amount)
+			VALUES ({:customer_id}, {:stripe_payment_id}, {:invoice_pdf}, {:status}, {:total_amount})
+		`).Bind(dbx.Params{
+			"customer_id":       customerId,
+			"stripe_payment_id": "",
+			"invoice_pdf":       "",
+			"status":            "Failed",
+			"total_amount":      "",
+		}).Execute()
+		if errInsert != nil {
+			return c.JSON(200, map[string]interface{}{
+				"status":  "error",
+				"message": errInsert.Error(),
 			})
 		}
 	default:
