@@ -1,6 +1,6 @@
 <script>
 	// @ts-nocheck
-	import logo from '$lib/assets/image/snapcaptureLogo.png?&format=webp&quality=100&w=25&h=25';
+	import logo from '$lib/assets/image/snapcaptureLogo.png?&format=webp&quality=100&w=50&h=50';
 	import Button from '../ButtonCustom.svelte';
 	import Icon from '@iconify/svelte';
 	import { onMount } from 'svelte';

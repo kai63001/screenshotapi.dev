@@ -20,9 +20,9 @@
 		typewriter
 			.pauseFor(1000) // Pause for 1 second before applying animations
 			.deleteAll() // Delete the existing text
-			.typeString('&profile=custom') // Type the width query parameter
+			.typeString('&custom=css') // Type the width query parameter
 			.pauseFor(1500) // Pause for 0.5 seconds before applying the next animation
-            .deleteChars(6)
+            .deleteChars(3)
 			.typeString('loginbypass') // Type the height query parameter
 			.start()
 			.pauseFor(2000) // Pause for 2 seconds before restarting the animation
@@ -61,7 +61,7 @@
 			append <code
 				class="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold text-red-700"
 			>
-				&profile=custom
+				&custom=changeBrowser
 			</code> to your API call, and our service will render the page according to your specifications.
 			Perfect for:
 		</p>
