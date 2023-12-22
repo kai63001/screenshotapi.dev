@@ -16,7 +16,7 @@
 		const res = await axiosInstance.get(`/history?page=${page}`);
 		const data = res.data;
 
-		histories = [...histories, ...data.data];
+		histories = [...histories, ...data?.data];
 		hasNextPage = data.hasNextPage;
 		hasPrevPage = data.hasPrevPage;
 		totalDocs = data.totalCount;

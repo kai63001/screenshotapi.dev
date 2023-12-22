@@ -78,6 +78,9 @@ func main() {
 		e.Router.POST("/v1/update_disable_extra", func(c echo.Context) error {
 			return api.UpdateDisableExtra(c, database)
 		})
+		e.Router.DELETE("/v1/delete_account", func(c echo.Context) error {
+			return api.DeleteAccount(c, database)
+		})
 		e.Router.GET("/*", apis.StaticDirectoryHandler(os.DirFS("./pb_public"), false))
 
 		return nil

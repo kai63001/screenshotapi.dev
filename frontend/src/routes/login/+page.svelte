@@ -11,7 +11,7 @@
 	onMount(async () => {
 		const isAuth = $currentUser;
 		if (isAuth) {
-			goto('/playground');
+			window.location.href = '/playground';
 		}
 	});
 
@@ -45,7 +45,7 @@
 			.then(() => {
 				loading = false;
 				setTimeout(() => {
-					goto('/playground');
+					window.location.href = '/playground';
 				}, 1500);
 			})
 			.catch((e) => {

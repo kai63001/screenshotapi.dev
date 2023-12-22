@@ -29,12 +29,12 @@
 			path: '/custom-set',
 			active: false
 		},
-		{
-			name: 'Access',
-			icon: 'ph:key-bold',
-			path: '/access',
-			active: false
-		},
+		// {
+		// 	name: 'Access',
+		// 	icon: 'ph:key-bold',
+		// 	path: '/access',
+		// 	active: false
+		// },
 		{
 			name: 'History',
 			icon: 'majesticons:image-multiple-line',
@@ -51,6 +51,12 @@
 			name: 'Payments',
 			icon: 'gg:list',
 			path: '/payments',
+			active: false
+		},
+		{
+			name: 'Settings',
+			icon: 'uil:setting',
+			path: '/setting',
 			active: false
 		}
 	];

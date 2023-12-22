@@ -8,6 +8,7 @@ import (
 
 	"github.com/pocketbase/dbx"
 	"github.com/stripe/stripe-go"
+	"github.com/stripe/stripe-go/customer"
 	"github.com/stripe/stripe-go/sub"
 	"github.com/stripe/stripe-go/usagerecord"
 )
@@ -115,4 +116,17 @@ func getSubscriptionItem(db dbx.Builder, subscriptionId string) *stripe.Subscrip
 	}
 
 	return result
+}
+
+func DeleteStripeUserWithCustomerId(db dbx.Builder, customerId string) bool {
+	stripe.Key = os.Getenv("STRIPE_KEY")
+	//delete customer
+	params := &stripe.CustomerParams{}
+	_, err := customer.Del(customerId, params)
+	if err != nil {
+		log.Println("err", err)
+		return false
+	}
+
+	return true
 }
