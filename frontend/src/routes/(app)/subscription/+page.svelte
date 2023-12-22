@@ -1,17 +1,10 @@
 <script>
 	import Switch from '$lib/components/ui/switch/switch.svelte';
-	import { pb, currentUser } from '$lib/pocketbase';
+	import { pb, currentUser, axiosInstance } from '$lib/pocketbase';
 	import axios from 'axios';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import {pricingPlans as listPricingPlans} from '$lib/listPricingFeature';
 	import { onMount } from 'svelte';
-
-	const instance = axios.create({
-		baseURL: import.meta.env.VITE_API_KEY,
-		headers: {
-			Authorization: 'Bearer ' + pb.authStore.token
-		}
-	});
 
 	let pricingPlans = listPricingPlans;
 
@@ -48,7 +41,7 @@
 		}
 		if (!planId) return;
 		loading = true;
-		const { data } = await instance.post(`/subscription`, {
+		const { data } = await axiosInstance.post(`/subscription`, {
 			plan_id: planId,
 			is_yearly: isYearly
 		});
@@ -62,7 +55,7 @@
 		if (!$currentUser?.stripe_customer_id) return;
 
 		loading = true;
-		const { data } = await instance.post(`/portal`);
+		const { data } = await axiosInstance.post(`/portal`);
 		const url = data.portal.url;
 		//open stripe checkout with url
 		window.open(url, '_blank');

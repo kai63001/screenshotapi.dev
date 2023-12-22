@@ -1,15 +1,7 @@
 <script>
-	import { pb } from '$lib/pocketbase';
-	import axios from 'axios';
+	import { axiosInstance, pb } from '$lib/pocketbase';
 	import { onMount } from 'svelte';
 	import * as Table from '$lib/components/ui/table';
-
-	const instance = axios.create({
-		baseURL: import.meta.env.VITE_API_KEY,
-		headers: {
-			Authorization: 'Bearer ' + pb.authStore.token
-		}
-	});
 
 	let histories = [];
 	let hasNextPage = false;
@@ -21,7 +13,7 @@
 
 	async function fetchHistories() {
 		loading = true;
-		const res = await instance.get(`/history?page=${page}`);
+		const res = await axiosInstance.get(`/history?page=${page}`);
 		const data = res.data;
 
 		histories = [...histories, ...data.data];

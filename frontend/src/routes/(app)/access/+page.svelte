@@ -1,16 +1,9 @@
 <script lang="ts">
 	import InputField from '$lib/components/InputField.svelte';
-	import { currentUser, pb } from '$lib/pocketbase';
-	import axios from 'axios';
+	import { axiosInstance, currentUser, pb } from '$lib/pocketbase';
 	import { onMount } from 'svelte';
 	import Icon from '@iconify/svelte';
 
-	const instance = axios.create({
-		baseURL: import.meta.env.VITE_API_KEY,
-		headers: {
-			Authorization: 'Bearer ' + pb.authStore.token
-		}
-	});
 
 	onMount(async () => {
 		pb.collection('access_keys')
@@ -25,7 +18,7 @@
 
 	const resetAccessKey = () => {
 		loading = true;
-		instance
+		axiosInstance
 			.patch('/access_key', {
 				user_id: $currentUser.id
 			})

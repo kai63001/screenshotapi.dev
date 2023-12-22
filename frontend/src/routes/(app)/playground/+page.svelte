@@ -120,7 +120,7 @@
 	$: apiText = APITextConverterDuplicate();
 
 	$: APITextConverterDuplicate = () => {
-		const apiUrl = new URL(`${import.meta.env.VITE_API_KEY}/screenshot`);
+		const apiUrl = new URL(`${import.meta.env.VITE_API_URL}/v1/screenshot`);
 		apiUrl.searchParams.append('access_key', access_key);
 		apiUrl.searchParams.append('url', url);
 		if (isFullScreen) apiUrl.searchParams.append('full_screen', 'true');
