@@ -2,6 +2,7 @@ package api
 
 import (
 	"io/ioutil"
+	"log"
 	"os"
 
 	"github.com/labstack/echo/v5"
@@ -69,7 +70,16 @@ func Hook(c echo.Context, db dbx.Builder) error {
 	case "customer.subscription.created":
 		customerId := event.Data.Object["customer"].(string)
 		subscriptionId := event.Data.Object["id"].(string)
-		product := event.Data.Object["plan"].(map[string]interface{})["product"].(string)
+		items := event.Data.Object["items"].(map[string]interface{})
+		data := items["data"].([]interface{})
+
+		product := ""
+		if len(data) > 0 {
+			firstItem := data[0].(map[string]interface{})
+			plan := firstItem["plan"].(map[string]interface{})
+			product = plan["product"].(string)
+		}
+		log.Println("product:", product)
 
 		type SubscriptionPlan struct {
 			Id string `db:"id"`
@@ -85,6 +95,7 @@ func Hook(c echo.Context, db dbx.Builder) error {
 			"stripe_product_id": product,
 		}).One(&subscriptionPlanId)
 		if err != nil {
+			log.Println("error get subscription plan id", err)
 			return c.JSON(200, map[string]interface{}{
 				"status":  "error",
 				"message": err.Error(),
