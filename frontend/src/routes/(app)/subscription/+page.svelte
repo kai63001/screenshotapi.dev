@@ -35,7 +35,7 @@
 
 	const subscription = async (planId) => {
 		//check if has been subscribed
-		if ($currentUser?.subscription_plan != pricingPlans[0].id) {
+		if ($currentUser?.subscription_plan != pricingPlans[0].id && $currentUser?.subscription_status == 'active') {
 			portalSubscription();
 			return;
 		}
@@ -217,6 +217,8 @@
 															</div>
 														{:else if currentIndex > index}
 															Downgrade
+														{:else if index == 0 && $currentUser?.subscription_status != 'active'}
+															Current Plan
 														{:else}
 															Upgrade
 														{/if}
