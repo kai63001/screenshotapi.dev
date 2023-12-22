@@ -179,7 +179,7 @@
 					<InputField
 						bind:value={selectedData.user_agent}
 						label="User Agent"
-						placeholder="my-bucket"
+						placeholder="Mozilla/67.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N)"
 					/>
 					<div>
 						<span class="text-xs text-gray-500">Local Storage</span>
@@ -196,7 +196,7 @@
 						<span class="text-xs text-gray-500">Headers</span>
 						<CodeMirror
 							bind:value={selectedData.headers}
-							placeholder={`{\n"User-Agent": "Mozilla/67.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N)"\n}`}
+							placeholder={`{\n"X-CSRF-Token": "r8ChPkroQQ"\n}`}
 							lang={json()}
 						/>
 					</div>
