@@ -38,6 +38,8 @@
 		<img
 			loading="eager"
 			id="imager"
+			width="100%"
+			height="100%"
             src={bg}
 			class="object-contain shadow-lg rounded-md transition-all duration-500 ease-in-out transform hover:scale-105 hover:shadow-xl cursor-pointer"
 			alt="ScreenshotAPI example screenshot"
@@ -46,8 +48,8 @@
 	<div class="p-3">
 		<div class="bg-red-50 p-2 rounded-md flex -ml-[1px] flex-wrap">
 			<span>https://screenshotapi.dev/api/screenshot</span>
-			<span class="text-red-500">?url=https://screenshotapi.dev</span>
-			<span class="text-red-500" id="api-response" />
+			<span class="text-red-700">?url=https://screenshotapi.dev</span>
+			<span class="text-red-700" id="api-response" />
 		</div>
 	</div>
 </div>

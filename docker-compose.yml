@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  redis:
+    image: redis
+    restart: always
+    command: >
+          --requirepass kbbgJ6wx4Ucnf3RZLpu3nEhYxh
+    ports:
+      - 6379:6379
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: ./Dockerfile
+    restart: always
+    container_name: backend
+    volumes:
+      - ./backend:/app
+    ports:
+      - 8090:8090
+    links:
+      - redis

@@ -1,9 +1,42 @@
-version: '3.8'
+version: "3.8"
 services:
   redis:
     image: redis
     restart: always
+    container_name: redis
     command: >
-          --requirepass kbbgJ6wx4Ucnf3RZLpu3nEhYxh
+      --appendonly no
+      --requirepass kbbgJ6wx4Ucnf3RZLpu3nEhYxh
     ports:
       - 6379:6379
+    volumes:
+      - ./redis:/data
+  screenshot:
+    build:
+      context: ./screenshot
+      dockerfile: ./dev.Dockerfile
+    restart: always
+    container_name: screenshot
+    volumes:
+      - ./screenshot:/app
+    working_dir: /app
+    ports:
+      - 1323:1323
+    links:
+      - redis
+  backendscreenshot:
+    build:
+      context: ./backend
+      dockerfile: ./dev.Dockerfile
+    restart: always
+    container_name: backendscreenshot
+    volumes:
+      - ./backend:/app
+    working_dir: /app
+    ports:
+      - 8090:8090
+    links:
+      - redis
+      - screenshot
+    depends_on:
+      - screenshot

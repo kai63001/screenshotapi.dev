@@ -67,15 +67,77 @@ func Subscription(c echo.Context, db dbx.Builder) error {
 		return err
 	}
 
-	pricing_id := json_map["pricing_id"].(string)
+	plan_id := json_map["plan_id"].(string)
+	is_yearly := json_map["is_yearly"].(bool)
+	//get subscription plan with id
+	type SubscriptionPlan struct {
+		Id string `db:"id"`
+		// StripePricingPlan struct {
+		// 	Monthly struct {
+		// 		Flat string `db:"flat"`
+		// 		Unit string `db:"unit"`
+		// 	} `db:"monthly"`
+		// 	Yearly struct {
+		// 		Flat string `db:"flat"`
+		// 		Unit string `db:"unit"`
+		// 	} `db:"yearly"`
+		// } `db:"stripe_pricing_id"`
+		StripePricingPlan string `db:"stripe_pricing_id"`
+	}
+
+	subscriptionPlan := SubscriptionPlan{}
+
+	err = db.NewQuery(`
+		SELECT id, stripe_pricing_id
+		FROM subscription_plans
+		WHERE id = {:id}
+	`).Bind(dbx.Params{
+		"id": plan_id,
+	}).One(&subscriptionPlan)
+	if err != nil {
+		return c.JSON(200, map[string]interface{}{
+			"status":  "error",
+			"message": err.Error(),
+		})
+	}
+
+	type StripePricingPlanType struct {
+		Monthly struct {
+			Flat string `json:"flat"`
+			Unit string `json:"unit"`
+		} `json:"monthly"`
+		Yearly struct {
+			Flat string `json:"flat"`
+			Unit string `json:"unit"`
+		} `json:"yearly"`
+	}
+
+	var StripePricingPlan StripePricingPlanType
+	//json
+	err = json.Unmarshal([]byte(subscriptionPlan.StripePricingPlan), &StripePricingPlan)
+
+	// log.Println("subscriptionPlan", subscriptionPlan)
+
+	var flatId string
+	var unitId string
+	if is_yearly {
+		flatId = StripePricingPlan.Yearly.Flat
+		unitId = StripePricingPlan.Yearly.Unit
+	} else {
+		flatId = StripePricingPlan.Monthly.Flat
+		unitId = StripePricingPlan.Monthly.Unit
+	}
 
 	//create subscription
 	params := &stripe.CheckoutSessionParams{
 		Customer: stripe.String(stripe_customer_id),
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
 			{
-				Price:    stripe.String(pricing_id),
+				Price:    stripe.String(flatId),
 				Quantity: stripe.Int64(1),
+			},
+			{
+				Price: stripe.String(unitId),
 			},
 		},
 		Mode: stripe.String("subscription"),

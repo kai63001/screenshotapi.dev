@@ -20,9 +20,9 @@
 		typewriter
 			.pauseFor(1000) // Pause for 1 second before applying animations
 			.deleteAll() // Delete the existing text
-			.typeString('&profile=custom') // Type the width query parameter
+			.typeString('&custom=css') // Type the width query parameter
 			.pauseFor(1500) // Pause for 0.5 seconds before applying the next animation
-            .deleteChars(6)
+            .deleteChars(3)
 			.typeString('loginbypass') // Type the height query parameter
 			.start()
 			.pauseFor(2000) // Pause for 2 seconds before restarting the animation
@@ -34,8 +34,8 @@
 	});
 </script>
 
-<div class="flex justify-between space-x-10 mt-10 items-center">
-	<div class="w-6/12">
+<div class="flex flex-col md:flex-row justify-between md:space-x-10 mt-10 items-center">
+	<div class="w-full md:w-6/12">
 		<div class="shadow-md rounded-md p-5">
 			<img
 				src={bg}
@@ -47,21 +47,21 @@
 			/>
             <div class="bg-red-50 p-2 rounded-md flex -ml-[1px] flex-wrap mt-2">
                 <span>https://screenshotapi.dev/api/screenshot</span>
-                <span class="text-red-500">?url=https://screenshotapi.dev</span>
-                <span class="text-red-500" id="showcase1-response" />
+                <span class="text-red-700">?url=https://screenshotapi.dev</span>
+                <span class="text-red-700" id="showcase1-response" />
             </div>
 		</div>
 	</div>
-	<div class="w-6/12">
-		<p class="font-semibold text-lg text-red-500">Tailored Browsing Environments</p>
+	<div class="w-full md:w-6/12 md:mt-0 mt-10">
+		<p class="font-semibold text-lg text-red-700">Tailored Browsing Environments</p>
 		<h2 class="text-4xl font-semibold heading">Craft Your Perfect Snapshot Context</h2>
 		<p class="mt-2 text-muted-foreground">
 			Fine-tune your captures with our Custom Set feature. Define a 'custom' profile that lets you
 			manipulate JavaScript, CSS, cookies, localStorage, and more directly through the URL. Just
 			append <code
-				class="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold"
+				class="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold text-red-700"
 			>
-				&profile=custom
+				&custom=changeBrowser
 			</code> to your API call, and our service will render the page according to your specifications.
 			Perfect for:
 		</p>

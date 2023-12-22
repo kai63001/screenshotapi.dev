@@ -5,6 +5,8 @@
 	import Hero from '$lib/components/index/Hero.svelte';
 	import EverthingYouneed from '$lib/components/index/EverthingYouneed.svelte';
 	import ShowCase from '$lib/components/index/ShowCase.svelte';
+	import PricingBox from '$lib/components/pricing/PricingBox.svelte';
+	import Footer from '$lib/components/index/Footer.svelte';
 </script>
 
 <svelte:head>
@@ -27,11 +29,11 @@
 				>.
 			</h1>
 			<p class="text-lg text-gray-500 mt-5">
-				Effortless, High-Quality Webpage Screenshots in Seconds {'–'}
-				<strong>Fully Customizable to Fit Your Unique Needs.</strong>
-				Tailored for Developers and Businesses.
-				<a class="text-primary hover:underline" href="/docs/introduction"> Learn More. </a>
-			</p>
+                Effortless, High-Quality Webpage Screenshots in Seconds {'–'}
+                <strong>Fully Customizable to Fit Your Unique Needs.</strong>
+                Tailored for Developers and Businesses.
+                <a class="text-red-800 underline" href="/docs/introduction"> Learn More. </a>
+            </p>
 			<a href="/playground">
 				<Button class="mt-5 flex items-center space-x-2 shadow-md"
 					>Get started for Free <Icon
@@ -53,8 +55,8 @@
 	<EverthingYouneed />
 	<!-- <Feature /> -->
 	<ShowCase />
+
+	<PricingBox />
 </main>
 
-<!-- <footer class="bg-gray-200 py-4">
-	<p>&copy; 2022 Screenshot Website API. All rights reserved.</p>
-</footer> -->
+<Footer />

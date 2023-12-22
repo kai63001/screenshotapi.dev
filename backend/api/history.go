@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase/apis"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -62,7 +63,7 @@ func GetHistoryScreenshotAPI(c echo.Context, db dbx.Builder, mongo *mongo.Collec
 
 	result, err := mongo.Find(c.Request().Context(), map[string]interface{}{
 		"user_id": record.GetId(),
-	}, options.Find().SetSkip(int64(skip)).SetLimit(int64(limit)))
+	}, options.Find().SetSort(bson.D{{Key: "created", Value: -1}}).SetSkip(int64(skip)).SetLimit(int64(limit)))
 	if err != nil {
 		return err
 	}

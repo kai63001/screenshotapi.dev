@@ -3,6 +3,7 @@
 	import { pb, currentUser } from '$lib/pocketbase';
 	import axios from 'axios';
 	import Label from '$lib/components/ui/label/label.svelte';
+	import {pricingPlans as listPricingPlans} from '$lib/listPricingFeature';
 	import { onMount } from 'svelte';
 
 	const instance = axios.create({
@@ -12,86 +13,9 @@
 		}
 	});
 
-	let pricingPlans = [
-		{
-			id: '',
-			name: 'Free',
-			pricing: {
-				monthly: 0,
-				yearly: 0
-			},
-			features: [
-				{
-					name: 'Feature 1'
-				},
-				{
-					name: 'Feature 2'
-				},
-				{
-					name: 'Feature 3'
-				}
-			]
-		},
-		{
-			id: '',
-			name: 'Hobbyist',
-			pricing: {
-				monthly: 14,
-				yearly: 140
-			},
-			features: [
-				{
-					name: 'Feature 1'
-				},
-				{
-					name: 'Feature 2'
-				},
-				{
-					name: 'Feature 3'
-				}
-			]
-		},
-		{
-			id: '',
-			name: 'Business',
-			pricing: {
-				monthly: 48,
-				yearly: 480
-			},
-			features: [
-				{
-					name: 'Feature 1'
-				},
-				{
-					name: 'Feature 2'
-				},
-				{
-					name: 'Feature 3'
-				}
-			]
-		},
-		{
-			id: '',
-			name: 'Professional',
-			pricing: {
-				monthly: 148,
-				yearly: 1480
-			},
-			features: [
-				{
-					name: 'Feature 1'
-				},
-				{
-					name: 'Feature 2'
-				},
-				{
-					name: 'Feature 3'
-				}
-			]
-		}
-	];
+	let pricingPlans = listPricingPlans;
 
-	let isYearly = true;
+	let isYearly = false;
 	let currentIndex = 0;
 
 	onMount(async () => {
@@ -116,16 +40,17 @@
 
 	let loading = false;
 
-	const subscription = async (pricing_id) => {
+	const subscription = async (planId) => {
 		//check if has been subscribed
 		if ($currentUser?.subscription_plan != pricingPlans[0].id) {
 			portalSubscription();
 			return;
 		}
-		if (!pricing_id) return;
+		if (!planId) return;
 		loading = true;
 		const { data } = await instance.post(`/subscription`, {
-			pricing_id
+			plan_id: planId,
+			is_yearly: isYearly
 		});
 		const url = data.url;
 		//open stripe checkout with url
@@ -268,7 +193,7 @@
 																portalSubscription();
 																return;
 															}
-															subscription(plan.stripe_pricing_id[isYearly ? 'yearly' : 'monthly']);
+															subscription(plan.id);
 														}}
 														class="block w-full text-center rounded-lg border border-transparent bg-primary px-6 py-3 text-base leading-6 font-medium text-white hover:bg-red-500 focus:outline-none focus:red-indigo-700 focus:shadow-outline-indigo transition duration-150 ease-in-out"
 														disabled={loading}

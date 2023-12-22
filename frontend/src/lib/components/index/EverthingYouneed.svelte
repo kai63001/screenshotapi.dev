@@ -45,15 +45,15 @@
 	];
 </script>
 
-<section class="py-4 flex space-x-10 justify-between">
-	<div class="w-4/12">
-		<p class="font-semibold text-lg text-red-500">ALL YOU REQUIRE</p>
+<section class="py-4 flex flex-col md:flex-row md:space-x-10 justify-between">
+	<div class="w-full md:w-4/12">
+		<p class="font-semibold text-lg text-red-700">ALL YOU REQUIRE</p>
 		<h2 class="text-4xl font-semibold heading">All-in-one platform</h2>
 		<p class="mt-3">
 			Unlock the full potential of our screenshot API with a free account, ready to deliver 100 snapshots monthly at no cost
 		</p>
 	</div>
-	<div class="grid grid-cols-2 gap-4 mt-5 w-8/12">
+	<div class="grid grid-cols-2 gap-4 mt-5 w-full md:w-8/12">
 		{#each list as item}
 			<div>
 				<div class="flex items-center space-x-2">
