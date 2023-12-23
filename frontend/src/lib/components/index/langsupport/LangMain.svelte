@@ -3,16 +3,17 @@
 	import hljs from 'highlight.js/lib/core';
 	import xml from 'highlight.js/lib/languages/xml'; // for HTML
 	import javascript from 'highlight.js/lib/languages/javascript'; // for HTML
-    import go from 'highlight.js/lib/languages/go'; // for HTML
-    import php from 'highlight.js/lib/languages/php'; // for HTML
-    import java from 'highlight.js/lib/languages/java'; // for HTML
+	import go from 'highlight.js/lib/languages/go'; // for HTML
+	import php from 'highlight.js/lib/languages/php'; // for HTML
+	import java from 'highlight.js/lib/languages/java'; // for HTML
 	hljs.registerLanguage('xml', xml); // for HTML
 	hljs.registerLanguage('javascript', javascript); // for HTML
-    hljs.registerLanguage('go', go); // for HTML
-    hljs.registerLanguage('php', php); // for HTML
-    hljs.registerLanguage('java', java); // for HTML
+	hljs.registerLanguage('go', go); // for HTML
+	hljs.registerLanguage('php', php); // for HTML
+	hljs.registerLanguage('java', java); // for HTML
 	import 'highlight.js/styles/github-dark.css';
 	import { storeHighlightJs } from '@skeletonlabs/skeleton';
+	import Icon from '@iconify/svelte';
 	storeHighlightJs.set(hljs);
 
 	let languages = [
@@ -20,27 +21,50 @@
 			name: 'Node.js',
 			value: 'nodejs',
 			lang: 'javascript',
-			icon: 'carbon:nodejs',
-			code: `const axios = require('axios');`
+			icon: 'mdi:nodejs',
+			code: `// $ npm install screenshotone-api-sdk --save
+
+import * as fs from 'fs';
+import * as screenshotone from 'screenshotone-api-sdk';
+
+// create API client 
+const client = new screenshotone.Client("<access key>", "<secret key>");
+
+// set up options
+const options = screenshotone.TakeOptions
+    .url("https://example.com")
+    .delay(3)
+    .blockAds(true);    
+
+// generate URL 
+const url = client.generateTakeURL(options);
+console.log(url);
+// expected output: https://api.screenshotone.com/take?url=...
+
+// or download the screenshot
+const imageBlob = await client.take(options);
+const buffer = Buffer.from(await imageBlob.arrayBuffer());
+fs.writeFileSync("example.png", buffer)
+// the screenshot is stored in the example.png file`
 		},
 		{
 			name: 'PHP',
 			value: 'php',
-			icon: 'vscode-icons:file-type-php',
+			icon: 'material-symbols:php',
 			code: `<?php`,
 			lang: 'php'
 		},
 		{
 			name: 'Go',
 			value: 'go',
-			icon: 'vscode-icons:file-type-go',
+			icon: 'file-icons:go-old',
 			code: `import "net/http"`,
 			lang: 'go'
 		},
 		{
 			name: 'Java',
 			value: 'java',
-			icon: 'vscode-icons:file-type-java',
+			icon: 'bxl:java',
 			code: `import java.net.http.HttpClient;`,
 			lang: 'java'
 		}
@@ -53,9 +77,9 @@
 
 	function getLanguageCode(language) {
 		return {
-            code: languages.find((item) => item.value === language)?.code,
-            lang: languages.find((item) => item.value === language)?.lang
-        }
+			code: languages.find((item) => item.value === language)?.code,
+			lang: languages.find((item) => item.value === language)?.lang
+		};
 	}
 </script>
 
@@ -70,18 +94,25 @@
 	<div class="flex items-center justify-center mt-4 space-x-3">
 		{#each languages as language}
 			<button
-				class="hover:bg-red-600 hover:text-white duration-300 font-bold py-2 px-4 rounded"
+				class="hover:bg-red-600 hover:text-white duration-300 font-bold py-2 px-4 rounded flex space-x-2 items-center"
 				class:bg-red-600={selectedLanguage == language.value}
 				class:text-white={selectedLanguage == language.value}
 				on:click={() => selectLanguage(language.value)}
 			>
-				{language.name}
+				<Icon icon={language.icon} width="20px" height="20px" />
+				<div>
+					{language.name}
+				</div>
 			</button>
 		{/each}
 	</div>
 	<div class="mt-2 overflow-hidden rounded-md">
-        {#if getLanguageCode(selectedLanguage)?.code}
-            <CodeBlock language={getLanguageCode(selectedLanguage)?.lang} code={getLanguageCode(selectedLanguage)?.code} lineNumbers />
-        {/if}
+		{#if getLanguageCode(selectedLanguage)?.code}
+			<CodeBlock
+				language={getLanguageCode(selectedLanguage)?.lang}
+				code={getLanguageCode(selectedLanguage)?.code}
+				lineNumbers
+			/>
+		{/if}
 	</div>
 </section>
