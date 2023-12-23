@@ -184,10 +184,11 @@ func Hook(c echo.Context, db dbx.Builder) error {
 		//update user subscription
 		_, errUpdate := db.NewQuery(`
 			UPDATE users
-			SET subscription_plan = '', stripe_subscription_id = '', subscription_status = 'cancelled'
+			SET subscription_plan = {:subscription_plan}, stripe_subscription_id = '', subscription_status = 'cancelled'
 			WHERE stripe_customer_id = {:stripe_customer_id}
 		`).Bind(dbx.Params{
 			"stripe_customer_id": customerId,
+			"subscription_plan":  os.Getenv("FREE_PLAN_ID"),
 		}).Execute()
 		if errUpdate != nil {
 			return c.JSON(200, map[string]interface{}{
@@ -223,10 +224,11 @@ func Hook(c echo.Context, db dbx.Builder) error {
 		//update user subscription
 		_, errUpdate := db.NewQuery(`
 			UPDATE users
-			SET subscription_plan = NULL, stripe_subscription_id = NULL, subscription_status = 'cancelled'
+			SET subscription_plan = {:subscription_plan}, stripe_subscription_id = ', subscription_status = 'cancelled'
 			WHERE stripe_customer_id = {:stripe_customer_id}
 		`).Bind(dbx.Params{
 			"stripe_customer_id": customerId,
+			"subscription_plan":  os.Getenv("FREE_PLAN_ID"),
 		}).Execute()
 		if errUpdate != nil {
 			return c.JSON(200, map[string]interface{}{

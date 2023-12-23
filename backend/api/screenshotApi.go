@@ -87,9 +87,10 @@ func TakeScreenshotByAPI(c echo.Context, db dbx.Builder, mongo *mongo.Collection
 		Where(dbx.NewExp("screenshot_usage.user_id = {:user_id}", dbx.Params{"user_id": userData.UserId})).
 		One(&quotaData)
 	if errCheckQuota != nil {
+		log.Println("errCheckQuota", errCheckQuota)
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"status":  "error",
-			"message": "access_key is invalid",
+			"message": "user_id is invalid quota",
 		})
 	}
 
