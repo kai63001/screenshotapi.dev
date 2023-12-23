@@ -7,6 +7,7 @@
 	import ShowCase from '$lib/components/index/ShowCase.svelte';
 	import PricingBox from '$lib/components/pricing/PricingBox.svelte';
 	import Footer from '$lib/components/index/Footer.svelte';
+	import LangMain from '$lib/components/index/langsupport/LangMain.svelte';
 </script>
 
 <svelte:head>
@@ -55,6 +56,7 @@
 	<EverthingYouneed />
 	<!-- <Feature /> -->
 	<ShowCase />
+	<LangMain />
 
 	<PricingBox />
 </main>
