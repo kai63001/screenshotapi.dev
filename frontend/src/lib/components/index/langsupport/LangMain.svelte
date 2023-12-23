@@ -91,7 +91,7 @@ fs.writeFileSync("example.png", buffer)
 		</p>
 		<div class="flex items-center justify-center space-x-2 mt-4 relative" />
 	</div>
-	<div class="flex items-center justify-center mt-4 space-x-3">
+	<div class="flex flex-wrap justify-center mt-4 space-x-3">
 		{#each languages as language}
 			<button
 				class="hover:bg-red-600 hover:text-white duration-300 font-bold py-2 px-4 rounded flex space-x-2 items-center"

@@ -20,7 +20,7 @@
 			Find answers to commonly asked questions about our service.
 		</p>
 	</div>
-	<div class="grid grid-cols-2 gap-4 mt-4">
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
 		{#each faqs as faq}
 			<div class="bg-gray-100 p-4">
 				<h3 class="text-lg font-semibold">{faq.title}</h3>
