@@ -19,10 +19,10 @@
 			name: 'Docs',
 			url: '/docs'
 		},
-		{
-			name: 'Blog',
-			url: '/blog'
-		}
+		// {
+		// 	name: 'Blog',
+		// 	url: '/blog'
+		// }
 	];
 	let openToggle = false;
 	onMount(() => {

@@ -24,9 +24,9 @@ This document provides an overview of the key parameters and their functionaliti
 ## Scroll Delay
 
 - **Variable Name:** `scroll_delay`
-- **Description:** Delay time in milliseconds before capturing the screenshot, allowing page elements to load after scrolling.
-- **Usage:** Specify the delay time in milliseconds.
-- **Example:** `scroll_delay=1000`
+- **Description:** Delay time in seconds before capturing the screenshot, allowing page elements to load after scrolling.
+- **Usage:** Specify the delay time in seconds.
+- **Example:** `scroll_delay=2`
 
 ## Viewport Width
 
@@ -45,16 +45,16 @@ This document provides an overview of the key parameters and their functionaliti
 ## Delay
 
 - **Variable Name:** `delay`
-- **Description:** Time in milliseconds to wait before taking the screenshot after the page loads.
-- **Usage:** Specify the delay time in milliseconds.
-- **Example:** `delay=500`
+- **Description:** Time in seconds to wait before taking the screenshot after the page loads.
+- **Usage:** Specify the delay time in seconds.
+- **Example:** `delay=5`
 
 ## Timeout
 
 - **Variable Name:** `timeout`
-- **Description:** Maximum time in milliseconds to wait for the page to load before timing out.
+- **Description:** Maximum time in seconds to wait for the page to load before timing out.
 - **Usage:** Set the timeout duration.
-- **Example:** `timeout=3000`
+- **Example:** `timeout=30`
 
 ## No Ads
 
@@ -84,7 +84,7 @@ This document provides an overview of the key parameters and their functionaliti
 - **Usage:** Specify custom settings.
 - **Example:** `custom=modal`
 
-## Response Type
+## Response Type [BETA]
 
 - **Variable Name:** `response_type`
 - **Description:** Format of the API response.
@@ -102,8 +102,8 @@ This document provides an overview of the key parameters and their functionaliti
 
 - **Variable Name:** `path_file_name`
 - **Description:** The path and file name for saving the screenshot.
-- **Usage:** Specify the path and file name.
-- **Example:** `path_file_name=/path/to/file.png`
+- **Usage:** Specify the path and file name without format file
+- **Example:** `path_file_name=/path/to/file`
 
 ## Format
 
