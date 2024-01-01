@@ -4,7 +4,7 @@
 	import Typewriter from 'typewriter-effect/dist/core';
 
     //@ts-ignore
-    import bg from '$lib/assets/image/index/cookiebot_with_banner.jpg?format=webp&quality=100&w=573&h=456';
+    import bg from '$lib/assets/image/index/apple.png?format=webp&quality=100&w=573&h=456';
 
 	function displayApiResponse() {
 		const targetElement = document.getElementById('showcase3-response');
@@ -45,7 +45,7 @@
 			/>
 			<div class="bg-red-50 p-2 rounded-md flex -ml-[1px] flex-wrap mt-2">
 				<span>https://screenshotapi.dev/api/screenshot</span>
-				<span class="text-red-700">?url=https://apple.com/mac</span>
+				<span class="text-red-700">?url=https://apple.com/store</span>
 				<span class="text-red-700" id="showcase3-response" />
 			</div>
 		</div>

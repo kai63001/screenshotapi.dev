@@ -142,7 +142,7 @@ func TakeScreenshot(c echo.Context) error {
 		log.Printf("Error taking screenshot: %v", errCh)
 	}
 
-	log.Println("imageFormat", imageFormat)
+	// log.Println("imageFormat", imageFormat)
 	//format image
 	if imageFormat != "png" {
 		err := lib.FormatImage(&buf, imageFormat)

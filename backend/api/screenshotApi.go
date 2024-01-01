@@ -292,7 +292,7 @@ func TakeScreenshotByAPI(c echo.Context, db dbx.Builder, mongo *mongo.Collection
 			imageType := http.DetectContentType(body)
 			//imageType to dot
 			dotTypeImage := "." + strings.Split(imageType, "/")[1]
-			log.Println("dotTypeImage", dotTypeImage)
+			// log.Println("dotTypeImage", dotTypeImage)
 			if saveToS3 && !asyncChrome && customData.BucketDefault != "" && customData.BucketAccessKey != "" && customData.BucketSecretKey != "" && customData.BucketEndpoint != "" {
 				log.Println("save to s3")
 				err := lib.UploadToS3(body, pathFileName+dotTypeImage, customData.BucketDefault, customData.BucketAccessKey, customData.BucketSecretKey, customData.BucketEndpoint)
