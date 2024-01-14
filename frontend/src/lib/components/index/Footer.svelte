@@ -28,15 +28,15 @@
 	const listLegal = [
 		{
 			name: 'Terms of Service',
-			link: ''
+			link: '/terms'
 		},
 		{
 			name: 'Privacy Policy',
-			link: ''
+			link: '/privacy'
 		},
 		{
 			name: 'Cookie Policy',
-			link: ''
+			link: '/cookie'
 		}
 	];
 </script>
