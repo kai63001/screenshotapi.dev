@@ -2,6 +2,7 @@
 	import Navbar from '$lib/components/index/Navbar.svelte';
 	import PricingBox from '$lib/components/pricing/PricingBox.svelte';
 	import Footer from '$lib/components/index/Footer.svelte';
+	import PricingFaq from '$lib/components/pricing/PricingFaq.svelte';
 </script>
 
 <svelte:head>
@@ -18,6 +19,9 @@
 <main class="py-8 max-w-xl md:max-w-7xl px-2 m-auto pt-16">
 	<section>
 		<PricingBox />
+	</section>
+	<section>
+		<PricingFaq />
 	</section>
 </main>
 
