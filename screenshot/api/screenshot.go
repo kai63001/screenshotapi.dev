@@ -119,6 +119,11 @@ func TakeScreenshot(c echo.Context) error {
 		responseType = "image"
 	}
 
+	element := c.QueryParam("element")
+	if element == "" {
+		element = "body"
+	}
+
 	imageQualityStr := c.QueryParam("quality")
 	imageQuality, err := strconv.Atoi(imageQualityStr)
 	if err != nil || imageQuality < 0 || imageQuality > 100 {
@@ -137,9 +142,13 @@ func TakeScreenshot(c echo.Context) error {
 	defer cancel()
 
 	var buf []byte
-	errCh := chromedp.Run(ctx, screenshot(url, width, height, fullScreen, scrollDelay, noAds, noCookie, blockTracker, delay, customData, &buf))
+	errCh := chromedp.Run(ctx, screenshot(url, width, height, fullScreen, scrollDelay, noAds, noCookie, blockTracker, delay, customData, &buf, element))
 	if errCh != nil {
 		log.Printf("Error taking screenshot: %v", errCh)
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status":  "error",
+			"message": "Error taking screenshot",
+		})
 	}
 
 	// log.Println("imageFormat", imageFormat)
@@ -164,9 +173,12 @@ func TakeScreenshot(c echo.Context) error {
 	return c.Blob(http.StatusOK, imageType, buf)
 }
 
-func screenshot(url string, width int64, height int64, fullScreen bool, scrollDelay int64, noAds bool, noCookie bool, blockTracker bool, delay int64, customData module.CustomSet, res *[]byte) chromedp.Tasks {
+func screenshot(url string, width int64, height int64, fullScreen bool, scrollDelay int64, noAds bool, noCookie bool, blockTracker bool, delay int64, customData module.CustomSet, res *[]byte, element string) chromedp.Tasks {
 	var newHeight int64
 	viewportDivID := "customViewportDiv"
+	if (element) == "body" {
+		element = "#" + viewportDivID
+	}
 	header := map[string]interface{}{}
 	//headers customeData
 	if customData.Headers != "" {
@@ -268,7 +280,7 @@ func screenshot(url string, width int64, height int64, fullScreen bool, scrollDe
 				}
 				return chromedp.Evaluate(script, nil).Do(ctx)
 			}),
-			chromedp.Screenshot("#"+viewportDivID, res, chromedp.NodeVisible, chromedp.ByQuery),
+			chromedp.Screenshot(element, res, chromedp.NodeVisible, chromedp.ByQuery),
 		}
 	} else {
 		return chromedp.Tasks{
@@ -294,7 +306,7 @@ func screenshot(url string, width int64, height int64, fullScreen bool, scrollDe
 				return chromedp.Evaluate(script, nil).Do(ctx)
 			}),
 			chromedp.Sleep(time.Duration(delay) * time.Second),
-			chromedp.Screenshot("#"+viewportDivID, res, chromedp.NodeVisible, chromedp.ByQuery),
+			chromedp.Screenshot(element, res, chromedp.NodeVisible, chromedp.ByQuery),
 		}
 	}
 }

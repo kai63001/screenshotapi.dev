@@ -57,7 +57,7 @@
 	<EverthingYouneed />
 	<!-- <Feature /> -->
 	<ShowCase />
-	<LangMain />
+	<!-- <LangMain /> -->
 	<PricingBox />
 	<FaqIndex />
 </main>

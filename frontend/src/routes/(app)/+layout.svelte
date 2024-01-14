@@ -63,11 +63,22 @@
 
 	$: currentPath = $page.url.pathname;
 	onMount(async () => {
+		console.log('current user', $currentUser)
 		const isAuth = $currentUser;
 		if (!isAuth) {
 			goto('/login');
 		}
 	});
+
+	// onMount(async () => {
+	// 	const tokenExpiration = new Date($currentUser.tokenExpiration);
+	// 	const currentDate = new Date();
+
+	// 	if (tokenExpiration < currentDate) {
+	// 		// Token has expired, redirect to login page
+	// 		goto('/login');
+	// 	}
+	// });
 
 	const logout = async () => {
 		await localStorage.removeItem('access_key');
