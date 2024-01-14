@@ -2,10 +2,40 @@
 	const listFeature = [
 		{
 			name: 'Format Image',
-			link: ''
+			link: '/features#format-image'
 		},
 		{
 			name: 'Custom Header',
+			link: '/features#custom-header'
+		}
+	];
+
+	const listResources = [
+		{
+			name: 'Documentation',
+			link: '/docs/introduction'
+		},
+		{
+			name: 'API Reference',
+			link: '/docs/screenshot'
+		},
+		{
+			name: 'Status',
+			link: ''
+		}
+	];
+
+	const listLegal = [
+		{
+			name: 'Terms of Service',
+			link: ''
+		},
+		{
+			name: 'Privacy Policy',
+			link: ''
+		},
+		{
+			name: 'Cookie Policy',
 			link: ''
 		}
 	];
@@ -34,8 +64,8 @@
 				Resources
 			</strong>
 			<ul>
-				{#each listFeature as feature}
-					<li><a class="hover:underline text-red-600" href={feature.link}>{feature.name}</a></li>
+				{#each listResources as resource}
+					<li><a class="hover:underline text-red-600" href={resource.link}>{resource.name}</a></li>
 				{/each}
 			</ul>
 		</div>
@@ -44,8 +74,8 @@
 				Legal
 			</strong>
 			<ul>
-				{#each listFeature as feature}
-					<li><a class="hover:underline text-red-600" href={feature.link}>{feature.name}</a></li>
+				{#each listLegal as legal}
+					<li><a class="hover:underline text-red-600" href={legal.link}>{legal.name}</a></li>
 				{/each}
 			</ul>
 		</div>

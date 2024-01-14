@@ -1,5 +1,19 @@
 This document provides an overview of the key parameters and their functionalities in the Screenshot API.
 
+
+## Try it out in the Playground
+
+Experience the power and flexibility of the Screenshot API in our interactive playground. The playground allows you to experiment with different parameters and see the results in real-time.
+
+To access the playground:
+
+1. Navigate to the [Screenshot API Playground](/playground).
+2. Specify the `url` of the webpage you want to capture.
+3. Experiment with different settings like `full_screen`, `scroll_delay`, `v_width`, and others to see how they affect the screenshot.
+4. Click on the `Capture` button to take a screenshot with your specified settings.
+
+Remember, the playground is a great place to test and understand the functionalities of the Screenshot API before integrating it into your application.
+
 ## URL
 
 - **Variable Name:** `url`
