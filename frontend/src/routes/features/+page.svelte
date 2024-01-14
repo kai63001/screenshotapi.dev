@@ -1,6 +1,5 @@
 <script>
 	import Navbar from '$lib/components/index/Navbar.svelte';
-	import PricingBox from '$lib/components/pricing/PricingBox.svelte';
 	import Footer from '$lib/components/index/Footer.svelte';
 
 	const featureLists = [
