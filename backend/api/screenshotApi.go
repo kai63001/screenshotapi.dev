@@ -299,6 +299,13 @@ func TakeScreenshotByAPI(c echo.Context, db dbx.Builder, mongo *mongo.Collection
 				if err != nil {
 					log.Println("err", err)
 				}
+				return c.JSON(200, map[string]interface{}{
+					"status":          "success",
+					"file":            pathFileName + dotTypeImage,
+					"bucket":          customData.BucketDefault,
+					"bucket_endpoint": customData.BucketEndpoint,
+					"message":         "Screenshot is saved to S3",
+				})
 			}
 
 			return c.Blob(200, contentType, body)
