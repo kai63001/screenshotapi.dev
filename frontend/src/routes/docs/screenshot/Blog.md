@@ -136,7 +136,6 @@ Remember, the playground is a great place to test and understand the functionali
 
 ## Element HTML
 - **Variable Name:** `element`
-- **Description:** Use the `element` variable to specify the HTML element you want to capture in the screenshot. To select a specific element, you can right-click on it and choose 'Copy Selector' in the inspector. Then, set the value of `element` to the copied selector. This allows you to focus on capturing a specific element rather than the entire page.
-- **Usage:** Specify the image quality as a percentage.
-- **Usage for element:** Use the `element` variable to specify the HTML element you want to capture in the screenshot. To select a specific element, you can right-click on it and choose 'Copy Selector' in the inspector. Then, set the value of `element` to the copied selector. This allows you to focus on capturing a specific element rather than the entire page.
+- **Description:** Use the `element` variable to specify the HTML element you want to capture in the screenshot. To select a specific element, right-click on it and choose 'Copy Selector' in the inspector. Then, set the value of `element` to the copied selector. This allows you to focus on capturing a specific element instead of the entire page.
+- **Usage:** Use the `element` variable to specify the HTML element you want to capture in the screenshot. To select a specific element, right-click on it and choose 'Copy Selector' in the inspector. Then, set the value of `element` to the copied selector. This allows you to focus on capturing a specific element instead of the entire page.
 - **Example:** `element=body>div>main>section`
