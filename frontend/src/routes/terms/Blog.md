@@ -44,6 +44,11 @@ We reserve the right, at our sole discretion, to modify or replace these Terms a
 
 These Terms shall be governed by and construed in accordance with the laws of Thailand, without regard to its conflict of law provisions.
 
-**11. Contact Information**
+**10. Email Promotions and News**
+
+From time to time, ScreenshotAPI.dev may send you promotional emails or news updates about our services. By providing your email address, you consent to receive these communications. You can unsubscribe from these emails at any time by following the instructions provided in the email.
+
+
+**12. Contact Information**
 
 If you have any questions about these Terms, please contact us at support@screenshotapi.dev.
