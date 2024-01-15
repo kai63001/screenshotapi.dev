@@ -28,29 +28,285 @@ import (
 // It returns an error if any operation fails.
 func TakeScreenshotByAPI(c echo.Context, db dbx.Builder, mongo *mongo.Collection, rdb *redis.Client) error {
 	//get all query params
-	url := c.QueryString()
+	// url := c.QueryString()
+	access_key := ""
+	saveToS3 := false
+	pathFileName := lib.GenerateRandomString(10)
+	custom := ""
 
-	access_key := c.QueryParam("access_key")
-	if access_key == "" {
-		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"status":  "error",
-			"message": "access_key is required",
-		})
-	}
+	//optional
+	url := ""
+	width := int64(1280)
+	height := int64(1024)
+	fullScreen := false
+	scrollDelay := int64(1)
+	noAds := false
+	noCookie := false
+	delay := int64(0)
+	blockTracker := false
+	timeout := int64(60)
+	element := "body"
+	imageQuality := 100
+	imageFormat := "png"
 
-	// * ---------------------- S3 ---------------------- * //
-	saveToS3Str := c.QueryParam("save_to_s3")
-	saveToS3, err := strconv.ParseBool(saveToS3Str)
-	if err != nil {
-		saveToS3 = false
-	}
+	//check method
+	if c.Request().Method != "GET" {
+		//get it from body
+		body, errBody := ioutil.ReadAll(c.Request().Body)
+		if errBody != nil {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"status":  "error",
+				"message": errBody.Error(),
+			})
+		}
 
-	pathFileName := c.QueryParam("path_file_name")
-	if pathFileName == "" {
-		//randomString
-		pathFileName = lib.GenerateRandomString(10)
+		//convert body to json
+		jsonBody := map[string]interface{}{}
+		errJsonBody := json.Unmarshal(body, &jsonBody)
+		if errJsonBody != nil {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"status":  "error",
+				"message": errJsonBody.Error(),
+			})
+		}
+
+		//access_key
+		access_key_raw, ok := jsonBody["access_key"].(string)
+		if !ok {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"status":  "error",
+				"message": "access_key is required",
+			})
+		}
+		access_key = access_key_raw
+
+		//save_to_s3
+		saveToS3Str, ok := jsonBody["save_to_s3"].(string)
+		if ok {
+			saveToS3_raw, err := strconv.ParseBool(saveToS3Str)
+			if err != nil {
+				saveToS3_raw = false
+			}
+			saveToS3 = saveToS3_raw
+		}
+
+		//path_file_name
+		pathFileName_raw, ok := jsonBody["path_file_name"].(string)
+		if ok {
+			pathFileName = pathFileName_raw
+		} else {
+			//randomString
+			pathFileName = lib.GenerateRandomString(10)
+		}
+
+		//custom
+		custom_raw, ok := jsonBody["custom"].(string)
+		if ok {
+			custom = custom_raw
+		}
+
+		//* ---------------------- OPTIONAL ---------------------- *//
+		//url
+		url_raw, ok := jsonBody["url"].(string)
+		if ok {
+			url = url_raw
+		}
+
+		//v_width
+		width_raw, ok := jsonBody["v_width"].(float64)
+		if ok {
+			width = int64(width_raw)
+		}
+
+		//v_height
+		height_raw, ok := jsonBody["v_height"].(float64)
+		if ok {
+			height = int64(height_raw)
+		}
+
+		//full_screen
+		fullScreen_raw, ok := jsonBody["full_screen"].(bool)
+		if ok {
+			fullScreen = fullScreen_raw
+		}
+
+		//scroll_delay
+		scrollDelay_raw, ok := jsonBody["scroll_delay"].(float64)
+		if ok {
+			scrollDelay = int64(scrollDelay_raw)
+		}
+
+		//no_ads
+		noAds_raw, ok := jsonBody["no_ads"].(bool)
+		if ok {
+			noAds = noAds_raw
+		}
+
+		//no_cookie
+		noCookie_raw, ok := jsonBody["no_cookie"].(bool)
+		if ok {
+			noCookie = noCookie_raw
+		}
+
+		//delay
+		delay_raw, ok := jsonBody["delay"].(float64)
+		if ok {
+			delay = int64(delay_raw)
+		}
+
+		//block_tracker
+		blockTracker_raw, ok := jsonBody["block_tracker"].(bool)
+		if ok {
+			blockTracker = blockTracker_raw
+		}
+
+		//timeout
+		timeout_raw, ok := jsonBody["timeout"].(float64)
+		if ok {
+			timeout = int64(timeout_raw)
+		}
+
+		//element
+		element_raw, ok := jsonBody["element"].(string)
+		if ok {
+			element = element_raw
+		}
+
+		//image_quality
+		imageQuality_raw, ok := jsonBody["quality"].(float64)
+		if ok {
+			imageQuality = int(imageQuality_raw)
+		}
+
+		//image_format
+		imageFormat_raw, ok := jsonBody["format"].(string)
+		if ok {
+			imageFormat = imageFormat_raw
+		}
+		//* ---------------------- OPTIONAL ---------------------- *//
+
+	} else {
+		access_key_raw := c.QueryParam("access_key")
+		if access_key_raw == "" {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"status":  "error",
+				"message": "access_key is required",
+			})
+		}
+		access_key = access_key_raw
+
+		saveToS3Str := c.QueryParam("save_to_s3")
+		saveToS3_raw, err := strconv.ParseBool(saveToS3Str)
+		if err != nil {
+			saveToS3_raw = false
+		}
+		saveToS3 = saveToS3_raw
+
+		pathFileName = c.QueryParam("path_file_name")
+		if pathFileName == "" {
+			//randomString
+			pathFileName = lib.GenerateRandomString(10)
+		}
+
+		custom = c.QueryParam("custom")
+
+		//* ---------------------- OPTIONAL ---------------------- *//
+		url_raw := c.QueryParam("url")
+		if url_raw != "" {
+			url = url_raw
+		}
+
+		width_raw := c.QueryParam("v_width")
+		if width_raw != "" {
+			width, err = strconv.ParseInt(width_raw, 10, 64)
+			if err != nil {
+				width = 1280
+			}
+		}
+
+		height_raw := c.QueryParam("v_height")
+		if height_raw != "" {
+			height, err = strconv.ParseInt(height_raw, 10, 64)
+			if err != nil {
+				height = 1024
+			}
+		}
+
+		fullScreen_raw := c.QueryParam("full_screen")
+		if fullScreen_raw != "" {
+			fullScreen, err = strconv.ParseBool(fullScreen_raw)
+			if err != nil {
+				fullScreen = false
+			}
+		}
+
+		scrollDelay_raw := c.QueryParam("scroll_delay")
+		if scrollDelay_raw != "" {
+			scrollDelay, err = strconv.ParseInt(scrollDelay_raw, 10, 64)
+			if err != nil {
+				scrollDelay = 1
+			}
+		}
+
+		noAds_raw := c.QueryParam("no_ads")
+		if noAds_raw != "" {
+			noAds, err = strconv.ParseBool(noAds_raw)
+			if err != nil {
+				noAds = false
+			}
+		}
+
+		noCookie_raw := c.QueryParam("no_cookie")
+		if noCookie_raw != "" {
+			noCookie, err = strconv.ParseBool(noCookie_raw)
+			if err != nil {
+				noCookie = false
+			}
+		}
+
+		delay_raw := c.QueryParam("delay")
+		if delay_raw != "" {
+			delay, err = strconv.ParseInt(delay_raw, 10, 64)
+			if err != nil {
+				delay = 0
+			}
+		}
+
+		blockTracker_raw := c.QueryParam("block_tracker")
+		if blockTracker_raw != "" {
+			blockTracker, err = strconv.ParseBool(blockTracker_raw)
+			if err != nil {
+				blockTracker = false
+			}
+		}
+
+		timeout_raw := c.QueryParam("timeout")
+		if timeout_raw != "" {
+			timeout, err = strconv.ParseInt(timeout_raw, 10, 64)
+			if err != nil {
+				timeout = 60
+			}
+		}
+
+		element_raw := c.QueryParam("element")
+		if element_raw != "" {
+			element = element_raw
+		}
+
+		imageQuality_raw := c.QueryParam("quality")
+		if imageQuality_raw != "" {
+			imageQuality, err = strconv.Atoi(imageQuality_raw)
+			if err != nil {
+				imageQuality = 100
+			}
+		}
+
+		imageFormat_raw := c.QueryParam("format")
+		if imageFormat_raw != "" {
+			imageFormat = imageFormat_raw
+		}
+		//* ---------------------- OPTIONAL ---------------------- *//
 	}
-	// * ---------------------- S3 ---------------------- * //
 
 	//get user_id from access_key
 	userData := module.UserForKey{}
@@ -62,7 +318,6 @@ func TakeScreenshotByAPI(c echo.Context, db dbx.Builder, mongo *mongo.Collection
 		})
 	}
 
-	custom := c.QueryParam("custom")
 	customData := module.CustomSet{}
 	if custom != "" {
 		errCustom := db.Select("id", "name", "user_id", "css", "javascript", "cookies", "localStorage", "user_agent", "headers", "bucket_endpoint", "bucket_default", "bucket_access_key", "bucket_secret_key").
@@ -161,6 +416,25 @@ func TakeScreenshotByAPI(c echo.Context, db dbx.Builder, mongo *mongo.Collection
 	apiLink := listApi[indexOfApi]
 
 	body, err := json.Marshal(map[string]interface{}{})
+	jsonData, err := json.Marshal(map[string]interface{}{
+		"url":           url,
+		"v_width":       strconv.FormatInt(width, 10),
+		"v_height":      strconv.FormatInt(height, 10),
+		"full_screen":   strconv.FormatBool(fullScreen),
+		"scroll_delay":  strconv.FormatInt(scrollDelay, 10),
+		"no_ads":        strconv.FormatBool(noAds),
+		"no_cookie":     strconv.FormatBool(noCookie),
+		"delay":         strconv.FormatInt(delay, 10),
+		"block_tracker": strconv.FormatBool(blockTracker),
+		"timeout":       strconv.FormatInt(timeout, 10),
+		"element":       element,
+		"quality":       strconv.Itoa(imageQuality),
+		"format":        imageFormat,
+	})
+	if err != nil {
+		log.Println("err", err)
+	}
+
 	if (customData != module.CustomSet{}) {
 		custom := map[string]string{
 			"id":                customData.Id,
@@ -178,18 +452,30 @@ func TakeScreenshotByAPI(c echo.Context, db dbx.Builder, mongo *mongo.Collection
 			"bucket_secret_key": customData.BucketSecretKey,
 		}
 
-		jsonData, err := json.Marshal(map[string]interface{}{
-			"custom": custom,
+		jsonDataCustom, err := json.Marshal(map[string]interface{}{
+			"custom":        custom,
+			"url":           url,
+			"v_width":       strconv.FormatInt(width, 10),
+			"v_height":      strconv.FormatInt(height, 10),
+			"full_screen":   strconv.FormatBool(fullScreen),
+			"scroll_delay":  strconv.FormatInt(scrollDelay, 10),
+			"no_ads":        strconv.FormatBool(noAds),
+			"no_cookie":     strconv.FormatBool(noCookie),
+			"delay":         strconv.FormatInt(delay, 10),
+			"block_tracker": strconv.FormatBool(blockTracker),
+			"timeout":       strconv.FormatInt(timeout, 10),
+			"element":       element,
+			"quality":       strconv.Itoa(imageQuality),
+			"format":        imageFormat,
 		})
 		if err != nil {
 			log.Println("err", err)
 		}
-
-		body = jsonData
+		jsonData = jsonDataCustom
 	}
-
+	body = jsonData
 	//request to api
-	fullURL := apiLink + "?" + url
+	fullURL := apiLink
 
 	fullUrlApi := c.Request().URL.String()
 	mongo.InsertOne(context.Background(), map[string]interface{}{

@@ -20,75 +20,117 @@ import (
 
 func TakeScreenshot(c echo.Context) error {
 	//get query url
-	url := c.QueryParam("url")
-	if url == "" {
-		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"status":  "error",
-			"message": "url is required",
-		})
-	}
-	access_key := c.QueryParam("access_key")
-	if access_key == "" {
-		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"status":  "error",
-			"message": "access_key is required",
-		})
-	}
-	widthStr := c.QueryParam("v_width")
-	width, err := strconv.ParseInt(widthStr, 10, 64)
-	if err != nil {
-		width = 1280
-	}
-	heightStr := c.QueryParam("v_height")
-	height, err := strconv.ParseInt(heightStr, 10, 64)
-	if err != nil {
-		height = 1024
-	}
-	fullScreenStr := c.QueryParam("full_screen")
-	fullScreen, err := strconv.ParseBool(fullScreenStr)
-	if err != nil {
-		fullScreen = false
-	}
+	// url := c.QueryParam("url")
+	// if url == "" {
+	// 	return c.JSON(http.StatusBadRequest, map[string]interface{}{
+	// 		"status":  "error",
+	// 		"message": "url is required",
+	// 	})
+	// }
+	// access_key := c.QueryParam("access_key")
+	// if access_key == "" {
+	// 	return c.JSON(http.StatusBadRequest, map[string]interface{}{
+	// 		"status":  "error",
+	// 		"message": "access_key is required",
+	// 	})
+	// }
+	// widthStr := c.QueryParam("v_width")
+	// width, err := strconv.ParseInt(widthStr, 10, 64)
+	// if err != nil {
+	// 	width = 1280
+	// }
+	// heightStr := c.QueryParam("v_height")
+	// height, err := strconv.ParseInt(heightStr, 10, 64)
+	// if err != nil {
+	// 	height = 1024
+	// }
+	// fullScreenStr := c.QueryParam("full_screen")
+	// fullScreen, err := strconv.ParseBool(fullScreenStr)
+	// if err != nil {
+	// 	fullScreen = false
+	// }
 
-	scrollDelayStr := c.QueryParam("scroll_delay")
-	scrollDelay, err := strconv.ParseInt(scrollDelayStr, 10, 64)
-	if err != nil {
-		scrollDelay = 1
-	}
+	// scrollDelayStr := c.QueryParam("scroll_delay")
+	// scrollDelay, err := strconv.ParseInt(scrollDelayStr, 10, 64)
+	// if err != nil {
+	// 	scrollDelay = 1
+	// }
 
-	noAdsStr := c.QueryParam("no_ads")
-	noAds, err := strconv.ParseBool(noAdsStr)
-	if err != nil {
-		noAds = false
-	}
+	// noAdsStr := c.QueryParam("no_ads")
+	// noAds, err := strconv.ParseBool(noAdsStr)
+	// if err != nil {
+	// 	noAds = false
+	// }
 
-	noCookieStr := c.QueryParam("no_cookie_banner")
-	noCookie, err := strconv.ParseBool(noCookieStr)
-	if err != nil {
-		noCookie = false
-	}
+	// noCookieStr := c.QueryParam("no_cookie_banner")
+	// noCookie, err := strconv.ParseBool(noCookieStr)
+	// if err != nil {
+	// 	noCookie = false
+	// }
 
-	//delay
-	delayStr := c.QueryParam("delay")
-	delay, err := strconv.ParseInt(delayStr, 10, 64)
-	if err != nil {
-		delay = 0
-	}
+	// //delay
+	// delayStr := c.QueryParam("delay")
+	// delay, err := strconv.ParseInt(delayStr, 10, 64)
+	// if err != nil {
+	// 	delay = 0
+	// }
 
-	blockTrackerStr := c.QueryParam("block_trackers")
-	blockTracker, err := strconv.ParseBool(blockTrackerStr)
-	if err != nil {
-		blockTracker = false
-	}
+	// blockTrackerStr := c.QueryParam("block_trackers")
+	// blockTracker, err := strconv.ParseBool(blockTrackerStr)
+	// if err != nil {
+	// 	blockTracker = false
+	// }
 
-	timeoutStr := c.QueryParam("timeout")
-	timeout, err := strconv.ParseInt(timeoutStr, 10, 64)
-	if err != nil {
-		timeout = 60
-	}
+	// timeoutStr := c.QueryParam("timeout")
+	// timeout, err := strconv.ParseInt(timeoutStr, 10, 64)
+	// if err != nil {
+	// 	timeout = 60
+	// }
+
+	// pathFileName := c.QueryParam("path_file_name")
+	// if pathFileName == "" {
+	// 	//randomString
+	// 	pathFileName = lib.GenerateRandomString(10)
+	// }
+
+	// responseType := c.QueryParam("response_type")
+	// if responseType == "" {
+	// 	responseType = "image"
+	// }
+
+	// element := c.QueryParam("element")
+	// if element == "" {
+	// 	element = "body"
+	// }
+
+	// imageQualityStr := c.QueryParam("quality")
+	// imageQuality, err := strconv.Atoi(imageQualityStr)
+	// if err != nil || imageQuality < 0 || imageQuality > 100 {
+	// 	imageQuality = 100 // Default quality
+	// }
+
+	// imageFormat := c.QueryParam("format")
+	// if imageFormat == "" {
+	// 	imageFormat = "png" // Default format
+	// }
+
+	url := ""
+	width := int64(1280)
+	height := int64(1024)
+	fullScreen := false
+	scrollDelay := int64(1)
+	noAds := false
+	noCookie := false
+	delay := int64(0)
+	blockTracker := false
+	timeout := int64(60)
+	element := "body"
+	imageQuality := 100
+	imageFormat := "png"
+
+	customData := module.CustomSet{}
 
 	body := c.Request().Body
-	customData := module.CustomSet{}
 	if body != nil {
 		json_map := make(map[string]interface{})
 		bodyBytes, _ := ioutil.ReadAll(body)
@@ -97,42 +139,137 @@ func TakeScreenshot(c echo.Context) error {
 		if err != nil {
 			log.Println("err 1", err)
 		}
-		customJson, err := json.Marshal(json_map["custom"])
-		if err != nil {
-			log.Println("err 2", err)
+		//get url
+		if json_map["url"] != nil {
+			url = json_map["url"].(string)
+			if url == "" {
+				return c.JSON(http.StatusBadRequest, map[string]interface{}{
+					"status":  "error",
+					"message": "url is required",
+				})
+			}
+		} else {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"status":  "error",
+				"message": "url is required",
+			})
 		}
-		//customJson to struct customData
-		err = json.Unmarshal(customJson, &customData)
-		if err != nil {
-			log.Println("err 3", err)
+		//get width
+		if json_map["v_width"] != nil {
+			widthStr := json_map["v_width"].(string)
+			width, err = strconv.ParseInt(widthStr, 10, 64)
+			if err != nil {
+				width = 1280
+			}
 		}
-	}
 
-	pathFileName := c.QueryParam("path_file_name")
-	if pathFileName == "" {
-		//randomString
-		pathFileName = lib.GenerateRandomString(10)
-	}
+		//get height
+		if json_map["v_height"] != nil {
+			heightStr := json_map["v_height"].(string)
+			height, err = strconv.ParseInt(heightStr, 10, 64)
+			if err != nil {
+				height = 1024
+			}
+		}
 
-	responseType := c.QueryParam("response_type")
-	if responseType == "" {
-		responseType = "image"
-	}
+		//get fullScreen
+		if json_map["full_screen"] != nil {
+			fullScreenStr := json_map["full_screen"].(string)
+			fullScreen, err = strconv.ParseBool(fullScreenStr)
+			if err != nil {
+				fullScreen = false
+			}
+		}
 
-	element := c.QueryParam("element")
-	if element == "" {
-		element = "body"
-	}
+		//get scrollDelay
+		if json_map["scroll_delay"] != nil {
+			scrollDelayStr := json_map["scroll_delay"].(string)
+			scrollDelay, err = strconv.ParseInt(scrollDelayStr, 10, 64)
+			if err != nil {
+				scrollDelay = 1
+			}
+		}
 
-	imageQualityStr := c.QueryParam("quality")
-	imageQuality, err := strconv.Atoi(imageQualityStr)
-	if err != nil || imageQuality < 0 || imageQuality > 100 {
-		imageQuality = 100 // Default quality
-	}
+		//get noAds
+		if json_map["no_ads"] != nil {
+			noAdsStr := json_map["no_ads"].(string)
+			noAds, err = strconv.ParseBool(noAdsStr)
+			if err != nil {
+				noAds = false
+			}
+		}
 
-	imageFormat := c.QueryParam("format")
-	if imageFormat == "" {
-		imageFormat = "png" // Default format
+		//get noCookie
+		if json_map["no_cookie_banner"] != nil {
+			noCookieStr := json_map["no_cookie_banner"].(string)
+			noCookie, err = strconv.ParseBool(noCookieStr)
+			if err != nil {
+				noCookie = false
+			}
+		}
+
+		//get delay
+		if json_map["delay"] != nil {
+			delayStr := json_map["delay"].(string)
+			delay, err = strconv.ParseInt(delayStr, 10, 64)
+			if err != nil {
+				delay = 0
+			}
+		}
+
+		//get blockTracker
+		if json_map["block_trackers"] != nil {
+			blockTrackerStr := json_map["block_trackers"].(string)
+			blockTracker, err = strconv.ParseBool(blockTrackerStr)
+			if err != nil {
+				blockTracker = false
+			}
+		}
+
+		//get timeout
+		if json_map["timeout"] != nil {
+			timeoutStr := json_map["timeout"].(string)
+			timeout, err = strconv.ParseInt(timeoutStr, 10, 64)
+			if err != nil {
+				timeout = 60
+			}
+		}
+
+		//get element
+		if json_map["element"] != nil {
+			element = json_map["element"].(string)
+		}
+
+		//get imageQuality
+		if json_map["quality"] != nil {
+			imageQualityStr := json_map["quality"].(string)
+			imageQuality, err = strconv.Atoi(imageQualityStr)
+			if err != nil || imageQuality < 0 || imageQuality > 100 {
+				imageQuality = 100 // Default quality
+			}
+		}
+
+		//get imageFormat
+		if json_map["format"] != nil {
+			imageFormat = json_map["format"].(string)
+		}
+
+		if json_map["custom"] != nil {
+			customJson, err := json.Marshal(json_map["custom"])
+			if err != nil {
+				log.Println("err 2", err)
+			}
+			//customJson to struct customData
+			err = json.Unmarshal(customJson, &customData)
+			if err != nil {
+				log.Println("err 3", err)
+			}
+		}
+	} else {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status":  "error",
+			"message": "body is required",
+		})
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)

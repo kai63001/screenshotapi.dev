@@ -57,9 +57,15 @@ func main() {
 
 		scheduler.Start()
 
+		//* ------------------ API SCREENSHOT ------------------ *//
 		e.Router.GET("/v1/screenshot", func(c echo.Context) error {
 			return api.TakeScreenshotByAPI(c, database, collection, rdb)
 		})
+		e.Router.POST("/v1/screenshot", func(c echo.Context) error {
+			return api.TakeScreenshotByAPI(c, database, collection, rdb)
+		})
+		//* ------------------ API SCREENSHOT ------------------ *//
+
 		e.Router.GET("/v1/history", func(c echo.Context) error {
 			return api.GetHistoryScreenshotAPI(c, database, collection)
 		})
