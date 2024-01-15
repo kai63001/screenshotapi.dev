@@ -9,15 +9,19 @@
 	import Footer from '$lib/components/index/Footer.svelte';
 	// import LangMain from '$lib/components/index/langsupport/LangMain.svelte';
 	import FaqIndex from '$lib/components/index/FaqIndex.svelte';
+
+	//seo
+	import Seo from '$lib/components/Seo.svelte';
 </script>
 
-<svelte:head>
+<!-- <svelte:head>
 	<title>ScreenshotAPI: Easy Webpage Screenshot API for Developers & Businesses</title>
 	<meta
 		name="description"
 		content="Discover ScreenshotAPI, the user-friendly screenshot API designed for seamless integration. Capture high-quality webpage screenshots with our fast, customizable tool. Ideal for developers and businesses, SnapCapture enhances your project with efficient web capture technology. Start simplifying your content management and web archiving today."
 	/>
-</svelte:head>
+</svelte:head> -->
+<Seo />
 
 <header>
 	<Navbar />

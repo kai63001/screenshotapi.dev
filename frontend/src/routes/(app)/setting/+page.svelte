@@ -5,6 +5,7 @@
 	import Icon from '@iconify/svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { goto } from '$app/navigation';
+	import Seo from '$lib/components/Seo.svelte';
 
 	onMount(async () => {
 		pb.collection('access_keys')
@@ -54,6 +55,12 @@
 			});
 	};
 </script>
+
+<Seo
+	title="Settings - ScreenshotAPI.dev"
+	description="Get a comprehensive overview of your projects and manage your screenshot capturing effortlessly with ScreenshotAPI.dev's powerful dashboard. Explore our documentation and enhance your web development workflow."
+	path="/setting"
+/>
 
 <div class="gap-4 grid">
 	<div class="bg-white p-5 rounded-md">

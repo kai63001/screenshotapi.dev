@@ -7,6 +7,7 @@
 	import toast, { Toaster } from 'svelte-french-toast';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
+	import Seo from '$lib/components/Seo.svelte';
 
 	onMount(async () => {
 		const isAuth = $currentUser;
@@ -76,6 +77,12 @@
 		});
 	};
 </script>
+
+<Seo
+	title="Register - ScreenshotAPI.dev"
+	description="Welcome to the registration page for ScreenshotAPI.dev. Register now to create an account and access our service. By registering, you can start using our website and API to capture screenshots. Sign up today and join our community!"
+	path="/signup"
+/>
 
 <div class="flex flex-col items-center justify-center min-h-screen bg-white">
 	<a href="/" class="absolute top-0 left-0 m-4 text-gray-800 text-sm font-bold">Home</a>

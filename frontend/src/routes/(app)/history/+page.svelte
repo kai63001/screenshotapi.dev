@@ -2,6 +2,7 @@
 	import { axiosInstance, pb } from '$lib/pocketbase';
 	import { onMount } from 'svelte';
 	import * as Table from '$lib/components/ui/table';
+	import Seo from '$lib/components/Seo.svelte';
 
 	let histories = [];
 	let hasNextPage = false;
@@ -27,6 +28,12 @@
 
 	onMount(fetchHistories);
 </script>
+
+<Seo
+	title="History - ScreenshotAPI.dev"
+	description="Get a comprehensive overview of your projects and manage your screenshot capturing effortlessly with ScreenshotAPI.dev's powerful dashboard. Explore our documentation and enhance your web development workflow."
+	path="/history"
+/>
 
 <div class="gap-4 grid">
 	<div class="bg-white p-5 rounded-md">

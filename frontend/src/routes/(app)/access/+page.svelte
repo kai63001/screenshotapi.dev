@@ -3,6 +3,7 @@
 	import { axiosInstance, currentUser, pb } from '$lib/pocketbase';
 	import { onMount } from 'svelte';
 	import Icon from '@iconify/svelte';
+	import Seo from '$lib/components/Seo.svelte';
 
 
 	onMount(async () => {
@@ -31,6 +32,12 @@
 			});
 	};
 </script>
+
+<Seo
+	title="Access - ScreenshotAPI.dev"
+	description="Get a comprehensive overview of your projects and manage your screenshot capturing effortlessly with ScreenshotAPI.dev's powerful dashboard. Explore our documentation and enhance your web development workflow."
+	path="/access"
+/>
 
 <div class="gap-4 grid">
 	<div class="bg-white p-5 rounded-md">

@@ -12,6 +12,7 @@
 	import { javascript } from '@codemirror/lang-javascript';
 	import { css } from '@codemirror/lang-css';
 	import { json } from '@codemirror/lang-json';
+	import Seo from '$lib/components/Seo.svelte';
 
 	let customList = [];
 	let selectedCustomSet: any = {};
@@ -114,6 +115,12 @@
 		});
 	};
 </script>
+<Seo
+	title="Custom Set - ScreenshotAPI.dev"
+	description="Get a comprehensive overview of your projects and manage your screenshot capturing effortlessly with ScreenshotAPI.dev's powerful dashboard. Explore our documentation and enhance your web development workflow."
+	path="/custom-set"
+/>
+
 
 <div class="gap-4 grid">
 	<div class="bg-white p-5 rounded-md">

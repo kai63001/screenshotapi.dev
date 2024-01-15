@@ -8,6 +8,7 @@
 	import * as Select from '$lib/components/ui/select';
 	import { pb } from '$lib/pocketbase';
 	import { goto } from '$app/navigation';
+	import Seo from '$lib/components/Seo.svelte';
 
 	let access_key = '';
 
@@ -175,6 +176,12 @@
 		return false;
 	};
 </script>
+
+<Seo
+	title="API Playground - ScreenshotAPI.dev"
+	description="Experiment with our API and see how easily you can capture high-quality screenshots of web pages. Explore our documentation and enhance your web development workflow."
+	path="/playground"
+/>
 
 <div class="gap-4 grid">
 	<div class="bg-white p-5 rounded-md">
@@ -378,12 +385,6 @@
 			</div>
 			<div class="bg-white p-5 rounded-md flex-col flex space-y-2">
 				<div class="flex items-center space-x-3">
-					<Switch bind:checked={async} id="no-async" />
-					<Label for="no-async" class="text-gray-500">Async Screenshot Request</Label>
-				</div>
-			</div>
-			<div class="bg-white p-5 rounded-md flex-col flex space-y-2">
-				<div class="flex items-center space-x-3">
 					<Switch bind:checked={noAds} id="no-ads" />
 					<Label for="no-ads" class="text-gray-500">Block ads</Label>
 				</div>
@@ -394,6 +395,12 @@
 				<div class="flex items-center space-x-3">
 					<Switch bind:checked={blockTracker} id="no-trakcer" />
 					<Label for="no-trakcer" class="text-gray-500">Block Tracker</Label>
+				</div>
+			</div>
+			<div class="bg-white p-5 rounded-md flex-col flex space-y-2">
+				<div class="flex items-center space-x-3">
+					<Switch bind:checked={async} id="no-async" />
+					<Label for="no-async" class="text-gray-500">Async Screenshot Request</Label>
 				</div>
 			</div>
 		</div>

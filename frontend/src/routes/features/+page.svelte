@@ -1,6 +1,7 @@
 <script>
 	import Navbar from '$lib/components/index/Navbar.svelte';
 	import Footer from '$lib/components/index/Footer.svelte';
+	import Seo from '$lib/components/Seo.svelte';
 
 	const featureLists = [
 		{
@@ -56,13 +57,13 @@
 	];
 </script>
 
-<svelte:head>
-	<title>ScreenshotAPI: Easy Webpage Screenshot API for Developers & Businesses</title>
-	<meta
-		name="description"
-		content="Discover ScreenshotAPI, the user-friendly screenshot API designed for seamless integration. Capture high-quality webpage screenshots with our fast, customizable tool. Ideal for developers and businesses, SnapCapture enhances your project with efficient web capture technology. Start simplifying your content management and web archiving today."
-	/>
-</svelte:head>
+<Seo
+	title="ScreenshotAPI Features - Capture and Manage Web Screenshots"
+	description="Discover the powerful features of ScreenshotAPI and enhance your web development workflow. Capture and manage web screenshots with efficiency and high-quality solutions."
+	path="/features"
+/>
+
+
 <header>
 	<Navbar />
 </header>

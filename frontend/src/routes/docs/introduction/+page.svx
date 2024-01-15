@@ -2,9 +2,16 @@
 	// @ts-nocheck
 	import Nav from '$lib/components/index/Navbar.svelte';
 	import Leftbar from '$lib/components/docs/Leftbar.svelte';
+	import Seo from '$lib/components/Seo.svelte';
 
 	import Blog from './Blog.md';
 </script>
+
+<Seo
+	title="Introduction to ScreenshotAPI.dev"
+	description="Learn about the features and benefits of ScreenshotAPI.dev, your gateway to effortless screenshot capturing. Explore our comprehensive documentation and enhance your web development workflow."
+	path="/docs/introduction"
+/>
 
 <header>
 	<Nav />

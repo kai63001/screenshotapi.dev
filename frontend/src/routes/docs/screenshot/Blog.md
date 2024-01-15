@@ -134,7 +134,7 @@ Remember, the playground is a great place to test and understand the functionali
 - **Example:** `quality=80`
 
 
-## ELEMENT HTML
+## Element HTML
 - **Variable Name:** `element`
 - **Description:** Use the `element` variable to specify the HTML element you want to capture in the screenshot. To select a specific element, you can right-click on it and choose 'Copy Selector' in the inspector. Then, set the value of `element` to the copied selector. This allows you to focus on capturing a specific element rather than the entire page.
 - **Usage:** Specify the image quality as a percentage.

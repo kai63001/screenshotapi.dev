@@ -4,6 +4,7 @@
 	//@ts-ignore
 	import avatar from '$lib/assets/avatar/man.png?w=50&h=50&format=webp&quality=100';
 	import { page } from '$app/stores';
+	import Seo from '$lib/components/Seo.svelte';
 
 	import { onMount } from 'svelte';
 	import { currentUser, pb } from '$lib/pocketbase';
@@ -86,6 +87,13 @@
 		goto('/login');
 	};
 </script>
+
+<Seo
+	title="Dashboard - ScreenshotAPI.dev"
+	description="Get a comprehensive overview of your projects and manage your screenshot capturing effortlessly with ScreenshotAPI.dev's powerful dashboard. Explore our documentation and enhance your web development workflow."
+	path="/dashboard"
+/>
+
 
 <div class="flex">
 	<nav class="w-1/5 flex flex-col justify-between fixed h-screen">

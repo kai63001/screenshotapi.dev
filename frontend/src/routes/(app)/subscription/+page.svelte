@@ -5,6 +5,7 @@
 	import Label from '$lib/components/ui/label/label.svelte';
 	import {pricingPlans as listPricingPlans} from '$lib/listPricingFeature';
 	import { onMount } from 'svelte';
+	import Seo from '$lib/components/Seo.svelte';
 
 	let pricingPlans = listPricingPlans;
 
@@ -76,6 +77,12 @@
 	// 	loading = false;
 	// };
 </script>
+
+<Seo
+	title="Subscription - ScreenshotAPI.dev"
+	description="Get a comprehensive overview of your projects and manage your screenshot capturing effortlessly with ScreenshotAPI.dev's powerful dashboard. Explore our documentation and enhance your web development workflow."
+	path="/subscription"
+/>
 
 <div class="gap-4 grid">
 	<div class="bg-white p-5 rounded-md">
