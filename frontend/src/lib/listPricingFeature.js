@@ -11,7 +11,7 @@ export let pricingPlans = [
 				name: '150 screenshots'
 			},
 			{
-				name: '25 requests per minute'
+				name: '10 requests per minute'
 			},
 			{
 				name: 'no extra allowed'
@@ -27,13 +27,13 @@ export let pricingPlans = [
 		},
 		features: [
 			{
-				name: '150 screenshots'
+				name: '2,250 screenshots'
 			},
 			{
-				name: '25 requests per minute'
+				name: '40 requests per minute'
 			},
 			{
-				name: 'no extra allowed'
+				name: '0.008$ per extra '
 			}
 		]
 	},
@@ -46,13 +46,13 @@ export let pricingPlans = [
 		},
 		features: [
 			{
-				name: '150 screenshots'
+				name: '15,000 screenshots'
 			},
 			{
-				name: '25 requests per minute'
+				name: '80 requests per minute'
 			},
 			{
-				name: 'no extra allowed'
+				name: '0.0035$ per extra'
 			}
 		]
 	},
@@ -65,13 +65,13 @@ export let pricingPlans = [
 		},
 		features: [
 			{
-				name: '150 screenshots'
+				name: '75,000 screenshots'
 			},
 			{
-				name: '25 requests per minute'
+				name: '150 requests per minute'
 			},
 			{
-				name: 'no extra allowed'
+				name: '0.0018$ per extra '
 			}
 		]
 	}
