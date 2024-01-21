@@ -3,6 +3,7 @@
 
 	import * as Table from '$lib/components/ui/table';
 	import { onMount } from 'svelte';
+	import Seo from '$lib/components/Seo.svelte';
 	$: invoices = [];
 
 	onMount(async () => {
@@ -22,6 +23,12 @@
 			});
 	});
 </script>
+
+<Seo
+	title="Payments - ScreenshotAPI.dev"
+	description="Get a comprehensive overview of your projects and manage your screenshot capturing effortlessly with ScreenshotAPI.dev's powerful dashboard. Explore our documentation and enhance your web development workflow."
+	path="/payments"
+/>
 
 <div class="gap-4 grid">
 	<div class="bg-white p-5 rounded-md">

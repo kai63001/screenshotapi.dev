@@ -1,0 +1,38 @@
+<script>
+	import Navbar from '$lib/components/index/Navbar.svelte';
+	import Footer from '$lib/components/index/Footer.svelte';
+	import Seo from '$lib/components/Seo.svelte';
+
+    // @ts-ignore
+    import Blog from './Blog.md';
+</script>
+
+<Seo
+	title="Terms of Service - ScreenshotAPI.dev"
+	description="Welcome to the Terms of Service page for ScreenshotAPI.dev. Here, you will find the terms and conditions that govern your use of our service. Please read these terms carefully before using our website or API. By accessing or using our service, you agree to be bound by these terms. If you do not agree with any part of these terms, you may not use our service."
+	path="/terms"
+/>
+<header>
+	<Navbar />
+</header>
+
+<main class="py-8 max-w-xl md:max-w-7xl px-2 m-auto pt-16">
+	<section>
+		<div class="text-center mt-10">
+			<h1 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">Terms of Service</h1>
+		</div>
+	</section>
+    <section>
+
+		<article class="all-prose">
+			<Blog />
+		</article>
+        
+    </section>
+</main>
+
+<br />
+<br />
+<br />
+
+<Footer />

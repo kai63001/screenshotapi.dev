@@ -3,7 +3,19 @@
 
 	import Typewriter from 'typewriter-effect/dist/core';
     //@ts-ignore
-    import bg from '$lib/assets/image/index/cookiebot_with_banner.jpg?format=webp&quality=100&w=573&h=456';
+    import bg1 from '$lib/assets/image/index/cookie.png?format=webp&quality=100&w=573&h=456';
+    //@ts-ignore
+    import bg2 from '$lib/assets/image/index/nocookie.png?format=webp&quality=100&w=573&h=456';
+
+	let bg = bg1;
+
+	const changeBg = () => {
+		if (bg === bg1) {
+			bg = bg2;
+		} else {
+			bg = bg1;
+		}
+	};
 
 	function displayApiResponse() {
 		const targetElement = document.getElementById('showcase2-response');
@@ -20,10 +32,12 @@
 			.pauseFor(1000) // Pause for 1 second before applying animations
 			.deleteAll() // Delete the existing text
 			.typeString('&no_cookie_banner=true') // Type the width query parameter
+			.callFunction(changeBg)
 			.pauseFor(1500) // Pause for 0.5 seconds before applying the next animation
 			.start()
 			.pauseFor(2000) // Pause for 2 seconds before restarting the animation
 			.deleteAll() // Delete the existing text
+			.callFunction(changeBg)
 			.start();
 	}
 	onMount(() => {
@@ -44,7 +58,7 @@
 			/>
 			<div class="bg-red-50 p-2 rounded-md flex -ml-[1px] flex-wrap mt-2">
 				<span>https://screenshotapi.dev/api/screenshot</span>
-				<span class="text-red-700">?url=https://screenshotapi.dev</span>
+				<span class="text-red-700">?url=https://www.cookiebot.com/</span>
 				<span class="text-red-700" id="showcase2-response" />
 			</div>
 		</div>

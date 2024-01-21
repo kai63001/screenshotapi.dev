@@ -8,6 +8,7 @@
 	import * as Select from '$lib/components/ui/select';
 	import { pb } from '$lib/pocketbase';
 	import { goto } from '$app/navigation';
+	import Seo from '$lib/components/Seo.svelte';
 
 	let access_key = '';
 
@@ -22,6 +23,8 @@
 	let noCookie = false;
 	let blockTracker = false;
 	let async = false;
+	let elemetHtml = '';
+	let elementSelect = false;
 	let saveToS3 = false;
 	let path_file_name = '';
 	let quality = 100;
@@ -46,7 +49,7 @@
 		{
 			value: 'webp',
 			label: 'WEBP'
-		},
+		}
 		// {
 		// 	value: 'pdf',
 		// 	label: 'PDF'
@@ -120,7 +123,7 @@
 	$: apiText = APITextConverterDuplicate();
 
 	$: APITextConverterDuplicate = () => {
-		const apiUrl = new URL(`${import.meta.env.VITE_API_KEY}/screenshot`);
+		const apiUrl = new URL(`${import.meta.env.VITE_API_URL}/v1/screenshot`);
 		apiUrl.searchParams.append('access_key', access_key);
 		apiUrl.searchParams.append('url', url);
 		if (isFullScreen) apiUrl.searchParams.append('full_screen', 'true');
@@ -143,6 +146,7 @@
 		if (formatImage.value && formatImage.value != 'png')
 			apiUrl.searchParams.append('format', formatImage.value);
 		if (quality && quality != 100) apiUrl.searchParams.append('quality', quality.toString());
+		if (elementSelect && elemetHtml) apiUrl.searchParams.append('element', elemetHtml);
 
 		return apiUrl.toString();
 	};
@@ -172,6 +176,12 @@
 		return false;
 	};
 </script>
+
+<Seo
+	title="API Playground - ScreenshotAPI.dev"
+	description="Experiment with our API and see how easily you can capture high-quality screenshots of web pages. Explore our documentation and enhance your web development workflow."
+	path="/playground"
+/>
 
 <div class="gap-4 grid">
 	<div class="bg-white p-5 rounded-md">
@@ -355,11 +365,22 @@
 					{/if}
 				{/if}
 			</div>
-
 			<div class="bg-white p-5 rounded-md flex-col flex space-y-2">
-				<div class="flex items-center space-x-3">
-					<Switch bind:checked={async} id="no-async" />
-					<Label for="no-async" class="text-gray-500">Async Screenshot Request</Label>
+				<div class="flex flex-col space-y-3">
+					<div class="flex items-center space-x-3">
+						<Switch bind:checked={elementSelect} id="no-async" />
+						<Label for="no-async" class="text-gray-500">Select Element</Label>
+					</div>
+					{#if elementSelect}
+						<InputField
+							icon="material-symbols:code"
+							label="Html Element"
+							help="Html Element to capture. You can right-click and select 'Copy Selector' in the inspector."
+							type="text"
+							placeholder="body > div > header > div > div:nth-child(1) > h1"
+							bind:value={elemetHtml}
+						/>
+					{/if}
 				</div>
 			</div>
 			<div class="bg-white p-5 rounded-md flex-col flex space-y-2">
@@ -376,12 +397,18 @@
 					<Label for="no-trakcer" class="text-gray-500">Block Tracker</Label>
 				</div>
 			</div>
+			<div class="bg-white p-5 rounded-md flex-col flex space-y-2">
+				<div class="flex items-center space-x-3">
+					<Switch bind:checked={async} id="no-async" />
+					<Label for="no-async" class="text-gray-500">Async Screenshot Request</Label>
+				</div>
+			</div>
 		</div>
 		<div class="bg-white p-5 rounded-md">
 			<textarea
 				rows="5"
 				disabled
-				class="text-mute mt-2 w-full overflow-auto bg-[#E4E9EC] hover:bg-[#d3d4d4] p-2 text-sm cursor-text rounded"
+				class="text-mute mt-2 w-full overflow-auto bg-[] hover:bg-[#d3d4d4] p-2 text-sm cursor-text rounded"
 				>{apiText}</textarea
 			>
 			{#if isCapturing}

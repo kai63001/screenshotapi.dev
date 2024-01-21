@@ -1,21 +1,52 @@
-version: '3.8'
+version: "3.8"
 services:
   redis:
     image: redis
     restart: always
+    container_name: redis
     command: >
-          --requirepass kbbgJ6wx4Ucnf3RZLpu3nEhYxh
+      --appendonly no --requirepass kbbgJ6wx4Ucnf3RZLpu3nEhYxh
     ports:
       - 6379:6379
-  backend:
-    build: 
+    volumes:
+      - ./redis:/data
+  screenshot:
+    build:
+      context: ./screenshot
+      dockerfile: ./Dockerfile
+    restart: always
+    container_name: screenshot
+    volumes:
+      - ./screenshot:/data
+    ports:
+      - 1323:1323
+    links:
+      - redis
+  backendscreenshot:
+    build:
       context: ./backend
       dockerfile: ./Dockerfile
     restart: always
-    container_name: backend
+    container_name: backendscreenshot
     volumes:
-      - ./backend:/app
+      - ./backend/pb_data:/app/pb_data
     ports:
       - 8090:8090
     links:
       - redis
+      - screenshot
+    depends_on:
+      - screenshot
+  nginx:
+    image: nginx:1.17.1-alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - /root/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - backendscreenshot
+    links:
+      - backendscreenshot

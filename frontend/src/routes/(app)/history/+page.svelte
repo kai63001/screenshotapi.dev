@@ -1,15 +1,8 @@
 <script>
-	import { pb } from '$lib/pocketbase';
-	import axios from 'axios';
+	import { axiosInstance, pb } from '$lib/pocketbase';
 	import { onMount } from 'svelte';
 	import * as Table from '$lib/components/ui/table';
-
-	const instance = axios.create({
-		baseURL: import.meta.env.VITE_API_KEY,
-		headers: {
-			Authorization: 'Bearer ' + pb.authStore.token
-		}
-	});
+	import Seo from '$lib/components/Seo.svelte';
 
 	let histories = [];
 	let hasNextPage = false;
@@ -21,10 +14,10 @@
 
 	async function fetchHistories() {
 		loading = true;
-		const res = await instance.get(`/history?page=${page}`);
+		const res = await axiosInstance.get(`/history?page=${page}`);
 		const data = res.data;
 
-		histories = [...histories, ...data.data];
+		histories = [...histories, ...data?.data];
 		hasNextPage = data.hasNextPage;
 		hasPrevPage = data.hasPrevPage;
 		totalDocs = data.totalCount;
@@ -35,6 +28,12 @@
 
 	onMount(fetchHistories);
 </script>
+
+<Seo
+	title="History - ScreenshotAPI.dev"
+	description="Get a comprehensive overview of your projects and manage your screenshot capturing effortlessly with ScreenshotAPI.dev's powerful dashboard. Explore our documentation and enhance your web development workflow."
+	path="/history"
+/>
 
 <div class="gap-4 grid">
 	<div class="bg-white p-5 rounded-md">

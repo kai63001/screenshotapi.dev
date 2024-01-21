@@ -4,6 +4,7 @@
 	//@ts-ignore
 	import avatar from '$lib/assets/avatar/man.png?w=50&h=50&format=webp&quality=100';
 	import { page } from '$app/stores';
+	import Seo from '$lib/components/Seo.svelte';
 
 	import { onMount } from 'svelte';
 	import { currentUser, pb } from '$lib/pocketbase';
@@ -29,12 +30,12 @@
 			path: '/custom-set',
 			active: false
 		},
-		{
-			name: 'Access',
-			icon: 'ph:key-bold',
-			path: '/access',
-			active: false
-		},
+		// {
+		// 	name: 'Access',
+		// 	icon: 'ph:key-bold',
+		// 	path: '/access',
+		// 	active: false
+		// },
 		{
 			name: 'History',
 			icon: 'majesticons:image-multiple-line',
@@ -52,16 +53,33 @@
 			icon: 'gg:list',
 			path: '/payments',
 			active: false
+		},
+		{
+			name: 'Settings',
+			icon: 'uil:setting',
+			path: '/setting',
+			active: false
 		}
 	];
 
 	$: currentPath = $page.url.pathname;
 	onMount(async () => {
+		console.log('current user', $currentUser)
 		const isAuth = $currentUser;
 		if (!isAuth) {
 			goto('/login');
 		}
 	});
+
+	// onMount(async () => {
+	// 	const tokenExpiration = new Date($currentUser.tokenExpiration);
+	// 	const currentDate = new Date();
+
+	// 	if (tokenExpiration < currentDate) {
+	// 		// Token has expired, redirect to login page
+	// 		goto('/login');
+	// 	}
+	// });
 
 	const logout = async () => {
 		await localStorage.removeItem('access_key');
@@ -69,6 +87,13 @@
 		goto('/login');
 	};
 </script>
+
+<Seo
+	title="Dashboard - ScreenshotAPI.dev"
+	description="Get a comprehensive overview of your projects and manage your screenshot capturing effortlessly with ScreenshotAPI.dev's powerful dashboard. Explore our documentation and enhance your web development workflow."
+	path="/dashboard"
+/>
+
 
 <div class="flex">
 	<nav class="w-1/5 flex flex-col justify-between fixed h-screen">

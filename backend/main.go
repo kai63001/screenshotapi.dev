@@ -57,9 +57,15 @@ func main() {
 
 		scheduler.Start()
 
+		//* ------------------ API SCREENSHOT ------------------ *//
 		e.Router.GET("/v1/screenshot", func(c echo.Context) error {
 			return api.TakeScreenshotByAPI(c, database, collection, rdb)
 		})
+		e.Router.POST("/v1/screenshot", func(c echo.Context) error {
+			return api.TakeScreenshotByAPI(c, database, collection, rdb)
+		})
+		//* ------------------ API SCREENSHOT ------------------ *//
+
 		e.Router.GET("/v1/history", func(c echo.Context) error {
 			return api.GetHistoryScreenshotAPI(c, database, collection)
 		})
@@ -77,6 +83,9 @@ func main() {
 		})
 		e.Router.POST("/v1/update_disable_extra", func(c echo.Context) error {
 			return api.UpdateDisableExtra(c, database)
+		})
+		e.Router.DELETE("/v1/delete_account", func(c echo.Context) error {
+			return api.DeleteAccount(c, database)
 		})
 		e.Router.GET("/*", apis.StaticDirectoryHandler(os.DirFS("./pb_public"), false))
 

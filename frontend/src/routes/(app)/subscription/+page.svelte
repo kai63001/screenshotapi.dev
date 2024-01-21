@@ -1,17 +1,11 @@
 <script>
 	import Switch from '$lib/components/ui/switch/switch.svelte';
-	import { pb, currentUser } from '$lib/pocketbase';
+	import { pb, currentUser, axiosInstance } from '$lib/pocketbase';
 	import axios from 'axios';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import {pricingPlans as listPricingPlans} from '$lib/listPricingFeature';
 	import { onMount } from 'svelte';
-
-	const instance = axios.create({
-		baseURL: import.meta.env.VITE_API_KEY,
-		headers: {
-			Authorization: 'Bearer ' + pb.authStore.token
-		}
-	});
+	import Seo from '$lib/components/Seo.svelte';
 
 	let pricingPlans = listPricingPlans;
 
@@ -42,13 +36,13 @@
 
 	const subscription = async (planId) => {
 		//check if has been subscribed
-		if ($currentUser?.subscription_plan != pricingPlans[0].id) {
+		if ($currentUser?.subscription_plan != pricingPlans[0].id && $currentUser?.subscription_status == 'active') {
 			portalSubscription();
 			return;
 		}
 		if (!planId) return;
 		loading = true;
-		const { data } = await instance.post(`/subscription`, {
+		const { data } = await axiosInstance.post(`/subscription`, {
 			plan_id: planId,
 			is_yearly: isYearly
 		});
@@ -62,13 +56,33 @@
 		if (!$currentUser?.stripe_customer_id) return;
 
 		loading = true;
-		const { data } = await instance.post(`/portal`);
+		const { data } = await axiosInstance.post(`/portal`);
 		const url = data.portal.url;
 		//open stripe checkout with url
 		window.open(url, '_blank');
 		loading = false;
 	};
+
+	// TODO: add upgrade downgrade function
+	// const upgradeDowngrade = async (planId) => {
+	// 	if (!planId) return;
+	// 	loading = true;
+	// 	const { data } = await axiosInstance.post(`/subscription`, {
+	// 		plan_id: planId,
+	// 		is_yearly: isYearly
+	// 	});
+	// 	const url = data.url;
+	// 	//open stripe checkout with url
+	// 	window.open(url, '_blank');
+	// 	loading = false;
+	// };
 </script>
+
+<Seo
+	title="Subscription - ScreenshotAPI.dev"
+	description="Get a comprehensive overview of your projects and manage your screenshot capturing effortlessly with ScreenshotAPI.dev's powerful dashboard. Explore our documentation and enhance your web development workflow."
+	path="/subscription"
+/>
 
 <div class="gap-4 grid">
 	<div class="bg-white p-5 rounded-md">
@@ -224,6 +238,8 @@
 															</div>
 														{:else if currentIndex > index}
 															Downgrade
+														{:else if index == 0 && $currentUser?.subscription_status != 'active'}
+															Current Plan
 														{:else}
 															Upgrade
 														{/if}

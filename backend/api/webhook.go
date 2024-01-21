@@ -2,6 +2,7 @@ package api
 
 import (
 	"io/ioutil"
+	"log"
 	"os"
 
 	"github.com/labstack/echo/v5"
@@ -69,7 +70,16 @@ func Hook(c echo.Context, db dbx.Builder) error {
 	case "customer.subscription.created":
 		customerId := event.Data.Object["customer"].(string)
 		subscriptionId := event.Data.Object["id"].(string)
-		product := event.Data.Object["plan"].(map[string]interface{})["product"].(string)
+		items := event.Data.Object["items"].(map[string]interface{})
+		data := items["data"].([]interface{})
+
+		product := ""
+		if len(data) > 0 {
+			firstItem := data[0].(map[string]interface{})
+			plan := firstItem["plan"].(map[string]interface{})
+			product = plan["product"].(string)
+		}
+		log.Println("product:", product)
 
 		type SubscriptionPlan struct {
 			Id string `db:"id"`
@@ -85,6 +95,7 @@ func Hook(c echo.Context, db dbx.Builder) error {
 			"stripe_product_id": product,
 		}).One(&subscriptionPlanId)
 		if err != nil {
+			log.Println("error get subscription plan id", err)
 			return c.JSON(200, map[string]interface{}{
 				"status":  "error",
 				"message": err.Error(),
@@ -173,15 +184,38 @@ func Hook(c echo.Context, db dbx.Builder) error {
 		//update user subscription
 		_, errUpdate := db.NewQuery(`
 			UPDATE users
-			SET subscription_plan = '', stripe_subscription_id = '', subscription_status = 'cancelled'
+			SET subscription_plan = {:subscription_plan}, stripe_subscription_id = '', subscription_status = 'cancelled'
 			WHERE stripe_customer_id = {:stripe_customer_id}
 		`).Bind(dbx.Params{
 			"stripe_customer_id": customerId,
+			"subscription_plan":  os.Getenv("FREE_PLAN_ID"),
 		}).Execute()
 		if errUpdate != nil {
 			return c.JSON(200, map[string]interface{}{
 				"status":  "error",
 				"message": errUpdate.Error(),
+			})
+		}
+
+		status := event.Data.Object["status"].(string)
+
+		// //insert payments
+		_, errInsert := db.NewQuery(`
+			INSERT INTO payments (customer_id, stripe_payment_id, invoice_pdf, status, total_amount, stripe_product_id, product_description)
+			VALUES ({:customer_id}, {:stripe_payment_id}, {:invoice_pdf}, {:status}, {:total_amount}, {:product_id}, {:product_description})
+		`).Bind(dbx.Params{
+			"customer_id":         customerId,
+			"stripe_payment_id":   "",
+			"invoice_pdf":         "",
+			"status":              status,
+			"total_amount":        0,
+			"product_id":          "",
+			"product_description": "",
+		}).Execute()
+		if errInsert != nil {
+			return c.JSON(200, map[string]interface{}{
+				"status":  "error",
+				"message": errInsert.Error(),
 			})
 		}
 	case "invoice.payment_failed":
@@ -190,15 +224,34 @@ func Hook(c echo.Context, db dbx.Builder) error {
 		//update user subscription
 		_, errUpdate := db.NewQuery(`
 			UPDATE users
-			SET subscription_plan = NULL, stripe_subscription_id = NULL, subscription_status = 'cancelled'
+			SET subscription_plan = {:subscription_plan}, stripe_subscription_id = ', subscription_status = 'cancelled'
 			WHERE stripe_customer_id = {:stripe_customer_id}
 		`).Bind(dbx.Params{
 			"stripe_customer_id": customerId,
+			"subscription_plan":  os.Getenv("FREE_PLAN_ID"),
 		}).Execute()
 		if errUpdate != nil {
 			return c.JSON(200, map[string]interface{}{
 				"status":  "error",
 				"message": errUpdate.Error(),
+			})
+		}
+
+		//insert payments
+		_, errInsert := db.NewQuery(`
+			INSERT INTO payments (customer_id, stripe_payment_id, invoice_pdf, status, total_amount)
+			VALUES ({:customer_id}, {:stripe_payment_id}, {:invoice_pdf}, {:status}, {:total_amount})
+		`).Bind(dbx.Params{
+			"customer_id":       customerId,
+			"stripe_payment_id": "",
+			"invoice_pdf":       "",
+			"status":            "Failed",
+			"total_amount":      "",
+		}).Execute()
+		if errInsert != nil {
+			return c.JSON(200, map[string]interface{}{
+				"status":  "error",
+				"message": errInsert.Error(),
 			})
 		}
 	default:

@@ -12,6 +12,7 @@
 	import { javascript } from '@codemirror/lang-javascript';
 	import { css } from '@codemirror/lang-css';
 	import { json } from '@codemirror/lang-json';
+	import Seo from '$lib/components/Seo.svelte';
 
 	let customList = [];
 	let selectedCustomSet: any = {};
@@ -114,6 +115,12 @@
 		});
 	};
 </script>
+<Seo
+	title="Custom Set - ScreenshotAPI.dev"
+	description="Get a comprehensive overview of your projects and manage your screenshot capturing effortlessly with ScreenshotAPI.dev's powerful dashboard. Explore our documentation and enhance your web development workflow."
+	path="/custom-set"
+/>
+
 
 <div class="gap-4 grid">
 	<div class="bg-white p-5 rounded-md">
@@ -179,7 +186,7 @@
 					<InputField
 						bind:value={selectedData.user_agent}
 						label="User Agent"
-						placeholder="my-bucket"
+						placeholder="Mozilla/67.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N)"
 					/>
 					<div>
 						<span class="text-xs text-gray-500">Local Storage</span>
@@ -196,7 +203,7 @@
 						<span class="text-xs text-gray-500">Headers</span>
 						<CodeMirror
 							bind:value={selectedData.headers}
-							placeholder={`{\n"User-Agent": "Mozilla/67.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N)"\n}`}
+							placeholder={`{\n"X-CSRF-Token": "r8ChPkroQQ"\n}`}
 							lang={json()}
 						/>
 					</div>

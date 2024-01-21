@@ -2,10 +2,16 @@
 	// @ts-nocheck
 	import Nav from '$lib/components/index/Navbar.svelte';
 	import Leftbar from '$lib/components/docs/Leftbar.svelte';
+	import Seo from '$lib/components/Seo.svelte';
 
 	import Blog from './Blog.md';
 </script>
 
+<Seo
+	title="ScreenshotAPI Documentation - Capture and Manage Web Screenshots"
+	description="Explore the comprehensive documentation of ScreenshotAPI and learn how to capture and manage web screenshots effectively. Enhance your web development workflow with our high-quality and efficient solutions."
+	path="/docs/screenshot"
+/>
 <header>
 	<Nav />
 </header>
@@ -19,7 +25,7 @@
 			<div class="w-full md:w-2/12" />
 			<div class="w-full md:w-8/12 z-40">
 				<article class="flex flex-col flex-grow pt-3 md:pt-32 m-auto bg-white px-5">
-					<h1 class="font-bold mb-5 text-5xl">Screenshot</h1>
+					<h1 class="font-bold mb-5 text-5xl">Screenshot Options</h1>
 					<div class="">
 						<p>{new Date('11-13-2023').toDateString()}</p>
 						<article class="all-prose">

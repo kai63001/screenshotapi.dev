@@ -1,16 +1,10 @@
 <script lang="ts">
 	import InputField from '$lib/components/InputField.svelte';
-	import { currentUser, pb } from '$lib/pocketbase';
-	import axios from 'axios';
+	import { axiosInstance, currentUser, pb } from '$lib/pocketbase';
 	import { onMount } from 'svelte';
 	import Icon from '@iconify/svelte';
+	import Seo from '$lib/components/Seo.svelte';
 
-	const instance = axios.create({
-		baseURL: import.meta.env.VITE_API_KEY,
-		headers: {
-			Authorization: 'Bearer ' + pb.authStore.token
-		}
-	});
 
 	onMount(async () => {
 		pb.collection('access_keys')
@@ -25,7 +19,7 @@
 
 	const resetAccessKey = () => {
 		loading = true;
-		instance
+		axiosInstance
 			.patch('/access_key', {
 				user_id: $currentUser.id
 			})
@@ -38,6 +32,12 @@
 			});
 	};
 </script>
+
+<Seo
+	title="Access - ScreenshotAPI.dev"
+	description="Get a comprehensive overview of your projects and manage your screenshot capturing effortlessly with ScreenshotAPI.dev's powerful dashboard. Explore our documentation and enhance your web development workflow."
+	path="/access"
+/>
 
 <div class="gap-4 grid">
 	<div class="bg-white p-5 rounded-md">

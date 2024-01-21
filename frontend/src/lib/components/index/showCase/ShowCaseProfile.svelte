@@ -4,7 +4,20 @@
 	import Typewriter from 'typewriter-effect/dist/core';
 
     //@ts-ignore
-    import bg from '$lib/assets/image/index/cookiebot_with_banner.jpg?format=webp&quality=100&w=573&h=456';
+    import bg1 from '$lib/assets/image/index/modal.png?format=webp&quality=100&w=573&h=456';
+    //@ts-ignore
+    import bg2 from '$lib/assets/image/index/modalTest.png?format=webp&quality=100&w=573&h=456';
+
+	let bg = bg1;
+
+	const changeBg = () => {
+		if (bg === bg1) {
+			bg = bg2;
+		} else {
+			bg = bg1;
+		}
+	};
+
 
 	function displayApiResponse() {
 		const targetElement = document.getElementById('showcase1-response');
@@ -21,8 +34,10 @@
 			.pauseFor(1000) // Pause for 1 second before applying animations
 			.deleteAll() // Delete the existing text
 			.typeString('&custom=css') // Type the width query parameter
+			.callFunction(changeBg)
 			.pauseFor(1500) // Pause for 0.5 seconds before applying the next animation
             .deleteChars(3)
+			.callFunction(changeBg)
 			.typeString('loginbypass') // Type the height query parameter
 			.start()
 			.pauseFor(2000) // Pause for 2 seconds before restarting the animation
@@ -61,7 +76,7 @@
 			append <code
 				class="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold text-red-700"
 			>
-				&custom=changeBrowser
+				&custom=modal
 			</code> to your API call, and our service will render the page according to your specifications.
 			Perfect for:
 		</p>

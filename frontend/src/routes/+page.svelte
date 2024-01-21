@@ -7,15 +7,22 @@
 	import ShowCase from '$lib/components/index/ShowCase.svelte';
 	import PricingBox from '$lib/components/pricing/PricingBox.svelte';
 	import Footer from '$lib/components/index/Footer.svelte';
+	// import LangMain from '$lib/components/index/langsupport/LangMain.svelte';
+	import FaqIndex from '$lib/components/index/FaqIndex.svelte';
+
+	//seo
+	import Seo from '$lib/components/Seo.svelte';
 </script>
 
-<svelte:head>
+<!-- <svelte:head>
 	<title>ScreenshotAPI: Easy Webpage Screenshot API for Developers & Businesses</title>
 	<meta
 		name="description"
 		content="Discover ScreenshotAPI, the user-friendly screenshot API designed for seamless integration. Capture high-quality webpage screenshots with our fast, customizable tool. Ideal for developers and businesses, SnapCapture enhances your project with efficient web capture technology. Start simplifying your content management and web archiving today."
 	/>
-</svelte:head>
+</svelte:head> -->
+<Seo />
+
 <header>
 	<Navbar />
 	<div
@@ -29,11 +36,11 @@
 				>.
 			</h1>
 			<p class="text-lg text-gray-500 mt-5">
-                Effortless, High-Quality Webpage Screenshots in Seconds {'–'}
-                <strong>Fully Customizable to Fit Your Unique Needs.</strong>
-                Tailored for Developers and Businesses.
-                <a class="text-red-800 underline" href="/docs/introduction"> Learn More. </a>
-            </p>
+				Effortless, High-Quality Webpage Screenshots in Seconds {'–'}
+				<strong>Fully Customizable to Fit Your Unique Needs.</strong>
+				Tailored for Developers and Businesses.
+				<a class="text-red-800 underline" href="/docs/introduction"> Learn More. </a>
+			</p>
 			<a href="/playground">
 				<Button class="mt-5 flex items-center space-x-2 shadow-md"
 					>Get started for Free <Icon
@@ -55,8 +62,9 @@
 	<EverthingYouneed />
 	<!-- <Feature /> -->
 	<ShowCase />
-
+	<!-- <LangMain /> -->
 	<PricingBox />
+	<FaqIndex />
 </main>
 
 <Footer />

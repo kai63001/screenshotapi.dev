@@ -7,11 +7,12 @@
 	import toast, { Toaster } from 'svelte-french-toast';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
+	import Seo from '$lib/components/Seo.svelte';
 
 	onMount(async () => {
 		const isAuth = $currentUser;
 		if (isAuth) {
-			goto('/playground');
+			window.location.href = '/playground';
 		}
 	});
 
@@ -45,7 +46,7 @@
 			.then(() => {
 				loading = false;
 				setTimeout(() => {
-					goto('/playground');
+					window.location.href = '/playground';
 				}, 1500);
 			})
 			.catch((e) => {
@@ -55,6 +56,11 @@
 	};
 </script>
 
+<Seo
+	title="Login - ScreenshotAPI: Capture and Manage Web Screenshots"
+	description="Login to ScreenshotAPI and gain access to efficient and high-quality solutions for capturing and managing web screenshots. Sign in now to enhance your web development workflow."
+	path="/login"
+/>
 <div class="flex flex-col items-center justify-center min-h-screen bg-white">
 	<a href="/" class="absolute top-0 left-0 m-4 text-gray-800 text-sm font-bold">Home</a>
 	<h1 class="text-4xl font-bold text-gray-800 mb-6">

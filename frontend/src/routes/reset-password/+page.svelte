@@ -7,6 +7,7 @@
 	import toast, { Toaster } from 'svelte-french-toast';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
+	import Seo from '$lib/components/Seo.svelte';
 
 	onMount(async () => {
 		const isAuth = $currentUser;
@@ -50,6 +51,12 @@
     };
 
 </script>
+
+<Seo
+	title="Reset Password - ScreenshotAPI.dev"
+	description="Reset your password for ScreenshotAPI.dev. Enter your email address to receive a password reset link."
+	path="/reset-password"
+/>
 
 <div class="flex flex-col items-center justify-center min-h-screen bg-white">
 	<a href="/" class="absolute top-0 left-0 m-4 text-gray-800 text-sm font-bold">Home</a>
