@@ -25,6 +25,6 @@ pb.authStore.onChange(async (auth) => {
 export const axiosInstance = axios.create({
     baseURL: `${import.meta.env.VITE_API_URL}/v1`,
     headers: {
-        Authorization: 'Bearer ' + await pb?.authStore?.token
+        Authorization: 'Bearer ' + pb?.authStore?.token
     }
 });
